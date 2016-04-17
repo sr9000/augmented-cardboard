@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -69,9 +70,19 @@ public class MainActivity extends Activity {
             //surface holder to drawing on
             private SurfaceHolder surfaceHolder;
 
+            //paint for drawing
+            private Paint pLeft, pRight;
+
             //get surface on thread create
             public DrawThread(SurfaceHolder surfaceHolder) {
                 this.surfaceHolder = surfaceHolder;
+                pLeft = new Paint();
+                pLeft.setStyle(Paint.Style.FILL);
+                pLeft.setColor(Color.GREEN);
+
+                pRight = new Paint();
+                pRight.setStyle(Paint.Style.FILL);
+                pRight.setColor(Color.RED);
             }
 
             //enable cycle redrawing
@@ -89,7 +100,9 @@ public class MainActivity extends Activity {
                         canvas = surfaceHolder.lockCanvas(null);
                         if (canvas == null)
                             continue;
-                        canvas.drawColor(Color.GREEN);
+                        //draw action here
+                        canvas.drawRect(0, 0, canvas.getWidth()/2, canvas.getHeight(), pLeft);
+                        canvas.drawRect(canvas.getWidth()/2, 0, canvas.getWidth(), canvas.getHeight(), pRight);
                     } finally {
                         if (canvas != null) {
                             surfaceHolder.unlockCanvasAndPost(canvas);
