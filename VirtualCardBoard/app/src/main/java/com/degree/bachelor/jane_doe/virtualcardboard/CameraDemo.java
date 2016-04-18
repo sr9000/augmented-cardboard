@@ -1,8 +1,13 @@
 package com.degree.bachelor.jane_doe.virtualcardboard;
 
+import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.opengl.GLES10;
 import android.opengl.GLES20;
+import android.view.Surface;
+import android.view.TextureView;
 
 
 import java.io.IOException;
@@ -20,8 +25,9 @@ public class CameraDemo {
     private Camera cam;
     private int[] glTexture;
     private SurfaceTexture camTexture, specTexture;
+    private TextureView camTextureView, specTextureView;
 
-    public CameraDemo() {
+    public CameraDemo(Context context) {
         isNormalOpened = false;
         isNormalConfigured = false;
         isNeededFreeTextures = false;
@@ -29,6 +35,9 @@ public class CameraDemo {
         camTexture = null;
         specTexture = null;
         cam = null;
+
+        camTextureView = new TextureView(context);
+        specTextureView = new TextureView(context);
     }
 
     private void GetCameraInstance() {
@@ -81,14 +90,19 @@ public class CameraDemo {
     class TextureAdapter implements SurfaceTexture.OnFrameAvailableListener {
 
         private SurfaceTexture _targetTexture;
+        private Surface _targetSurface;
 
         TextureAdapter(SurfaceTexture targetTexture) {
             _targetTexture = targetTexture;
+            _targetSurface = new Surface(_targetTexture);
         }
 
         @Override
         public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+            surfaceTexture.updateTexImage();//todo try to delete it
             //todo implementation
+            Canvas canvas = _targetSurface.lockCanvas(null);
+            GLES20.glDr
         }
     }
 
@@ -154,8 +168,8 @@ public class CameraDemo {
         {//bind texture
             glTexture = new int[2];
             GLES20.glGenTextures(2, glTexture, 0);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glTexture[0]);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glTexture[1]);
+            //GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glTexture[0]);
+            //GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glTexture[1]);
 
             camTexture = new SurfaceTexture(glTexture[0]);
             camTexture.setDefaultBufferSize(bestSize.width, bestSize.height);
