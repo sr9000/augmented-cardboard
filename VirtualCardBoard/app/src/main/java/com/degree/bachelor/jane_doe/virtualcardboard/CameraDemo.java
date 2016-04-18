@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.hardware.Camera;
 import android.view.SurfaceView;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -13,6 +14,7 @@ import java.util.List;
  */
 public class CameraDemo {
     private boolean isNormalOpened;
+    private boolean isPreviewed;
 
     private Camera cam;
     private Context baseContext;
@@ -23,6 +25,7 @@ public class CameraDemo {
         baseContext = context;
         surfaceView = new SurfaceView(baseContext);
         isNormalOpened = false;
+        isPreviewed = false;
     }
 
     private void GetCameraInstance(){
@@ -44,11 +47,14 @@ public class CameraDemo {
 
     public void CloseCamera() {
         cam.release();
+        isPreviewed = false;
         isNormalOpened = false;
         cam = null;
-        Canvas canvas = surfaceView.getHolder().lockCanvas();
-        canvas.setBitmap(null);
-        surfaceView.getHolder().unlockCanvasAndPost(canvas);
+        {//UNset bitmap for canvas
+            Canvas canvas = surfaceView.getHolder().lockCanvas();
+            canvas.setBitmap(null);
+            surfaceView.getHolder().unlockCanvasAndPost(canvas);
+        }
         bitmap = null;
     }
 
@@ -56,7 +62,15 @@ public class CameraDemo {
         return isNormalOpened;
     }
 
-    public void SetSizes(int width, int height)
+    public boolean IsPrviewed() {
+        return isPreviewed;
+    }
+
+    public Bitmap GetCapturedBitmap() {
+        return bitmap;
+    }
+
+    public void startPreview(int width, int height)
     {
         if (!isNormalOpened) return;
 
@@ -116,6 +130,26 @@ public class CameraDemo {
         params.setPreviewSize(bestSize.width, bestSize.height);
 
         cam.setParameters(params);
-        //todo...
+
+        bitmap = Bitmap.createBitmap(bestSize.width, bestSize.height, Bitmap.Config.ARGB_8888);
+        {//set bitmap for canvas
+            Canvas canvas = surfaceView.getHolder().lockCanvas();
+            canvas.setBitmap(bitmap);
+            surfaceView.getHolder().unlockCanvasAndPost(canvas);
+        }
+
+        try {
+            cam.setPreviewDisplay(surfaceView.getHolder());
+        } catch (IOException e) {
+            //UNset bitmap for canvas
+            Canvas canvas = surfaceView.getHolder().lockCanvas();
+            canvas.setBitmap(null);
+            surfaceView.getHolder().unlockCanvasAndPost(canvas);
+            bitmap = null;
+        }
+
+        cam.startPreview();
+
+        isPreviewed = true;
     }
 }
