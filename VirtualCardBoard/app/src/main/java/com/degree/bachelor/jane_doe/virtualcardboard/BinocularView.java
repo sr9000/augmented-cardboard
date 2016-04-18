@@ -5,6 +5,69 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
+/**test implementation
+class Point {
+    public Point(){}
+    public Point(int X, int Y) {
+        x = X;
+        y = Y;
+    }
+    public int x, y;
+}
+class PointF {
+    public PointF(){}
+    public PointF(float X, float Y) {
+        x = X;
+        y = Y;
+    }
+    public float x, y;
+}
+class Rect {
+    public Rect(){}
+    public Rect(Rect r) {
+        left = r.left;
+        top = r.top;
+        right = r.right;
+        bottom = r.bottom;
+    }
+    public Rect(int Left, int Top, int Right, int Bottom) {
+        left = Left;
+        top = Top;
+        right = Right;
+        bottom = Bottom;
+    }
+    public int left, top, right, bottom;
+    public void set(int Left, int Top, int Right, int Bottom) {
+        left = Left;
+        top = Top;
+        right = Right;
+        bottom = Bottom;
+    }
+}
+class RectF {
+    public RectF(){}
+    public RectF(RectF r) {
+        left = r.left;
+        top = r.top;
+        right = r.right;
+        bottom = r.bottom;
+    }
+    public RectF(float Left, float Top, float Right, float Bottom) {
+        left = Left;
+        top = Top;
+        right = Right;
+        bottom = Bottom;
+    }
+    public float left, top, right, bottom;
+    public void set(float Left, float Top, float Right, float Bottom) {
+        left = Left;
+        top = Top;
+        right = Right;
+        bottom = Bottom;
+    }
+}
+*/
+
 /**
  * Created by Jane-Doe on 4/16/2016.
  */
@@ -23,10 +86,10 @@ public class BinocularView {
     private Rect _adaptedLeftViewWhere, _adaptedRightViewWhere;
 
     private static class CalcAdaptedViewsHelper {
-        static public Point transition(Point target, int tw, int th, int sw, int sh, double scale) {
-            Point res = new Point();
-            res.x = ((int)((target.x - tw / 2) * scale)) + sw / 2;
-            res.y = ((int)((target.y - th / 2) * scale)) + sh / 2;
+        static public PointF transition(Point target, int tw, int th, int sw, int sh, double scale) {
+            PointF res = new PointF();
+            res.x = ((float)((target.x - 0.5 * tw) * scale + 0.5 * sw));
+            res.y = ((float)((target.y - 0.5 * th) * scale + 0.5 * sh));
             return res;
         }
         static public PointF relative(Point abs, int l, int t, int r, int b) {
@@ -40,6 +103,14 @@ public class BinocularView {
             rel.x = (abs.x - l) / (r - l);
             rel.y = (abs.y - t) / (b - t);
             return rel;
+        }
+        static public Rect correct(RectF abs, RectF rel, int ml, int mt, int mr, int mb) {
+            Rect nabs = new Rect();
+            nabs.left = Math.max(ml, (int)((abs.right - abs.left) * rel.left + abs.left));
+            nabs.top = Math.max(mt, (int)((abs.bottom - abs.top) * rel.top + abs.top));
+            nabs.right = Math.min(mr, (int)((abs.right - abs.left) * rel.right + abs.left));
+            nabs.bottom = Math.min(mb, (int)((abs.bottom - abs.top) * rel.bottom + abs.top));
+            return nabs;
         }
         static public Rect correct(Rect abs, RectF rel, int ml, int mt, int mr, int mb) {
             Rect nabs = new Rect();
@@ -64,19 +135,19 @@ public class BinocularView {
             scale = ((double)width)/((double)_focusViewWidth);
 
         //convert coordinates of "from" in source bitmap notation
-        Rect leftFromAtSrc = new Rect();
+        RectF leftFromAtSrc = new RectF();
         {
-            Point p1 = CalcAdaptedViewsHelper.transition(new Point(_leftViewFrom.left, _leftViewFrom.top)
+            PointF p1 = CalcAdaptedViewsHelper.transition(new Point(_leftViewFrom.left, _leftViewFrom.top)
                     ,_focusViewWidth, _focusViewHeight, width, height, scale);
-            Point p2 = CalcAdaptedViewsHelper.transition(new Point(_leftViewFrom.right, _leftViewFrom.bottom)
+            PointF p2 = CalcAdaptedViewsHelper.transition(new Point(_leftViewFrom.right, _leftViewFrom.bottom)
                     ,_focusViewWidth, _focusViewHeight, width, height, scale);
             leftFromAtSrc.set(p1.x, p1.y, p2.x, p2.y);
         }
-        Rect rightFromAtSrc = new Rect();
+        RectF rightFromAtSrc = new RectF();
         {
-            Point p1 = CalcAdaptedViewsHelper.transition(new Point(_rightViewFrom.left, _rightViewFrom.top)
+            PointF p1 = CalcAdaptedViewsHelper.transition(new Point(_rightViewFrom.left, _rightViewFrom.top)
                     , _focusViewWidth, _focusViewHeight, width, height, scale);
-            Point p2 = CalcAdaptedViewsHelper.transition(new Point(_rightViewFrom.right, _rightViewFrom.bottom)
+            PointF p2 = CalcAdaptedViewsHelper.transition(new Point(_rightViewFrom.right, _rightViewFrom.bottom)
                     , _focusViewWidth, _focusViewHeight, width, height, scale);
             rightFromAtSrc.set(p1.x, p1.y, p2.x, p2.y);
         }
@@ -84,18 +155,18 @@ public class BinocularView {
         //calculate relative coordinates
         RectF leftRelFromAtSrc = new RectF();
         {
-            PointF p1 = CalcAdaptedViewsHelper.relative(new Point(leftFromAtSrc.left, leftFromAtSrc.top)
-                    , 0, 0, _focusViewWidth, _focusViewHeight);
-            PointF p2 = CalcAdaptedViewsHelper.relative(new Point(leftFromAtSrc.right, leftFromAtSrc.bottom)
-                    , 0, 0, _focusViewWidth, _focusViewHeight);
+            PointF p1 = CalcAdaptedViewsHelper.relative(new PointF(leftFromAtSrc.left, leftFromAtSrc.top)
+                    , 0, 0, width, height);
+            PointF p2 = CalcAdaptedViewsHelper.relative(new PointF(leftFromAtSrc.right, leftFromAtSrc.bottom)
+                    , 0, 0, width, height);
             leftRelFromAtSrc.set(p1.x, p1.y, p2.x, p2.y);
         }
         RectF rightRelFromAtSrc = new RectF();
         {
-            PointF p1 = CalcAdaptedViewsHelper.relative(new Point(rightFromAtSrc.left, rightFromAtSrc.top)
-                    , 0, 0, _focusViewWidth, _focusViewHeight);
-            PointF p2 = CalcAdaptedViewsHelper.relative(new Point(rightFromAtSrc.right, rightFromAtSrc.bottom)
-                    , 0, 0, _focusViewWidth, _focusViewHeight);
+            PointF p1 = CalcAdaptedViewsHelper.relative(new PointF(rightFromAtSrc.left, rightFromAtSrc.top)
+                    , 0, 0, width, height);
+            PointF p2 = CalcAdaptedViewsHelper.relative(new PointF(rightFromAtSrc.right, rightFromAtSrc.bottom)
+                    , 0, 0, width, height);
             rightRelFromAtSrc.set(p1.x, p1.y, p2.x, p2.y);
         }
 
@@ -136,10 +207,10 @@ public class BinocularView {
         }
 
         //correct all coordinates
-        _adaptedLeftViewFrom = CalcAdaptedViewsHelper.correct(leftFromAtSrc, leftCorrectProportion, 0, 0, _focusViewWidth, _focusViewHeight);
+        _adaptedLeftViewFrom = CalcAdaptedViewsHelper.correct(leftFromAtSrc, leftCorrectProportion, 0, 0, width, height);
         _adaptedLeftViewWhere = CalcAdaptedViewsHelper.correct(_leftViewWhere, leftCorrectProportion, 0, 0, _displayWidth, _displayHeight);
 
-        _adaptedRightViewFrom = CalcAdaptedViewsHelper.correct(rightFromAtSrc, rightCorrectProportion, 0, 0, _focusViewWidth, _focusViewHeight);
+        _adaptedRightViewFrom = CalcAdaptedViewsHelper.correct(rightFromAtSrc, rightCorrectProportion, 0, 0, width, height);
         _adaptedRightViewWhere = CalcAdaptedViewsHelper.correct(_rightViewWhere, rightCorrectProportion, 0, 0, _displayWidth, _displayHeight);
     }
 
@@ -163,8 +234,8 @@ public class BinocularView {
         info.simpleViewHeight = _focusViewHeight;
         info.simpleViewWidth = _focusViewWidth;
 
-        info.eyeViewHeight = _leftViewFrom.height();
-        info.eyeViewWidth = _leftViewFrom.width();
+        info.eyeViewHeight = _leftViewFrom.bottom - _leftViewFrom.top;
+        info.eyeViewWidth = _leftViewFrom.right - _leftViewFrom.left;
 
         info.rightCenterX = _rightCenterX;
         info.rightCenterY = _rightCenterY;
@@ -228,7 +299,7 @@ public class BinocularView {
         _focusVerticalCoordinate = BoundValue(0, _focusVerticalCoordinate, _displayHeight);
 
         _focusViewHeight = BoundValue(0, _focusViewHeight,
-                Math.min(_focusVerticalCoordinate, _displayHeight - _focusVerticalCoordinate));
+                2 * Math.min(_focusVerticalCoordinate, _displayHeight - _focusVerticalCoordinate));
         _focusViewWidth = BoundValue(0, _focusViewWidth,
                 Math.max(_focusDistance, _displayWidth - _focusDistance));
     }
