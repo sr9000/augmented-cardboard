@@ -1,6 +1,10 @@
 package com.degree.bachelor.jane_doe.virtualcardboard;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.hardware.Camera;
+import android.view.SurfaceView;
 
 import java.util.List;
 
@@ -10,9 +14,14 @@ import java.util.List;
 public class CameraDemo {
     private boolean isNormalOpened;
 
-    Camera cam;
+    private Camera cam;
+    private Context baseContext;
+    private SurfaceView surfaceView;
+    private Bitmap bitmap;
 
-    CameraDemo() {
+    CameraDemo(Context context) {
+        baseContext = context;
+        surfaceView = new SurfaceView(baseContext);
         isNormalOpened = false;
     }
 
@@ -30,10 +39,17 @@ public class CameraDemo {
     public void OpenCamera()
     {
         GetCameraInstance();
-        if (cam == null) {
-            isNormalOpened = false;
-            return;
-        }
+        isNormalOpened = !(cam == null);
+    }
+
+    public void CloseCamera() {
+        cam.release();
+        isNormalOpened = false;
+        cam = null;
+        Canvas canvas = surfaceView.getHolder().lockCanvas();
+        canvas.setBitmap(null);
+        surfaceView.getHolder().unlockCanvasAndPost(canvas);
+        bitmap = null;
     }
 
     public boolean IsNormalOpened() {
