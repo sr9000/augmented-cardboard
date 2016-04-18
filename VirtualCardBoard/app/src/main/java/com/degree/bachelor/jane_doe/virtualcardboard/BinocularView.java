@@ -51,6 +51,7 @@ public class BinocularView {
         }
     }
 
+    //adapt real size of source bitmap to _focusViewWidth & _focusViewHeight sizes
     public void CalcAdaptedViews(int width, int height) {
         double targetRatio = ((double)_focusViewWidth)/((double)_focusViewHeight);
         double srcRation = ((double)width)/((double)height);
@@ -192,12 +193,22 @@ public class BinocularView {
         CalcRectangles();
     }
 
+    public void SetCustomBinocularParams(int focusDistance, int focusVerticalCoordinate, int focusViewWidth, int focusViewHeight) {
+        _focusDistance = focusDistance;
+        _focusVerticalCoordinate = focusVerticalCoordinate;
+
+        _focusViewWidth = focusViewWidth;
+        _focusViewHeight = focusViewHeight;
+
+        CalcRectangles();
+    }
+
     private static int BoundValue(int min, int val, int max) {
         return Math.min(Math.max(val, min), max);
     }
 
     private void VerificateBinocularParams() {
-        _focusDistance = BoundValue(0, _displayWidth, _focusDistance);
+        _focusDistance = BoundValue(0, _focusDistance, _displayWidth);
         _focusVerticalCoordinate = BoundValue(0, _focusVerticalCoordinate, _displayHeight);
 
         _focusViewHeight = BoundValue(0, _focusViewHeight,
@@ -207,6 +218,8 @@ public class BinocularView {
     }
 
     private void CalcRectangles() {
+        VerificateBinocularParams();
+        
         _leftCenterX = Math.min(_focusViewWidth / 2, (_displayWidth - _focusDistance) / 2);
         _rightCenterX = Math.min(_focusViewWidth / 2, _focusDistance / 2);
 
