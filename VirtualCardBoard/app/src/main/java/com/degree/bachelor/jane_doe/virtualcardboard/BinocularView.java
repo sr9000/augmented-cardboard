@@ -19,7 +19,7 @@ public class BinocularView {
     private int _leftCenterX, _leftCenterY;
     private int _rightCenterX, _rightCenterY;
 
-    private Rect _adaptedLeftViewFrom, _adaptedRightViewFrom;//todo
+    private Rect _adaptedLeftViewFrom, _adaptedRightViewFrom;
     private Rect _adaptedLeftViewWhere, _adaptedRightViewWhere;
 
     private static class CalcAdaptedViewsHelper {
@@ -149,6 +149,12 @@ public class BinocularView {
 
         public int leftCenterX, leftCenterY;
         public int rightCenterX, rightCenterY;
+
+        public Rect leftViewFrom, rightViewFrom;
+        public Rect leftViewWhere, rightViewWhere;
+
+        public Rect adaptedLeftViewFrom, adaptedRightViewFrom;
+        public Rect adaptedLeftViewWhere, adaptedRightViewWhere;
     }
 
     public BinocularInfo getBinocularInfo() {
@@ -165,6 +171,16 @@ public class BinocularView {
 
         info.leftCenterX = _leftCenterX;
         info.leftCenterY = _leftCenterY;
+
+        info.leftViewFrom = new Rect(_leftViewFrom);
+        info.leftViewWhere = new Rect(_leftViewWhere);
+        info.rightViewFrom = new Rect(_rightViewFrom);
+        info.rightViewWhere = new Rect(_rightViewWhere);
+
+        info.adaptedLeftViewFrom = new Rect(_adaptedLeftViewFrom);
+        info.adaptedLeftViewWhere = new Rect(_adaptedLeftViewWhere);
+        info.adaptedRightViewFrom = new Rect(_adaptedRightViewFrom);
+        info.adaptedRightViewWhere = new Rect(_adaptedRightViewWhere);
 
         return info;
     }
@@ -219,7 +235,7 @@ public class BinocularView {
 
     private void CalcRectangles() {
         VerificateBinocularParams();
-        
+
         _leftCenterX = Math.min(_focusViewWidth / 2, (_displayWidth - _focusDistance) / 2);
         _rightCenterX = Math.min(_focusViewWidth / 2, _focusDistance / 2);
 
