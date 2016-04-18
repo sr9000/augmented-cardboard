@@ -45,20 +45,24 @@ public class CameraDemo {
         if (!isNormalOpened) return;
 
         Camera.Parameters params = cam.getParameters();
+
+        int[] bestRange;
         {//set best fps range
             List<int[]> fpsRanges = params.getSupportedPreviewFpsRange();
-            int[] bestRange = fpsRanges.get(0);
+            bestRange = fpsRanges.get(0);
             for (int[] range : fpsRanges)
             {
                 if (range[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] > bestRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX])
                     bestRange = range;
             }
-            params.setPreviewFpsRange(bestRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX], bestRange[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
         }
+        params.setPreviewFpsRange(bestRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX], bestRange[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
+
+        Camera.Size bestSize;
         {//set enough size
             double targetRatio = ((double)width) / ((double)height);
             List<Camera.Size> sizes = params.getSupportedPreviewSizes();
-            Camera.Size bestSize = sizes.get(0);
+            bestSize = sizes.get(0);
             double bestSizeRatio = ((double)bestSize.width) / ((double)bestSize.height);
             double bestSizeScale = (bestSizeRatio > targetRatio)? ((double)width) / ((double)bestSize.width) : ((double)height) / ((double)bestSize.height);
             double bestSizeSquare = bestSizeScale * bestSizeScale * ((double)bestSize.width) * ((double)bestSize.height);
@@ -76,7 +80,7 @@ public class CameraDemo {
                         if (sizeScale > bestSizeScale && sizeScale < 1.01) {
                             bestSize = size;
                             bestSizeScale = sizeScale;
-                            bestSizeSquare = sizeSquare
+                            bestSizeSquare = sizeSquare;
                         }
                     } else if (sizeScale < bestSizeScale) {
                         //select biggest source sizes
@@ -92,8 +96,10 @@ public class CameraDemo {
                     bestSizeSquare = sizeSquare;
                 }
             }
-            params.setPreviewSize(bestSize.width, bestSize.height);
         }
+        params.setPreviewSize(bestSize.width, bestSize.height);
+
+        cam.setParameters(params);
         //todo...
     }
 }
