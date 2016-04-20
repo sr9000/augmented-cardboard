@@ -8,7 +8,9 @@ import android.hardware.Camera;
 import android.opengl.GLES10;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.view.Surface;
+import android.view.SurfaceView;
 import android.view.TextureView;
 
 
@@ -20,7 +22,7 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * Created by Jane-Doe on 4/18/2016.
  */
-public class CameraDemo {
+public class CameraDemo implements SurfaceTexture.OnFrameAvailableListener {
     private boolean isNormalOpened;
     private boolean isNormalConfigured;
 
@@ -104,7 +106,12 @@ public class CameraDemo {
     }
 
     public Bitmap getCapturedBitmap() {
-        return bitmap;
+        GLES30
+    }
+
+    @Override
+    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+
     }
 
     private void Configure(int width, int height) throws IOException {
@@ -189,21 +196,21 @@ public class CameraDemo {
 
             camTexture = new SurfaceTexture(glTexture[0]);
 
-            //camTexture.setOnFrameAvailableListener(new TextureAdapter(specTexture));
+            camTexture.setOnFrameAvailableListener(this);
 
             isNeededFreeTextures = true;
         }
 
-        specSurface = new Surface(camTexture);
+        cam.setPreviewTexture(camTexture);
+
+        /*specSurface = new Surface(camTexture);
         {//set bitmap
             Canvas cn = null;
             while(cn == null)
                 cn = specSurface.lockCanvas(null);
             cn.setBitmap(bitmap);
             specSurface.unlockCanvasAndPost(cn);
-        }
-
-        cam.setPreviewTexture(camTexture);
+        }*/
 
         isNormalConfigured = true;
     }
