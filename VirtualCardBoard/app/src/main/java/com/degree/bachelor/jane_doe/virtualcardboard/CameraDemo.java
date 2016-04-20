@@ -33,7 +33,17 @@ public class CameraDemo {
     private Bitmap bitmap;
     private Surface specSurface;
 
-    public CameraDemo(Context context) {
+    private int width, height;
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public CameraDemo() {
         isNormalOpened = false;
         isNormalConfigured = false;
         isNeededFreeTextures = false;
@@ -93,7 +103,7 @@ public class CameraDemo {
         GLES20.glDeleteTextures(1, glTexture, 0);
     }
 
-    public Bitmap GetCapturedBitmap() {
+    public Bitmap getCapturedBitmap() {
         return bitmap;
     }
 
@@ -152,6 +162,9 @@ public class CameraDemo {
             }
         }
         params.setPreviewSize(bestSize.width, bestSize.height);
+        width = bestSize.width;
+        height = bestSize.height;
+
         bitmap = Bitmap.createBitmap(bestSize.width, bestSize.height, Bitmap.Config.ARGB_8888);
 
         cam.setParameters(params);

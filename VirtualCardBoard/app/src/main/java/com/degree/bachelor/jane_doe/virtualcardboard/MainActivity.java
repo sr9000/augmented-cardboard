@@ -2,6 +2,7 @@ package com.degree.bachelor.jane_doe.virtualcardboard;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -73,6 +74,13 @@ public class MainActivity extends Activity {
             //paint for drawing
             private Paint pLeft, pRight;
 
+            //Binocular
+            BinocularView bv;
+            BinocularView.BinocularInfo bv_info;
+
+            //camDemo
+            private CameraDemo cam;
+
             //get surface on thread create
             public DrawThread(SurfaceHolder surfaceHolder) {
                 this.surfaceHolder = surfaceHolder;
@@ -83,6 +91,14 @@ public class MainActivity extends Activity {
                 pRight = new Paint();
                 pRight.setStyle(Paint.Style.FILL);
                 pRight.setColor(Color.RED);
+
+                bv = new BinocularView(960, 480);
+                bv_info = bv.getBinocularInfo();
+
+                cam = new CameraDemo();
+                cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
+                bv.CalcAdaptedViews(cam.getWidth(), cam.getHeight());
+                bv_info = bv.getBinocularInfo();
             }
 
             //enable cycle redrawing
@@ -95,14 +111,16 @@ public class MainActivity extends Activity {
             public void run() {
                 Canvas canvas;
                 while (running) {
+                    Bitmap captured = cam.getCapturedBitmap();
                     canvas = null;
                     try {
                         canvas = surfaceHolder.lockCanvas(null);
                         if (canvas == null)
                             continue;
                         //draw action here
-                        canvas.drawRect(0, 0, canvas.getWidth()/2, canvas.getHeight(), pLeft);
-                        canvas.drawRect(canvas.getWidth()/2, 0, canvas.getWidth(), canvas.getHeight(), pRight);
+                        canvas.drawBitmap(captured, bv_info.adaptedLeftViewFrom, bv_info.adaptedLeftViewWhere, null);
+                        canvas.drawBitmap(captured, bv_info.adaptedRightViewFrom, bv_info.adaptedRightViewWhere, null);
+
                     } finally {
                         if (canvas != null) {
                             surfaceHolder.unlockCanvasAndPost(canvas);
