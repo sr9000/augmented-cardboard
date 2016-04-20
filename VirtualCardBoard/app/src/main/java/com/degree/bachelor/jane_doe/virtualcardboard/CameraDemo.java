@@ -1,10 +1,12 @@
 package com.degree.bachelor.jane_doe.virtualcardboard;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.GLES10;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.view.Surface;
 import android.view.TextureView;
@@ -12,6 +14,8 @@ import android.view.TextureView;
 
 import java.io.IOException;
 import java.util.List;
+
+import javax.microedition.khronos.opengles.GL10;
 
 /**
  * Created by Jane-Doe on 4/18/2016.
@@ -23,9 +27,11 @@ public class CameraDemo {
     private boolean isNeededFreeTextures;
 
     private Camera cam;
+    
     private int[] glTexture;
-    private SurfaceTexture camTexture, specTexture;
-    private TextureView camTextureView, specTextureView;
+    private SurfaceTexture camTexture;
+    private Bitmap bitmap;
+    private Surface specSurface;
 
     public CameraDemo(Context context) {
         isNormalOpened = false;
@@ -33,11 +39,9 @@ public class CameraDemo {
         isNeededFreeTextures = false;
         glTexture = null;
         camTexture = null;
-        specTexture = null;
+        bitmap = null;
+        specSurface = null;
         cam = null;
-
-        camTextureView = new TextureView(context);
-        specTextureView = new TextureView(context);
     }
 
     private void GetCameraInstance() {
@@ -82,33 +86,19 @@ public class CameraDemo {
     }
 
     private void FreeTextures() {
+        specSurface.release();
+        specSurface = null;
         camTexture.detachFromGLContext();
-        specTexture.detachFromGLContext();
-        GLES20.glDeleteTextures(2, glTexture, 0);
+        bitmap = null;
+        GLES20.glDeleteTextures(1, glTexture, 0);
     }
 
-    class TextureAdapter implements SurfaceTexture.OnFrameAvailableListener {
-
-        private SurfaceTexture _targetTexture;
-        private Surface _targetSurface;
-
-        TextureAdapter(SurfaceTexture targetTexture) {
-            _targetTexture = targetTexture;
-            _targetSurface = new Surface(_targetTexture);
-        }
-
-        @Override
-        public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-            surfaceTexture.updateTexImage();//todo try to delete it
-            //todo implementation
-            Canvas canvas = _targetSurface.lockCanvas(null);
-            GLES20.glDr
-        }
+    public Bitmap GetCapturedBitmap() {
+        return bitmap;
     }
 
     private void Configure(int width, int height) throws IOException {
         if (!isNormalOpened) return;
-
 
         Camera.Parameters params = cam.getParameters();
 
@@ -120,8 +110,8 @@ public class CameraDemo {
                 if (range[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] > bestRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX])
                     bestRange = range;
             }
-            params.setPreviewFpsRange(bestRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX], bestRange[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
         }
+        params.setPreviewFpsRange(bestRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX], bestRange[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
 
         Camera.Size bestSize;
         {//set enough size
@@ -160,29 +150,48 @@ public class CameraDemo {
                     bestSizeSquare = sizeSquare;
                 }
             }
-            params.setPreviewSize(bestSize.width, bestSize.height);
         }
+        params.setPreviewSize(bestSize.width, bestSize.height);
+        bitmap = Bitmap.createBitmap(bestSize.width, bestSize.height, Bitmap.Config.ARGB_8888);
 
         cam.setParameters(params);
 
         {//bind texture
-            glTexture = new int[2];
-            GLES20.glGenTextures(2, glTexture, 0);
-            //GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glTexture[0]);
-            //GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glTexture[1]);
+            glTexture = new int[1];
+
+            GLES20.glGenTextures(1, glTexture, 0);
+            GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, glTexture[0]);
+            // No mip-mapping with camera source.
+            GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                    GL10.GL_TEXTURE_MIN_FILTER,
+                    GL10.GL_LINEAR);
+            GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                    GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
+            // Clamp to edge is only option.
+            GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                    GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
+            GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                    GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE);
+
 
             camTexture = new SurfaceTexture(glTexture[0]);
-            camTexture.setDefaultBufferSize(bestSize.width, bestSize.height);
 
-            specTexture = new SurfaceTexture(glTexture[1]);
-            specTexture.setDefaultBufferSize(width, height);
-
-            camTexture.setOnFrameAvailableListener(new TextureAdapter(specTexture));
+            //camTexture.setOnFrameAvailableListener(new TextureAdapter(specTexture));
 
             isNeededFreeTextures = true;
         }
 
+        specSurface = new Surface(camTexture);
+        {//set bitmap
+            Canvas cn = null;
+            while(cn == null)
+                cn = specSurface.lockCanvas(null);
+            cn.setBitmap(bitmap);
+            specSurface.unlockCanvasAndPost(cn);
+        }
+
         cam.setPreviewTexture(camTexture);
+
         isNormalConfigured = true;
     }
 }
