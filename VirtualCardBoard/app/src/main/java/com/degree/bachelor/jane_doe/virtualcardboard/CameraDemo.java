@@ -219,17 +219,22 @@ public class CameraDemo implements Camera.PreviewCallback {
             y4 = nv21Buffer[i4]&0xff;
 
             //NV21
-            v = (nv21Buffer[i5]&0xff) - 128;
-            u = (nv21Buffer[i6]&0xff) - 128;
+            r = (nv21Buffer[i5]&0xff) - 128;
+            b = ((nv21Buffer[i6]&0xff) - 128)<<1;
 
             //YV12
             //u = data[offset+k  ]&0xff - 128;
             //v = data[offset+k + size/4]&0xff - 128;
 
             {//inline packed convertYUVtoABGRpacked
-                r = (int)(1.772f*v);//(int)(1.772f*v);
-                g = (int)(0.344f*v + 0.714f*u);//(int)(0.344f*v + 0.714f*u);
-                b = (int)(1.402f*u);//(int)(1.402f*u);
+                //r = (int)(1.13983*v);//(int)(1.772f*v);
+                //g = (int)(0.39465f*v + 0.58060f*u);//(int)(0.344f*v + 0.714f*u);
+                //b = (int)(2.03211f*u);//(int)(1.402f*u);
+
+                //b = u<<1;//(int)(1.402f*u);
+                //r = v;//(int)(1.772f*v);
+                g = ((r<<2) + b + (b<<1))/10;//(int)(0.344f*v + 0.714f*u);
+
 
                 if (r > 0) {
                     t3 = (t3=(y1 + r))>255? 255 : t3;
@@ -244,33 +249,33 @@ public class CameraDemo implements Camera.PreviewCallback {
                 }
 
                 if (g < 0) {
-                    t2 = (t2=(y1 - g))>255? 255 : t2;
-                    p2 = (p2=(y2 - g))>255? 255 : p2;
-                    o2 = (o2=(y3 - g))>255? 255 : o2;
-                    s2 = (s2=(y4 - g))>255? 255 : s2;
+                    t2 = ((t2=(y1 - g))>255? 255 : t2)<<8;
+                    p2 = ((p2=(y2 - g))>255? 255 : p2)<<8;
+                    o2 = ((o2=(y3 - g))>255? 255 : o2)<<8;
+                    s2 = ((s2=(y4 - g))>255? 255 : s2)<<8;
                 } else {
-                    t2 = (t2=(y1 - g))<0? 0 : t2;
-                    p2 = (p2=(y2 - g))<0? 0 : p2;
-                    o2 = (o2=(y3 - g))<0? 0 : o2;
-                    s2 = (s2=(y4 - g))<0? 0 : s2;
+                    t2 = ((t2=(y1 - g))<0? 0 : t2)<<8;
+                    p2 = ((p2=(y2 - g))<0? 0 : p2)<<8;
+                    o2 = ((o2=(y3 - g))<0? 0 : o2)<<8;
+                    s2 = ((s2=(y4 - g))<0? 0 : s2)<<8;
                 }
 
                 if (b > 0) {
-                    t1 = (t1=(y1 + b))>255? 255 : t1;
-                    p1 = (p1=(y2 + b))>255? 255 : p1;
-                    o1 = (o1=(y3 + b))>255? 255 : o1;
-                    s1 = (s1=(y4 + b))>255? 255 : s1;
+                    t1 = ((t1=(y1 + b))>255? 255 : t1)<<16;
+                    p1 = ((p1=(y2 + b))>255? 255 : p1)<<16;
+                    o1 = ((o1=(y3 + b))>255? 255 : o1)<<16;
+                    s1 = ((s1=(y4 + b))>255? 255 : s1)<<16;
                 } else {
-                    t1 = (t1=(y1 + b))<0? 0 : t1;
-                    p1 = (p1=(y2 + b))<0? 0 : p1;
-                    o1 = (o1=(y3 + b))<0? 0 : o1;
-                    s1 = (s1=(y4 + b))<0? 0 : s1;
+                    t1 = ((t1=(y1 + b))<0? 0 : t1)<<16;
+                    p1 = ((p1=(y2 + b))<0? 0 : p1)<<16;
+                    o1 = ((o1=(y3 + b))<0? 0 : o1)<<16;
+                    s1 = ((s1=(y4 + b))<0? 0 : s1)<<16;
                 }
 
-                abgrBuffer[i1] = 0xff000000 | (t1<<16) | (t2<<8) | t3;
-                abgrBuffer[i2] = 0xff000000 | (p1<<16) | (p2<<8) | p3;
-                abgrBuffer[i3] = 0xff000000 | (o1<<16) | (o2<<8) | o3;
-                abgrBuffer[i4] = 0xff000000 | (s1<<16) | (s2<<8) | s3;
+                abgrBuffer[i1] = 0xff000000 | t1 | t2 | t3;
+                abgrBuffer[i2] = 0xff000000 | p1 | p2 | p3;
+                abgrBuffer[i3] = 0xff000000 | o1 | o2 | o3;
+                abgrBuffer[i4] = 0xff000000 | s1 | s2 | s3;
             }
 
             if ((i2 % width) == subwidth) {
