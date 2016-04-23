@@ -8,8 +8,11 @@ import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.Buffer;
+import java.nio.IntBuffer;
 import java.util.List;
 
 /**
@@ -30,7 +33,7 @@ public class CameraDemo implements Camera.PreviewCallback {
     private SurfaceTexture camTexture;
     private Bitmap bitmap;
 
-    ByteArrayOutputStream baos;
+    int abgrBuffer[];
 
     private int _width, _height;
 
@@ -49,6 +52,7 @@ public class CameraDemo implements Camera.PreviewCallback {
         camTexture = null;
         bitmap = null;
         gBuffer = null;
+        abgrBuffer = null;
         cam = null;
     }
 
@@ -75,7 +79,6 @@ public class CameraDemo implements Camera.PreviewCallback {
             isNormalConfigured = false;
         }
         if (isNormalOpened && isNormalConfigured) {
-            baos = new ByteArrayOutputStream();
             cam.startPreview();
         } else {
             StopPreview();
@@ -100,7 +103,8 @@ public class CameraDemo implements Camera.PreviewCallback {
         bitmap = null;
         gBuffer = null;
 
-        baos = null;
+        //baos = null;
+        abgrBuffer = null;
 
         isNormalOpened = false;
         isNormalConfigured = false;
@@ -133,12 +137,12 @@ public class CameraDemo implements Camera.PreviewCallback {
             bestSize = sizes.get(0);
             double bestSizeRatio = ((double) bestSize.width) / ((double) bestSize.height);
             double bestSizeScale = (bestSizeRatio > targetRatio) ? ((double) width) / ((double) bestSize.width) : ((double) height) / ((double) bestSize.height);
-            double bestSizeSquare = bestSizeScale * bestSizeScale * ((double) bestSize.width) * ((double) bestSize.height);
+            double bestSizeSquare = Math.min(1.0, bestSizeScale) * Math.min(1.0, bestSizeScale) * ((double) bestSize.width) * ((double) bestSize.height);
 
             for (Camera.Size size : sizes) {
                 double sizeRatio = ((double) size.width) / ((double) size.height);
                 double sizeScale = (sizeRatio > targetRatio) ? ((double) width) / ((double) size.width) : ((double) height) / ((double) size.height);
-                double sizeSquare = sizeScale * sizeScale * ((double) size.width) * ((double) size.height);
+                double sizeSquare = Math.min(1.0, sizeScale) * Math.min(1.0, sizeScale) * ((double) size.width) * ((double) size.height);
 
                 //main condition
                 if (Math.abs(sizeSquare - bestSizeSquare) / Math.max(sizeSquare, bestSizeSquare) < 0.01) {
@@ -182,6 +186,7 @@ public class CameraDemo implements Camera.PreviewCallback {
 
         bitmap = Bitmap.createBitmap(bestSize.width, bestSize.height, Bitmap.Config.ARGB_8888);
         gBuffer = new byte[(_width * _height * (ImageFormat.getBitsPerPixel(params.getPreviewFormat())) + 7) / 8];
+        abgrBuffer = new int[_width * _height];
 
         cam.addCallbackBuffer(gBuffer);
         cam.setPreviewCallbackWithBuffer(this);
@@ -189,17 +194,58 @@ public class CameraDemo implements Camera.PreviewCallback {
         isNormalConfigured = true;
     }
 
+    //BGR!!!
+    public static void convertYUV420_NV21toABGR8888(int[] abgrBuffer, byte [] nv21Buffer, int width, int height) {
+        int size = width*height;
+        int offset = size;
+        int u, v, y1, y2, y3, y4;
+
+        // i along Y and the final pixels
+        // k along pixels U and V
+        for(int i=0, k=0; i < size; i+=2, k+=2) {
+            y1 = nv21Buffer[i  ]&0xff;
+            y2 = nv21Buffer[i+1]&0xff;
+            y3 = nv21Buffer[width+i  ]&0xff;
+            y4 = nv21Buffer[width+i+1]&0xff;
+
+            //NV21
+            v = nv21Buffer[offset+k  ]&0xff;
+            u = nv21Buffer[offset+k+1]&0xff;
+
+            //YV12
+            //u = data[offset+k  ]&0xff;
+            //v = data[offset+k + size/4]&0xff;
+
+            v = v-128;
+            u = u-128;
+
+            abgrBuffer[i  ] = convertYUVtoABGR(y1, u, v);
+            abgrBuffer[i+1] = convertYUVtoABGR(y2, u, v);
+            abgrBuffer[width+i  ] = convertYUVtoABGR(y3, u, v);
+            abgrBuffer[width+i+1] = convertYUVtoABGR(y4, u, v);
+
+            if (i!=0 && (i+2)%width==0)
+                i += width;
+        }
+    }
+
+    private static int convertYUVtoABGR(int y, int u, int v) {
+        int r = y + (int)(1.772f*v);
+        int g = y - (int)(0.344f*v + 0.714f*u);
+        int b = y + (int)(1.402f*u);
+        r = r>255? 255 : r<0 ? 0 : r;
+        g = g>255? 255 : g<0 ? 0 : g;
+        b = b>255? 255 : b<0 ? 0 : b;
+        return 0xff000000 | (b<<16) | (g<<8) | r;
+    }
+
     @Override
     public void onPreviewFrame(byte[] bytes, Camera camera) {
         if (!IsStarted()) return;
 
-        YuvImage yuvImage = new YuvImage(bytes, ImageFormat.NV21, _width, _height, null);
+        //software decoding
+        convertYUV420_NV21toABGR8888(abgrBuffer, bytes, _width, _height);
         camera.addCallbackBuffer(gBuffer);
-        baos.reset();
-        yuvImage.compressToJpeg(new Rect(0, 0, _width, _height), 80, baos);
-        byte[] streamBuffer = baos.toByteArray();
-        BitmapFactory.Options bitmapFactoryOptions = new BitmapFactory.Options();
-        bitmapFactoryOptions.inPreferredConfig = Bitmap.Config.RGB_565;
-        bitmap = BitmapFactory.decodeByteArray(streamBuffer, 0, streamBuffer.length, bitmapFactoryOptions);
+        bitmap.copyPixelsFromBuffer(IntBuffer.wrap(abgrBuffer));
     }
 }
