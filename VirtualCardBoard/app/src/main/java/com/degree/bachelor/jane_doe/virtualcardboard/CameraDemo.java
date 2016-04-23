@@ -198,6 +198,8 @@ public class CameraDemo implements Camera.PreviewCallback {
     public static void convertYUV420_NV21toABGR8888(int[] abgrBuffer, byte [] nv21Buffer, int width, int height) {
         int size = width*height;
         int offset = size;
+        int width2 = width + 2;
+        int subwidth = width - 1;
         int u, v, y1, y2, y3, y4;
         int b, g, r;
         int t1, t2, t3;
@@ -210,8 +212,8 @@ public class CameraDemo implements Camera.PreviewCallback {
         int i1 = 0, i2 = 1
             , i3 = width, i4 = width+1
             , i5 = offset, i6 = offset+1;
-        for(; i1 < size; i1+=2, i2+=2, i3+=2, i4+=2, i5+=2, i6+=2) {
-            y1 = nv21Buffer[i1  ]&0xff;
+        while(i1 < size) {
+            y1 = nv21Buffer[i1]&0xff;
             y2 = nv21Buffer[i2]&0xff;
             y3 = nv21Buffer[i3]&0xff;
             y4 = nv21Buffer[i4]&0xff;
@@ -225,34 +227,65 @@ public class CameraDemo implements Camera.PreviewCallback {
             //v = data[offset+k + size/4]&0xff - 128;
 
             {//inline packed convertYUVtoABGRpacked
-                r = (int)(1.6f*v);//(int)(1.772f*v);
-                g = (int)(0.3f*v + 0.6f*u);//(int)(0.344f*v + 0.714f*u);
-                b = (int)(1.3f*u);//(int)(1.402f*u);
+                r = (int)(1.772f*v);//(int)(1.772f*v);
+                g = (int)(0.344f*v + 0.714f*u);//(int)(0.344f*v + 0.714f*u);
+                b = (int)(1.402f*u);//(int)(1.402f*u);
 
-                abgrBuffer[i1] = 0xff000000
-                        | (((t1=(y1 + b))>255? 255 : t1 < 0 ? 0 : t1)<<16)
-                        | (((t2=(y1 - g))>255? 255 : t2 < 0 ? 0 : t2)<<8)
-                        | ((t3=(y1 + r))>255? 255 : t3 < 0 ? 0 : t3);
-                abgrBuffer[i2] = 0xff000000
-                        | (((p1=(y1 + b))>255? 255 : p1 < 0 ? 0 : p1)<<16)
-                        | (((p2=(y1 - g))>255? 255 : p2 < 0 ? 0 : p2)<<8)
-                        | ((p3=(y1 + r))>255? 255 : p3 < 0 ? 0 : p3);
-                abgrBuffer[i3] = 0xff000000
-                        | (((o1=(y1 + b))>255? 255 : o1 < 0 ? 0 : o1)<<16)
-                        | (((o2=(y1 - g))>255? 255 : o2 < 0 ? 0 : o2)<<8)
-                        | ((o3=(y1 + r))>255? 255 : o3 < 0 ? 0 : o3);
-                abgrBuffer[i4] = 0xff000000
-                        | (((s1=(y1 + b))>255? 255 : s1 < 0 ? 0 : s1)<<16)
-                        | (((s2=(y1 - g))>255? 255 : s2 < 0 ? 0 : s2)<<8)
-                        | ((s3=(y1 + r))>255? 255 : s3 < 0 ? 0 : s3);
+                if (r > 0) {
+                    t3 = (t3=(y1 + r))>255? 255 : t3;
+                    p3 = (p3=(y2 + r))>255? 255 : p3;
+                    o3 = (o3=(y3 + r))>255? 255 : o3;
+                    s3 = (s3=(y4 + r))>255? 255 : s3;
+                } else {
+                    t3 = (t3=(y1 + r))<0? 0 : t3;
+                    p3 = (p3=(y2 + r))<0? 0 : p3;
+                    o3 = (o3=(y3 + r))<0? 0 : o3;
+                    s3 = (s3=(y4 + r))<0? 0 : s3;
+                }
+
+                if (g < 0) {
+                    t2 = (t2=(y1 - g))>255? 255 : t2;
+                    p2 = (p2=(y2 - g))>255? 255 : p2;
+                    o2 = (o2=(y3 - g))>255? 255 : o2;
+                    s2 = (s2=(y4 - g))>255? 255 : s2;
+                } else {
+                    t2 = (t2=(y1 - g))<0? 0 : t2;
+                    p2 = (p2=(y2 - g))<0? 0 : p2;
+                    o2 = (o2=(y3 - g))<0? 0 : o2;
+                    s2 = (s2=(y4 - g))<0? 0 : s2;
+                }
+
+                if (b > 0) {
+                    t1 = (t1=(y1 + b))>255? 255 : t1;
+                    p1 = (p1=(y2 + b))>255? 255 : p1;
+                    o1 = (o1=(y3 + b))>255? 255 : o1;
+                    s1 = (s1=(y4 + b))>255? 255 : s1;
+                } else {
+                    t1 = (t1=(y1 + b))<0? 0 : t1;
+                    p1 = (p1=(y2 + b))<0? 0 : p1;
+                    o1 = (o1=(y3 + b))<0? 0 : o1;
+                    s1 = (s1=(y4 + b))<0? 0 : s1;
+                }
+
+                abgrBuffer[i1] = 0xff000000 | (t1<<16) | (t2<<8) | t3;
+                abgrBuffer[i2] = 0xff000000 | (p1<<16) | (p2<<8) | p3;
+                abgrBuffer[i3] = 0xff000000 | (o1<<16) | (o2<<8) | o3;
+                abgrBuffer[i4] = 0xff000000 | (s1<<16) | (s2<<8) | s3;
             }
 
-            if (i1!=0 && (i1+2)%width==0) {
-                i1 += width;
-                i2 += width;
-                i3 += width;
-                i4 += width;
+            if ((i2 % width) == subwidth) {
+                i1 += width2;
+                i2 += width2;
+                i3 += width2;
+                i4 += width2;
+            } else {
+                i1 += 2;
+                i2 += 2;
+                i3 += 2;
+                i4 += 2;
             }
+            i5 += 2;
+            i6 += 2;
         }
     }
 
