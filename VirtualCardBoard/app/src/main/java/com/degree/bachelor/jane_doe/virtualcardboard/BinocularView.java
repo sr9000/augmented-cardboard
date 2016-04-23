@@ -128,7 +128,7 @@ public class BinocularView {
         double srcRation = ((double)width)/((double)height);
 
         //calc scale
-        double scale = 0;
+        double scale;
         if (targetRatio > srcRation)
             scale = ((double)height)/((double)_focusViewHeight);
         else

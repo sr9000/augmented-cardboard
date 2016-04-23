@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
             private boolean running = false;
 
             //surface holder to drawing on
-            private SurfaceHolder surfaceHolder;
+            private SurfaceHolder _surfaceHolder;
 
             //paint for drawing
             private Paint pLeft, pRight;
@@ -83,7 +83,7 @@ public class MainActivity extends Activity {
 
             //get surface on thread create
             public DrawThread(SurfaceHolder surfaceHolder) {
-                this.surfaceHolder = surfaceHolder;
+                this._surfaceHolder = surfaceHolder;
                 pLeft = new Paint();
                 pLeft.setStyle(Paint.Style.FILL);
                 pLeft.setColor(Color.GREEN);
@@ -92,7 +92,7 @@ public class MainActivity extends Activity {
                 pRight.setStyle(Paint.Style.FILL);
                 pRight.setColor(Color.RED);
 
-                bv = new BinocularView(960, 480);
+                bv = new BinocularView(_surfaceHolder.getSurfaceFrame().width(), _surfaceHolder.getSurfaceFrame().height());
                 bv_info = bv.getBinocularInfo();
 
                 cam = new CameraDemo();
@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
                     Bitmap captured = cam.getCapturedBitmap();
                     canvas = null;
                     try {
-                        canvas = surfaceHolder.lockCanvas(null);
+                        canvas = _surfaceHolder.lockCanvas(null);
                         if (canvas == null)
                             continue;
                         //draw action here
@@ -123,7 +123,7 @@ public class MainActivity extends Activity {
 
                     } finally {
                         if (canvas != null) {
-                            surfaceHolder.unlockCanvasAndPost(canvas);
+                            _surfaceHolder.unlockCanvasAndPost(canvas);
                         }
                     }
                 }
