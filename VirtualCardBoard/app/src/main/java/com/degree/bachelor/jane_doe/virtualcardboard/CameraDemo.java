@@ -199,44 +199,45 @@ public class CameraDemo implements Camera.PreviewCallback {
         int size = width*height;
         int offset = size;
         int u, v, y1, y2, y3, y4;
+        int b, g, r;
 
-        // i along Y and the final pixels
-        // k along pixels U and V
-        for(int i=0, k=0; i < size; i+=2, k+=2) {
-            y1 = nv21Buffer[i  ]&0xff;
-            y2 = nv21Buffer[i+1]&0xff;
-            y3 = nv21Buffer[width+i  ]&0xff;
-            y4 = nv21Buffer[width+i+1]&0xff;
+        // i1-i4 along Y and the final pixels
+        // i5,i6 along pixels U and V
+        int i1 = 0, i2 = 1
+            , i3 = width, i4 = width+1
+            , i5 = offset, i6 = offset+1;
+        for(; i1 < size; i1+=2, i2+=2, i3+=2, i4+=2, i5+=2, i6+=2) {
+            y1 = nv21Buffer[i1  ]&0xff;
+            y2 = nv21Buffer[i2]&0xff;
+            y3 = nv21Buffer[i3]&0xff;
+            y4 = nv21Buffer[i4]&0xff;
 
             //NV21
-            v = nv21Buffer[offset+k  ]&0xff;
-            u = nv21Buffer[offset+k+1]&0xff;
+            v = (nv21Buffer[i5]&0xff) - 128;
+            u = (nv21Buffer[i6]&0xff) - 128;
 
             //YV12
-            //u = data[offset+k  ]&0xff;
-            //v = data[offset+k + size/4]&0xff;
+            //u = data[offset+k  ]&0xff - 128;
+            //v = data[offset+k + size/4]&0xff - 128;
 
-            v = v-128;
-            u = u-128;
+            {//inline packed convertYUVtoABGRpacked
+                r = (int)(1.772f*v);
+                g = (int)(0.344f*v + 0.714f*u);
+                b = (int)(1.402f*u);
 
-            abgrBuffer[i  ] = convertYUVtoABGR(y1, u, v);
-            abgrBuffer[i+1] = convertYUVtoABGR(y2, u, v);
-            abgrBuffer[width+i  ] = convertYUVtoABGR(y3, u, v);
-            abgrBuffer[width+i+1] = convertYUVtoABGR(y4, u, v);
+                abgrBuffer[i1] = 0xff000000 | (((y1 + b)&0xff)<<16) | (((y1 - g)&0xff)<<8) | ((y1 + r)&0xff);
+                abgrBuffer[i2] = 0xff000000 | (((y2 + b)&0xff)<<16) | (((y2 - g)&0xff)<<8) | ((y2 + r)&0xff);
+                abgrBuffer[i3] = 0xff000000 | (((y3 + b)&0xff)<<16) | (((y3 - g)&0xff)<<8) | ((y3 + r)&0xff);
+                abgrBuffer[i4] = 0xff000000 | (((y4 + b)&0xff)<<16) | (((y4 - g)&0xff)<<8) | ((y4 + r)&0xff);
+            }
 
-            if (i!=0 && (i+2)%width==0)
-                i += width;
+            if (i1!=0 && (i1+2)%width==0) {
+                i1 += width;
+                i2 += width;
+                i3 += width;
+                i4 += width;
+            }
         }
-    }
-
-    private static int convertYUVtoABGR(int y, int u, int v) {
-        int r = y + (int)(1.772f*v);
-        int g = y - (int)(0.344f*v + 0.714f*u);
-        int b = y + (int)(1.402f*u);
-        r = r>255? 255 : r<0 ? 0 : r;
-        g = g>255? 255 : g<0 ? 0 : g;
-        b = b>255? 255 : b<0 ? 0 : b;
-        return 0xff000000 | (b<<16) | (g<<8) | r;
     }
 
     @Override
