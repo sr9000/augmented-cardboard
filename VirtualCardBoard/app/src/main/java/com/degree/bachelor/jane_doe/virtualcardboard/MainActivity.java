@@ -7,8 +7,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import static com.degree.bachelor.jane_doe.virtualcardboard.BinocularView.*;
 
 //main activity
 public class MainActivity extends Activity {
@@ -25,34 +28,28 @@ public class MainActivity extends Activity {
 
         //use thread for redraw activity
         private DrawThread drawThread;
+        private CameraDemo cam;
+        private BinocularView bv;
+        private BinocularView.BinocularInfo bv_info;
 
         //says to surfaceholder that
         //DrawView control surface events
         public DrawView(Context context) {
             super(context);
             getHolder().addCallback(this);
+            bv_info = new BinocularView.BinocularInfo();
+            cam = new CameraDemo();
+            bv = new BinocularView(getHolder().getSurfaceFrame().width(), getHolder().getSurfaceFrame().height());
+            drawThread = new DrawThread(null, bv_info, cam);
+            drawThread.start();
         }
 
         //overrided surface events
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width,
                                    int height) {
-
-        }
-
-        //create thread on create view
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            drawThread = new DrawThread(getHolder());
-            drawThread.setRunning(true);
-            drawThread.start();
-        }
-
-        //stopped thread when surface is destroyed
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
+            /*drawThread.setRunning(false);
             boolean retry = true;
-            drawThread.setRunning(false);
             while (retry) {
                 try {
                     drawThread.join();
@@ -60,13 +57,44 @@ public class MainActivity extends Activity {
                 } catch (InterruptedException e) {
                 }
             }
+
+            bv.SetDisplaySizes(width, height);
+            cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
+            bv.CalcAdaptedViews(cam.getWidth(), cam.getHeight());
+            bv_info.ImportFrom(bv.getBinocularInfo());
+
+            drawThread.setHolder(holder);
+            drawThread.setRunning(true);
+            drawThread.start();*/
+        }
+
+        //create thread on create view
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            bv.SetDisplaySizes(holder.getSurfaceFrame().width(), holder.getSurfaceFrame().height());
+            cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
+
+            bv.CalcAdaptedViews(cam.getWidth(), cam.getHeight());
+            bv_info.ImportFrom(bv.getBinocularInfo());
+
+            drawThread.setHolder(holder);
+            drawThread.setRunning(true);
+        }
+
+        //stopped thread when surface is destroyed
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            cam.StopPreview();
+
+            boolean retry = true;
+            drawThread.setRunning(false);
         }
 
         //special draw thread
         class DrawThread extends Thread {
 
             //work control variable
-            private boolean running = false;
+            private boolean _running = false;
 
             //surface holder to drawing on
             private SurfaceHolder _surfaceHolder;
@@ -75,14 +103,18 @@ public class MainActivity extends Activity {
             private Paint pLeft, pRight;
 
             //Binocular
-            BinocularView bv;
-            BinocularView.BinocularInfo bv_info;
+            private BinocularView.BinocularInfo _bv_info;
 
             //camDemo
-            private CameraDemo cam;
+            private CameraDemo _cam;
+
+            //synch obj
+            private Object lock = new Object();
 
             //get surface on thread create
-            public DrawThread(SurfaceHolder surfaceHolder) {
+            public DrawThread(@Nullable SurfaceHolder surfaceHolder, BinocularInfo bv_info, CameraDemo cam) {
+                _bv_info = bv_info;
+                _cam = cam;
                 this._surfaceHolder = surfaceHolder;
                 pLeft = new Paint();
                 pLeft.setStyle(Paint.Style.FILL);
@@ -91,35 +123,48 @@ public class MainActivity extends Activity {
                 pRight = new Paint();
                 pRight.setStyle(Paint.Style.FILL);
                 pRight.setColor(Color.RED);
-
-                bv = new BinocularView(_surfaceHolder.getSurfaceFrame().width(), _surfaceHolder.getSurfaceFrame().height());
-                bv_info = bv.getBinocularInfo();
-
-                cam = new CameraDemo();
-                cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
-                bv.CalcAdaptedViews(cam.getWidth(), cam.getHeight());
-                bv_info = bv.getBinocularInfo();
             }
 
-            //enable cycle redrawing
+            public void setHolder(SurfaceHolder holder) {
+                _surfaceHolder = holder;
+            }
+
             public void setRunning(boolean running) {
-                this.running = running;
+                _running = running;
+                synchronized (lock) {
+                    lock.notify();
+                }
             }
 
             //on start thread
             @Override
             public void run() {
                 Canvas canvas;
-                while (running) {
-                    Bitmap captured = cam.getCapturedBitmap();
+                while (true) {
+                    if (!_running) {
+                        synchronized (lock) {
+                            try {
+                                lock.wait();
+                            } catch (InterruptedException e) {
+                                return;
+                            }
+                        }
+                        continue;
+                    }
+
+                    if (_surfaceHolder == null)
+                        continue;
+                    Bitmap captured = _cam.getCapturedBitmap();
+                    if (captured == null)
+                        continue;
                     canvas = null;
                     try {
                         canvas = _surfaceHolder.lockCanvas(null);
                         if (canvas == null)
                             continue;
                         //draw action here
-                        canvas.drawBitmap(captured, bv_info.adaptedLeftViewFrom, bv_info.adaptedLeftViewWhere, null);
-                        canvas.drawBitmap(captured, bv_info.adaptedRightViewFrom, bv_info.adaptedRightViewWhere, null);
+                        canvas.drawBitmap(captured, _bv_info.adaptedLeftViewFrom, _bv_info.adaptedLeftViewWhere, null);
+                        canvas.drawBitmap(captured, _bv_info.adaptedRightViewFrom, _bv_info.adaptedRightViewWhere, null);
 
                     } finally {
                         if (canvas != null) {

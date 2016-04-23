@@ -214,7 +214,10 @@ public class BinocularView {
         _adaptedRightViewWhere = CalcAdaptedViewsHelper.correct(_rightViewWhere, rightCorrectProportion, 0, 0, _displayWidth, _displayHeight);
     }
 
-    public class BinocularInfo {
+    public static class BinocularInfo {
+
+        public BinocularInfo(){}
+
         public int eyeViewHeight, eyeViewWidth;
         public int simpleViewHeight, simpleViewWidth;
 
@@ -226,7 +229,36 @@ public class BinocularView {
 
         public Rect adaptedLeftViewFrom, adaptedRightViewFrom;
         public Rect adaptedLeftViewWhere, adaptedRightViewWhere;
+
+        public void ImportFrom(BinocularInfo other)
+        {
+            simpleViewHeight = other.simpleViewHeight;
+            simpleViewWidth = other.simpleViewWidth;
+
+            eyeViewHeight = other.eyeViewHeight;
+            eyeViewWidth = other.eyeViewWidth;
+
+            rightCenterX = other.rightCenterX;
+            rightCenterY = other.rightCenterY;
+
+            leftCenterX = other.leftCenterX;
+            leftCenterY = other.leftCenterY;
+
+            leftViewFrom = new Rect(other.leftViewFrom);
+            leftViewWhere = new Rect(other.leftViewWhere);
+            rightViewFrom = new Rect(other.rightViewFrom);
+            rightViewWhere = new Rect(other.rightViewWhere);
+
+            adaptedLeftViewFrom = new Rect(other.adaptedLeftViewFrom);
+            adaptedLeftViewWhere = new Rect(other.adaptedLeftViewWhere);
+            adaptedRightViewFrom = new Rect(other.adaptedRightViewFrom);
+            adaptedRightViewWhere = new Rect(other.adaptedRightViewWhere);
+        }
     }
+
+    /*public static BinocularInfo GetDummyBinocularInfo() {
+        return new BinocularInfo();
+    }*/
 
     public BinocularInfo getBinocularInfo() {
         BinocularInfo info = new BinocularInfo();

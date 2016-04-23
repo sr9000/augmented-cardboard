@@ -101,6 +101,9 @@ public class CameraDemo implements Camera.PreviewCallback {
         gBuffer = null;
 
         baos = null;
+
+        isNormalOpened = false;
+        isNormalConfigured = false;
     }
 
     public Bitmap getCapturedBitmap() {
@@ -188,6 +191,8 @@ public class CameraDemo implements Camera.PreviewCallback {
 
     @Override
     public void onPreviewFrame(byte[] bytes, Camera camera) {
+        if (!IsStarted()) return;
+
         YuvImage yuvImage = new YuvImage(bytes, ImageFormat.NV21, _width, _height, null);
         camera.addCallbackBuffer(gBuffer);
         baos.reset();
