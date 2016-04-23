@@ -218,65 +218,67 @@ public class CameraDemo implements Camera.PreviewCallback {
             y3 = nv21Buffer[i3]&0xff;
             y4 = nv21Buffer[i4]&0xff;
 
-            //NV21
             r = (nv21Buffer[i5]&0xff) - 128;
             b = ((nv21Buffer[i6]&0xff) - 128)<<1;
 
-            //YV12
-            //u = data[offset+k  ]&0xff - 128;
-            //v = data[offset+k + size/4]&0xff - 128;
-
-            {//inline packed convertYUVtoABGRpacked
-                //r = (int)(1.13983*v);//(int)(1.772f*v);
-                //g = (int)(0.39465f*v + 0.58060f*u);//(int)(0.344f*v + 0.714f*u);
-                //b = (int)(2.03211f*u);//(int)(1.402f*u);
-
-                //b = u<<1;//(int)(1.402f*u);
-                //r = v;//(int)(1.772f*v);
-                g = ((r<<2) + b + (b<<1))/10;//(int)(0.344f*v + 0.714f*u);
+            //inline packed convertYUVtoABGRpacked
+            g = ((r<<2) + b + (b<<1))/10;
 
 
-                if (r > 0) {
-                    t3 = (t3=(y1 + r))>255? 255 : t3;
-                    p3 = (p3=(y2 + r))>255? 255 : p3;
-                    o3 = (o3=(y3 + r))>255? 255 : o3;
-                    s3 = (s3=(y4 + r))>255? 255 : s3;
-                } else {
-                    t3 = (t3=(y1 + r))<0? 0 : t3;
-                    p3 = (p3=(y2 + r))<0? 0 : p3;
-                    o3 = (o3=(y3 + r))<0? 0 : o3;
-                    s3 = (s3=(y4 + r))<0? 0 : s3;
-                }
+            t3=y1 + r;
+            p3=y2 + r;
+            o3=y3 + r;
+            s3=y4 + r;
+            t2=y1 - g;
+            p2=y2 - g;
+            o2=y3 - g;
+            s2=y4 - g;
+            t1=y1 + b;
+            p1=y2 + b;
+            o1=y3 + b;
+            s1=y4 + b;
 
-                if (g < 0) {
-                    t2 = ((t2=(y1 - g))>255? 255 : t2)<<8;
-                    p2 = ((p2=(y2 - g))>255? 255 : p2)<<8;
-                    o2 = ((o2=(y3 - g))>255? 255 : o2)<<8;
-                    s2 = ((s2=(y4 - g))>255? 255 : s2)<<8;
-                } else {
-                    t2 = ((t2=(y1 - g))<0? 0 : t2)<<8;
-                    p2 = ((p2=(y2 - g))<0? 0 : p2)<<8;
-                    o2 = ((o2=(y3 - g))<0? 0 : o2)<<8;
-                    s2 = ((s2=(y4 - g))<0? 0 : s2)<<8;
-                }
-
-                if (b > 0) {
-                    t1 = ((t1=(y1 + b))>255? 255 : t1)<<16;
-                    p1 = ((p1=(y2 + b))>255? 255 : p1)<<16;
-                    o1 = ((o1=(y3 + b))>255? 255 : o1)<<16;
-                    s1 = ((s1=(y4 + b))>255? 255 : s1)<<16;
-                } else {
-                    t1 = ((t1=(y1 + b))<0? 0 : t1)<<16;
-                    p1 = ((p1=(y2 + b))<0? 0 : p1)<<16;
-                    o1 = ((o1=(y3 + b))<0? 0 : o1)<<16;
-                    s1 = ((s1=(y4 + b))<0? 0 : s1)<<16;
-                }
-
-                abgrBuffer[i1] = 0xff000000 | t1 | t2 | t3;
-                abgrBuffer[i2] = 0xff000000 | p1 | p2 | p3;
-                abgrBuffer[i3] = 0xff000000 | o1 | o2 | o3;
-                abgrBuffer[i4] = 0xff000000 | s1 | s2 | s3;
+            if (r > 0) {
+                if(t3>255) t3 = 255;
+                if(p3>255) t3 = 255;
+                if(o3>255) t3 = 255;
+                if(s3>255) t3 = 255;
+            } else {
+                if(t3<0) t3 = 0;
+                if(p3<0) p3 = 0;
+                if(o3<0) o3 = 0;
+                if(s3<0) s3 = 0;
             }
+
+            if (g < 0) {
+                t3 |= t2>255? 0xff00 : (t2<<8);
+                p3 |= p2>255? 0xff00 : (p2<<8);
+                o3 |= o2>255? 0xff00 : (o2<<8);
+                s3 |= s2>255? 0xff00 : (s2<<8);
+            } else {
+                if (t2>0) t3|=(t2<<8);
+                if (p2>0) p3|=(p2<<8);
+                if (o2>0) o3|=(o2<<8);
+                if (s2>0) s3|=(s2<<8);
+            }
+
+            if (b > 0) {
+                t3 |= t1>255? 0xff0000 : (t1<<16);
+                p3 |= p1>255? 0xff0000 : (p1<<16);
+                o3 |= o1>255? 0xff0000 : (o1<<16);
+                s3 |= s1>255? 0xff0000 : (s1<<16);
+            } else {
+                if (t1>0) t3|=(t1<<16);
+                if (p1>0) p3|=(p1<<16);
+                if (o1>0) o3|=(o1<<16);
+                if (s1>0) s3|=(s1<<16);
+            }
+
+            abgrBuffer[i1] = 0xff000000 | t3;
+            abgrBuffer[i2] = 0xff000000 | p3;
+            abgrBuffer[i3] = 0xff000000 | o3;
+            abgrBuffer[i4] = 0xff000000 | s3;
+
 
             if ((i2 % width) == subwidth) {
                 i1 += width2;
