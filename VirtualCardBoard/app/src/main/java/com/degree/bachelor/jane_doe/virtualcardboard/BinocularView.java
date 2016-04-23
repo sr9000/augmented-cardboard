@@ -256,10 +256,6 @@ public class BinocularView {
         }
     }
 
-    /*public static BinocularInfo GetDummyBinocularInfo() {
-        return new BinocularInfo();
-    }*/
-
     public BinocularInfo getBinocularInfo() {
         BinocularInfo info = new BinocularInfo();
 

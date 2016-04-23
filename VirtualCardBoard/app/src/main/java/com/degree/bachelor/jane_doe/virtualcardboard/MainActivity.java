@@ -48,24 +48,6 @@ public class MainActivity extends Activity {
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width,
                                    int height) {
-            /*drawThread.setRunning(false);
-            boolean retry = true;
-            while (retry) {
-                try {
-                    drawThread.join();
-                    retry = false;
-                } catch (InterruptedException e) {
-                }
-            }
-
-            bv.SetDisplaySizes(width, height);
-            cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
-            bv.CalcAdaptedViews(cam.getWidth(), cam.getHeight());
-            bv_info.ImportFrom(bv.getBinocularInfo());
-
-            drawThread.setHolder(holder);
-            drawThread.setRunning(true);
-            drawThread.start();*/
         }
 
         //create thread on create view
