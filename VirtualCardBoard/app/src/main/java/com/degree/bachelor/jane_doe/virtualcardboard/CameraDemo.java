@@ -226,15 +226,16 @@ public class CameraDemo implements Camera.PreviewCallback {
     @Override
     public void onPreviewFrame(byte[] bytes, Camera camera) {
         YuvImage yuvImage = new YuvImage(bytes, ImageFormat.NV21, _width, _height, null);
+        camera.addCallbackBuffer(gBuffer);
         baos.reset();
         yuvImage.compressToJpeg(new Rect(0, 0, _width, _height), 80, baos);
         byte[] streamBuffer = baos.toByteArray();
         BitmapFactory.Options bitmapFatoryOptions = new BitmapFactory.Options();
         bitmapFatoryOptions.inPreferredConfig = Bitmap.Config.RGB_565;
 
-        synchronized (bitmapFieldSynchronization) {
+        //synchronized (bitmapFieldSynchronization) {
             bitmap = BitmapFactory.decodeByteArray(streamBuffer, 0, streamBuffer.length, bitmapFatoryOptions);
-        }
-        camera.addCallbackBuffer(gBuffer);
+        //}
+
     }
 }
