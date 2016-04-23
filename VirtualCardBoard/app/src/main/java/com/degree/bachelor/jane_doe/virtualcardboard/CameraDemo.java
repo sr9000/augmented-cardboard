@@ -48,6 +48,8 @@ public class CameraDemo implements Camera.PreviewCallback {
     private Bitmap bitmap;
     private final Boolean bitmapFieldSynchronization = Boolean.valueOf(true);
 
+    ByteArrayOutputStream baos;
+
     private int _width, _height;
 
     public int getWidth() {
@@ -90,10 +92,12 @@ public class CameraDemo implements Camera.PreviewCallback {
         } catch (IOException e) {
             isNormalConfigured = false;
         }
-        if (isNormalOpened && isNormalConfigured)
+        if (isNormalOpened && isNormalConfigured) {
+            baos = new ByteArrayOutputStream();
             cam.startPreview();
-        else
+        } else {
             StopPreview();
+        }
     }
 
     public void StopPreview() {
@@ -114,14 +118,17 @@ public class CameraDemo implements Camera.PreviewCallback {
         textureBuffer = null;
         bitmap = null;
         gBuffer = null;
+
+        baos = null;
     }
 
     public Bitmap getCapturedBitmap() {
-        Bitmap retBitmap;
+        /*Bitmap retBitmap;
         synchronized (bitmapFieldSynchronization) {
             retBitmap = Bitmap.createBitmap(bitmap);
         }
-        return retBitmap;
+        return retBitmap;*/
+        return bitmap;
     }
 
     private void Configure(int width, int height) throws IOException {
@@ -219,14 +226,14 @@ public class CameraDemo implements Camera.PreviewCallback {
     @Override
     public void onPreviewFrame(byte[] bytes, Camera camera) {
         YuvImage yuvImage = new YuvImage(bytes, ImageFormat.NV21, _width, _height, null);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        baos.reset();
         yuvImage.compressToJpeg(new Rect(0, 0, _width, _height), 80, baos);
-        byte[] jdata = baos.toByteArray();
+        byte[] streamBuffer = baos.toByteArray();
         BitmapFactory.Options bitmapFatoryOptions = new BitmapFactory.Options();
         bitmapFatoryOptions.inPreferredConfig = Bitmap.Config.RGB_565;
 
         synchronized (bitmapFieldSynchronization) {
-            bitmap = BitmapFactory.decodeByteArray(jdata, 0, jdata.length, bitmapFatoryOptions);
+            bitmap = BitmapFactory.decodeByteArray(streamBuffer, 0, streamBuffer.length, bitmapFatoryOptions);
         }
         camera.addCallbackBuffer(gBuffer);
     }
