@@ -240,9 +240,9 @@ public class CameraDemo implements Camera.PreviewCallback {
 
             if (r > 0) {
                 if(t3>255) t3 = 255;
-                if(p3>255) t3 = 255;
-                if(o3>255) t3 = 255;
-                if(s3>255) t3 = 255;
+                if(p3>255) p3 = 255;
+                if(o3>255) o3 = 255;
+                if(s3>255) s3 = 255;
             } else {
                 if(t3<0) t3 = 0;
                 if(p3<0) p3 = 0;
