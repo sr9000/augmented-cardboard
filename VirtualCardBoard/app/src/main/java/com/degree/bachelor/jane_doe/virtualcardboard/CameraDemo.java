@@ -2,10 +2,15 @@ package com.degree.bachelor.jane_doe.virtualcardboard;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.media.Image;
 import android.opengl.GLES10;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
@@ -15,6 +20,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -42,14 +48,14 @@ public class CameraDemo implements Camera.PreviewCallback {
     private Bitmap bitmap;
     private final Boolean bitmapFieldSynchronization = Boolean.valueOf(true);
 
-    private int width, height;
+    private int _width, _height;
 
     public int getWidth() {
-        return width;
+        return _width;
     }
 
     public int getHeight() {
-        return height;
+        return _height;
     }
 
     public CameraDemo() {
@@ -173,8 +179,10 @@ public class CameraDemo implements Camera.PreviewCallback {
             }
         }
         params.setPreviewSize(bestSize.width, bestSize.height);
-        width = bestSize.width;
-        height = bestSize.height;
+        _width = bestSize.width;
+        _height = bestSize.height;
+
+        params.setPreviewFormat(ImageFormat.NV21);
 
         cam.setParameters(params);
 
@@ -188,8 +196,8 @@ public class CameraDemo implements Camera.PreviewCallback {
 
         bitmap = Bitmap.createBitmap(bestSize.width, bestSize.height, Bitmap.Config.ARGB_8888);
 
-        textureBuffer = new int[width * height];
-        gBufferSize = width * height * ImageFormat.getBitsPerPixel(params.getPreviewFormat()) / 8;
+        textureBuffer = new int[_width * _height];
+        gBufferSize = (_width * _height * (ImageFormat.getBitsPerPixel(params.getPreviewFormat())) + 7) / 8;
         gBuffer = new byte[gBufferSize];
 
         cam.addCallbackBuffer(gBuffer);
@@ -198,13 +206,28 @@ public class CameraDemo implements Camera.PreviewCallback {
         isNormalConfigured = true;
     }
 
+    static private int yuv2rgb(byte yValue, byte uValue, byte vValue) {
+        int iyValue = yValue & 0xFF;
+        int iuValue = uValue & 0xFF;
+        int ivValue = vValue & 0xFF;
+        int rTmp = Math.max(0, Math.min(255,((int)(iyValue + (1.370705 * (ivValue-128))))));
+        int gTmp = Math.max(0, Math.min(255,((int)(iyValue - (0.698001 * (ivValue-128)) - (0.337633 * (iuValue-128))))));
+        int bTmp = Math.max(0, Math.min(255,((int)(iyValue + (1.732446 * (iuValue-128))))));
+        return Color.argb(255, rTmp, gTmp, bTmp);
+    }
+
     @Override
     public void onPreviewFrame(byte[] bytes, Camera camera) {
-        camera.addCallbackBuffer(gBuffer);
-        for(int i=0;i<textureBuffer.length;i++)
-            textureBuffer[i]=0xff000000|bytes[i];
+        YuvImage yuvImage = new YuvImage(bytes, ImageFormat.NV21, _width, _height, null);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        yuvImage.compressToJpeg(new Rect(0, 0, _width, _height), 80, baos);
+        byte[] jdata = baos.toByteArray();
+        BitmapFactory.Options bitmapFatoryOptions = new BitmapFactory.Options();
+        bitmapFatoryOptions.inPreferredConfig = Bitmap.Config.RGB_565;
+
         synchronized (bitmapFieldSynchronization) {
-            bitmap.setPixels(textureBuffer, 0, width, 0, 0, width, height);
+            bitmap = BitmapFactory.decodeByteArray(jdata, 0, jdata.length, bitmapFatoryOptions);
         }
+        camera.addCallbackBuffer(gBuffer);
     }
 }
