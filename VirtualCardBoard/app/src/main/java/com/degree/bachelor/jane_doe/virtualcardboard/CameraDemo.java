@@ -200,6 +200,10 @@ public class CameraDemo implements Camera.PreviewCallback {
         int offset = size;
         int u, v, y1, y2, y3, y4;
         int b, g, r;
+        int t1, t2, t3;
+        int p1, p2, p3;
+        int o1, o2, o3;
+        int s1, s2, s3;
 
         // i1-i4 along Y and the final pixels
         // i5,i6 along pixels U and V
@@ -221,14 +225,26 @@ public class CameraDemo implements Camera.PreviewCallback {
             //v = data[offset+k + size/4]&0xff - 128;
 
             {//inline packed convertYUVtoABGRpacked
-                r = (int)(1.772f*v);
-                g = (int)(0.344f*v + 0.714f*u);
-                b = (int)(1.402f*u);
+                r = (int)(1.6f*v);//(int)(1.772f*v);
+                g = (int)(0.3f*v + 0.6f*u);//(int)(0.344f*v + 0.714f*u);
+                b = (int)(1.3f*u);//(int)(1.402f*u);
 
-                abgrBuffer[i1] = 0xff000000 | (((y1 + b)&0xff)<<16) | (((y1 - g)&0xff)<<8) | ((y1 + r)&0xff);
-                abgrBuffer[i2] = 0xff000000 | (((y2 + b)&0xff)<<16) | (((y2 - g)&0xff)<<8) | ((y2 + r)&0xff);
-                abgrBuffer[i3] = 0xff000000 | (((y3 + b)&0xff)<<16) | (((y3 - g)&0xff)<<8) | ((y3 + r)&0xff);
-                abgrBuffer[i4] = 0xff000000 | (((y4 + b)&0xff)<<16) | (((y4 - g)&0xff)<<8) | ((y4 + r)&0xff);
+                abgrBuffer[i1] = 0xff000000
+                        | (((t1=(y1 + b))>255? 255 : t1 < 0 ? 0 : t1)<<16)
+                        | (((t2=(y1 - g))>255? 255 : t2 < 0 ? 0 : t2)<<8)
+                        | ((t3=(y1 + r))>255? 255 : t3 < 0 ? 0 : t3);
+                abgrBuffer[i2] = 0xff000000
+                        | (((p1=(y1 + b))>255? 255 : p1 < 0 ? 0 : p1)<<16)
+                        | (((p2=(y1 - g))>255? 255 : p2 < 0 ? 0 : p2)<<8)
+                        | ((p3=(y1 + r))>255? 255 : p3 < 0 ? 0 : p3);
+                abgrBuffer[i3] = 0xff000000
+                        | (((o1=(y1 + b))>255? 255 : o1 < 0 ? 0 : o1)<<16)
+                        | (((o2=(y1 - g))>255? 255 : o2 < 0 ? 0 : o2)<<8)
+                        | ((o3=(y1 + r))>255? 255 : o3 < 0 ? 0 : o3);
+                abgrBuffer[i4] = 0xff000000
+                        | (((s1=(y1 + b))>255? 255 : s1 < 0 ? 0 : s1)<<16)
+                        | (((s2=(y1 - g))>255? 255 : s2 < 0 ? 0 : s2)<<8)
+                        | ((s3=(y1 + r))>255? 255 : s3 < 0 ? 0 : s3);
             }
 
             if (i1!=0 && (i1+2)%width==0) {
