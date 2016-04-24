@@ -50,6 +50,7 @@ public class MainActivity extends Activity {
                                    int height) {
             //hot changes
             bv.SetDisplaySizes(width, height);
+            bv.SetCustomBinocularParams(2*width/3, height/2,1000, 1000);
             cam.StopPreview();
             cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
 
@@ -64,6 +65,7 @@ public class MainActivity extends Activity {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
             bv.SetDisplaySizes(holder.getSurfaceFrame().width(), holder.getSurfaceFrame().height());
+            bv.SetCustomBinocularParams(2*holder.getSurfaceFrame().width()/3, holder.getSurfaceFrame().height()/2,1000, 1000);
             cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
 
             bv.CalcAdaptedViews(cam.getWidth(), cam.getHeight());

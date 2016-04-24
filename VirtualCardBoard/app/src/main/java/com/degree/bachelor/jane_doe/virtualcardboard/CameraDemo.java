@@ -1,17 +1,11 @@
 package com.degree.bachelor.jane_doe.virtualcardboard;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.Buffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
@@ -33,7 +27,7 @@ public class CameraDemo implements Camera.PreviewCallback {
     private SurfaceTexture camTexture;
     private Bitmap bitmap;
 
-    int abgrBuffer[];
+    private int abgrBuffer[];
 
     private int _width, _height;
 
@@ -197,10 +191,9 @@ public class CameraDemo implements Camera.PreviewCallback {
     //BGR!!!
     public static void convertYUV420_NV21toABGR8888(int[] abgrBuffer, byte [] nv21Buffer, int width, int height) {
         int size = width*height;
-        int offset = size;
         int width2 = width + 2;
         int subwidth = width - 1;
-        int u, v, y1, y2, y3, y4;
+        int y1, y2, y3, y4;
         int b, g, r;
         int t1, t2, t3;
         int p1, p2, p3;
@@ -211,19 +204,20 @@ public class CameraDemo implements Camera.PreviewCallback {
         // i5,i6 along pixels U and V
         int i1 = 0, i2 = 1
             , i3 = width, i4 = width+1
-            , i5 = offset, i6 = offset+1;
+            , i5 = size, i6 = size +1;
         while(i1 < size) {
             y1 = nv21Buffer[i1]&0xff;
             y2 = nv21Buffer[i2]&0xff;
             y3 = nv21Buffer[i3]&0xff;
             y4 = nv21Buffer[i4]&0xff;
 
+            //inline packed convertYUVtoABGRpacked
+            //inline some variables
+            //use integer arithmetic instead float point
             r = (nv21Buffer[i5]&0xff) - 128;
             b = ((nv21Buffer[i6]&0xff) - 128)<<1;
 
-            //inline packed convertYUVtoABGRpacked
             g = ((r<<2) + b + (b<<1))/10;
-
 
             t3=y1 + r;
             p3=y2 + r;
@@ -278,7 +272,6 @@ public class CameraDemo implements Camera.PreviewCallback {
             abgrBuffer[i2] = 0xff000000 | p3;
             abgrBuffer[i3] = 0xff000000 | o3;
             abgrBuffer[i4] = 0xff000000 | s3;
-
 
             if ((i2 % width) == subwidth) {
                 i1 += width2;
