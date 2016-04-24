@@ -42,7 +42,7 @@ public class CameraDemo implements Camera.PreviewCallback {
     @Override
     public void onPreviewFrame(byte[] bytes, Camera camera) {
         if (!IsStarted()) return;
-        convertYUV420_NV21toABGR8888(abgrBuffer, bytes, _width, _height);
+        FastConverterHelper.convertYUV420_NV21toABGR8888(abgrBuffer, bytes, _width, _height);
         camera.addCallbackBuffer(gBuffer);
         bitmap.copyPixelsFromBuffer(IntBuffer.wrap(abgrBuffer));
     }
@@ -70,23 +70,23 @@ public class CameraDemo implements Camera.PreviewCallback {
             FreeTextures();
     }
 
-    public Bitmap getCapturedBitmap() {
+    public Bitmap GetCapturedBitmap() {
         return bitmap;
+    }
+
+    public int GetHeight() {
+        return _height;
+    }
+
+    public int GetWidth() {
+        return _width;
     }
 
     public boolean IsStarted() {
         return isNormalOpened && isNormalConfigured;
     }
 
-    public int getWidth() {
-        return _width;
-    }
-
-    public int getHeight() {
-        return _height;
-    }
-
-    private void GetCameraInstance() {
+    private void OpenCameraInstance() {
         cam = null;
         try {
             // attempt to get a Camera instance
@@ -97,7 +97,7 @@ public class CameraDemo implements Camera.PreviewCallback {
     }
 
     private void OpenCamera() {
-        GetCameraInstance();
+        OpenCameraInstance();
         isNormalOpened = !(cam == null);
     }
 
@@ -189,8 +189,11 @@ public class CameraDemo implements Camera.PreviewCallback {
 
         isNormalConfigured = true;
     }
+}
 
+class FastConverterHelper {
     //BGR!!!
+    //BlueGreenRed order
     public static void convertYUV420_NV21toABGR8888(int[] abgrBuffer, byte [] nv21Buffer, int width, int height) {
         int size = width*height;
         int width2 = width + 2;
@@ -205,8 +208,8 @@ public class CameraDemo implements Camera.PreviewCallback {
         // i1-i4 along Y and the final pixels
         // i5,i6 along pixels U and V
         int i1 = 0, i2 = 1
-            , i3 = width, i4 = width+1
-            , i5 = size, i6 = size +1;
+                , i3 = width, i4 = width+1
+                , i5 = size, i6 = size +1;
         while(i1 < size) {
             y1 = nv21Buffer[i1]&0xff;
             y2 = nv21Buffer[i2]&0xff;

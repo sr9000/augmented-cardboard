@@ -12,24 +12,15 @@ import android.view.SurfaceHolder;
  */
 //special draw thread
 public class DrawThread extends Thread {
-
-    //work control variable
     private boolean _running = false;
 
-    //surface holder to drawing on
     private SurfaceHolder _surfaceHolder;
-
-    //paint for drawing
-    private Paint pLeft, pRight;
-
-    //Binocular
     private BinocularView.BinocularInfo _bv_info;
-
-    //camDemo
     private CameraDemo _cam;
 
-    //synch obj
     private Object lock = new Object();
+
+    private Paint pLeft, pRight;
 
     //get surface on thread create
     public DrawThread(@Nullable SurfaceHolder surfaceHolder, BinocularView.BinocularInfo bv_info, CameraDemo cam) {
@@ -43,17 +34,6 @@ public class DrawThread extends Thread {
         pRight = new Paint();
         pRight.setStyle(Paint.Style.FILL);
         pRight.setColor(Color.RED);
-    }
-
-    public void setHolder(SurfaceHolder holder) {
-        _surfaceHolder = holder;
-    }
-
-    public void setRunning(boolean running) {
-        _running = running;
-        synchronized (lock) {
-            lock.notify();
-        }
     }
 
     //on start thread
@@ -74,7 +54,7 @@ public class DrawThread extends Thread {
 
             if (_surfaceHolder == null)
                 continue;
-            Bitmap captured = _cam.getCapturedBitmap();
+            Bitmap captured = _cam.GetCapturedBitmap();
             if (captured == null)
                 continue;
             canvas = null;
@@ -91,6 +71,17 @@ public class DrawThread extends Thread {
                     _surfaceHolder.unlockCanvasAndPost(canvas);
                 }
             }
+        }
+    }
+
+    public void SetHolder(SurfaceHolder holder) {
+        _surfaceHolder = holder;
+    }
+
+    public void SetRunning(boolean running) {
+        _running = running;
+        synchronized (lock) {
+            lock.notify();
         }
     }
 }

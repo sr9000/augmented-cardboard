@@ -8,8 +8,6 @@ import android.view.SurfaceView;
  * Created by Jane-Doe on 4/24/2016.
  */
 public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
-
-    //use thread for redraw activity
     private DrawThread drawThread;
     private CameraDemo cam;
     private BinocularView bv;
@@ -28,7 +26,6 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
         drawThread.start();
     }
 
-    //overrided surface events
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         //hot changes
@@ -37,31 +34,29 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
         cam.StopPreview();
         cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
 
-        bv.CalcAdaptedViews(cam.getWidth(), cam.getHeight());
+        bv.CalcAdaptedViews(cam.GetWidth(), cam.GetHeight());
         bv_info.ImportFrom(bv.GetBinocularInfo());
 
-        drawThread.setHolder(holder);
-        drawThread.setRunning(true);
+        drawThread.SetHolder(holder);
+        drawThread.SetRunning(true);
     }
 
-    //create thread on create view
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         bv.SetDisplaySizes(holder.getSurfaceFrame().width(), holder.getSurfaceFrame().height());
         bv.SetCustomBinocularParams(2*holder.getSurfaceFrame().width()/3, holder.getSurfaceFrame().height()/2,1000, 1000);
         cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
 
-        bv.CalcAdaptedViews(cam.getWidth(), cam.getHeight());
+        bv.CalcAdaptedViews(cam.GetWidth(), cam.GetHeight());
         bv_info.ImportFrom(bv.GetBinocularInfo());
 
-        drawThread.setHolder(holder);
-        drawThread.setRunning(true);
+        drawThread.SetHolder(holder);
+        drawThread.SetRunning(true);
     }
 
-    //stopped thread when surface is destroyed
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        drawThread.setRunning(false);
+        drawThread.SetRunning(false);
         cam.StopPreview();
     }
 }
