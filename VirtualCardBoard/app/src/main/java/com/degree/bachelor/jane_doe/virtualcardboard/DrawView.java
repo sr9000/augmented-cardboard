@@ -29,10 +29,12 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         //hot changes
+        _drawThread.SetRunning(false);
+        _cameraDemo.StopPreview();
+
         _binocularView.SetDisplaySizes(width, height);
         _binocularView.SetCustomBinocularParams(((int)(width*proportionFocusDistance)), ((int)(height*proportionVerticalCoordinate)), width, height);
         BinocularView.BinocularInfo info = _binocularView.GetBinocularInfo();
-        _cameraDemo.StopPreview();
         _cameraDemo.StartPreview(info.simpleViewWidth, info.simpleViewHeight);
 
         _binocularView.CalcAdaptedViews(_cameraDemo.GetWidth(), _cameraDemo.GetHeight());

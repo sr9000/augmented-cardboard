@@ -24,15 +24,15 @@ public class DrawThread extends Thread {
     public void run() {
         //thread drawing cycle
         while (true) {
-            if (!_running) {
-                synchronized (pauseLocker) {
+            synchronized (pauseLocker) {
+                if (!_running) {
                     try {
                         pauseLocker.wait();
                     } catch (InterruptedException e) {
                         return;
                     }
+                    continue;
                 }
-                continue;
             }
 
             synchronized (changeLocker) {
@@ -75,9 +75,9 @@ public class DrawThread extends Thread {
     }
 
     public void SetRunning(boolean running) {
-        _running = running;
         synchronized (pauseLocker) {
-            pauseLocker.notifyAll();
+            _running = running;
+            pauseLocker.notify();
         }
     }
 }
