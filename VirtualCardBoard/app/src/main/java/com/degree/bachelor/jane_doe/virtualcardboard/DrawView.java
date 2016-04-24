@@ -38,7 +38,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
         cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
 
         bv.CalcAdaptedViews(cam.getWidth(), cam.getHeight());
-        bv_info.ImportFrom(bv.getBinocularInfo());
+        bv_info.ImportFrom(bv.GetBinocularInfo());
 
         drawThread.setHolder(holder);
         drawThread.setRunning(true);
@@ -52,7 +52,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
         cam.StartPreview(bv_info.simpleViewWidth, bv_info.simpleViewHeight);
 
         bv.CalcAdaptedViews(cam.getWidth(), cam.getHeight());
-        bv_info.ImportFrom(bv.getBinocularInfo());
+        bv_info.ImportFrom(bv.GetBinocularInfo());
 
         drawThread.setHolder(holder);
         drawThread.setRunning(true);
@@ -61,7 +61,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
     //stopped thread when surface is destroyed
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        cam.StopPreview();
         drawThread.setRunning(false);
+        cam.StopPreview();
     }
 }

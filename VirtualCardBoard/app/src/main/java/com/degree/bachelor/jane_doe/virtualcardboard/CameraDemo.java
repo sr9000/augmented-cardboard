@@ -13,31 +13,20 @@ import java.util.List;
  * Created by Jane-Doe on 4/18/2016.
  */
 public class CameraDemo implements Camera.PreviewCallback {
-    private boolean isNormalOpened;
-    private boolean isNormalConfigured;
-
-    private boolean isNeededFreeTextures;
-
     private static final int MAGIC_TEXTURE_ID = 10;
 
-    private Camera cam;
-    
-    private byte gBuffer[];
+    private boolean isNormalOpened;
+    private boolean isNormalConfigured;
+    private boolean isNeededFreeTextures;
 
+    private Camera cam;
     private SurfaceTexture camTexture;
     private Bitmap bitmap;
 
+    private byte gBuffer[];
     private int abgrBuffer[];
 
     private int _width, _height;
-
-    public int getWidth() {
-        return _width;
-    }
-
-    public int getHeight() {
-        return _height;
-    }
 
     public CameraDemo() {
         isNormalOpened = false;
@@ -50,19 +39,12 @@ public class CameraDemo implements Camera.PreviewCallback {
         cam = null;
     }
 
-    private void GetCameraInstance() {
-        cam = null;
-        try {
-            // attempt to get a Camera instance
-            cam = Camera.open();
-        } catch (Exception e) {
-            // Camera is not available (in use or does not exist)
-        }
-    }
-
-    private void OpenCamera() {
-        GetCameraInstance();
-        isNormalOpened = !(cam == null);
+    @Override
+    public void onPreviewFrame(byte[] bytes, Camera camera) {
+        if (!IsStarted()) return;
+        convertYUV420_NV21toABGR8888(abgrBuffer, bytes, _width, _height);
+        camera.addCallbackBuffer(gBuffer);
+        bitmap.copyPixelsFromBuffer(IntBuffer.wrap(abgrBuffer));
     }
 
     public void StartPreview(int width, int height) {
@@ -88,24 +70,44 @@ public class CameraDemo implements Camera.PreviewCallback {
             FreeTextures();
     }
 
+    public Bitmap getCapturedBitmap() {
+        return bitmap;
+    }
+
     public boolean IsStarted() {
         return isNormalOpened && isNormalConfigured;
+    }
+
+    public int getWidth() {
+        return _width;
+    }
+
+    public int getHeight() {
+        return _height;
+    }
+
+    private void GetCameraInstance() {
+        cam = null;
+        try {
+            // attempt to get a Camera instance
+            cam = Camera.open();
+        } catch (Exception e) {
+            // Camera is not available (in use or does not exist)
+        }
+    }
+
+    private void OpenCamera() {
+        GetCameraInstance();
+        isNormalOpened = !(cam == null);
     }
 
     private void FreeTextures() {
         camTexture = null;
         bitmap = null;
         gBuffer = null;
-
-        //baos = null;
         abgrBuffer = null;
-
         isNormalOpened = false;
         isNormalConfigured = false;
-    }
-
-    public Bitmap getCapturedBitmap() {
-        return bitmap;
     }
 
     private void Configure(int width, int height) throws IOException {
@@ -287,15 +289,5 @@ public class CameraDemo implements Camera.PreviewCallback {
             i5 += 2;
             i6 += 2;
         }
-    }
-
-    @Override
-    public void onPreviewFrame(byte[] bytes, Camera camera) {
-        if (!IsStarted()) return;
-
-        //software decoding
-        convertYUV420_NV21toABGR8888(abgrBuffer, bytes, _width, _height);
-        camera.addCallbackBuffer(gBuffer);
-        bitmap.copyPixelsFromBuffer(IntBuffer.wrap(abgrBuffer));
     }
 }

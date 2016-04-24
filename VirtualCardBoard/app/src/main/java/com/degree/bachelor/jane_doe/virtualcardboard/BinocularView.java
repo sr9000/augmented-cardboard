@@ -5,74 +5,10 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
-/**test implementation
-class Point {
-    public Point(){}
-    public Point(int X, int Y) {
-        x = X;
-        y = Y;
-    }
-    public int x, y;
-}
-class PointF {
-    public PointF(){}
-    public PointF(float X, float Y) {
-        x = X;
-        y = Y;
-    }
-    public float x, y;
-}
-class Rect {
-    public Rect(){}
-    public Rect(Rect r) {
-        left = r.left;
-        top = r.top;
-        right = r.right;
-        bottom = r.bottom;
-    }
-    public Rect(int Left, int Top, int Right, int Bottom) {
-        left = Left;
-        top = Top;
-        right = Right;
-        bottom = Bottom;
-    }
-    public int left, top, right, bottom;
-    public void set(int Left, int Top, int Right, int Bottom) {
-        left = Left;
-        top = Top;
-        right = Right;
-        bottom = Bottom;
-    }
-}
-class RectF {
-    public RectF(){}
-    public RectF(RectF r) {
-        left = r.left;
-        top = r.top;
-        right = r.right;
-        bottom = r.bottom;
-    }
-    public RectF(float Left, float Top, float Right, float Bottom) {
-        left = Left;
-        top = Top;
-        right = Right;
-        bottom = Bottom;
-    }
-    public float left, top, right, bottom;
-    public void set(float Left, float Top, float Right, float Bottom) {
-        left = Left;
-        top = Top;
-        right = Right;
-        bottom = Bottom;
-    }
-}
-*/
-
 /**
  * Created by Jane-Doe on 4/16/2016.
  */
 public class BinocularView {
-
     private int _focusDistance, _focusVerticalCoordinate;
     private int _focusViewHeight, _focusViewWidth;
     private int _displayHeight, _displayWidth;
@@ -85,41 +21,49 @@ public class BinocularView {
     private Rect _adaptedLeftViewFrom, _adaptedRightViewFrom;
     private Rect _adaptedLeftViewWhere, _adaptedRightViewWhere;
 
-    private static class CalcAdaptedViewsHelper {
-        static public PointF transition(Point target, int tw, int th, int sw, int sh, double scale) {
-            PointF res = new PointF();
-            res.x = ((float)((target.x - 0.5 * tw) * scale + 0.5 * sw));
-            res.y = ((float)((target.y - 0.5 * th) * scale + 0.5 * sh));
-            return res;
+    public static class BinocularInfo {
+        public BinocularInfo(){}
+
+        public int eyeViewHeight, eyeViewWidth;
+        public int simpleViewHeight, simpleViewWidth;
+
+        public int leftCenterX, leftCenterY;
+        public int rightCenterX, rightCenterY;
+
+        public Rect leftViewFrom, rightViewFrom;
+        public Rect leftViewWhere, rightViewWhere;
+
+        public Rect adaptedLeftViewFrom, adaptedRightViewFrom;
+        public Rect adaptedLeftViewWhere, adaptedRightViewWhere;
+
+        public void ImportFrom(BinocularInfo other)
+        {
+            simpleViewHeight = other.simpleViewHeight;
+            simpleViewWidth = other.simpleViewWidth;
+
+            eyeViewHeight = other.eyeViewHeight;
+            eyeViewWidth = other.eyeViewWidth;
+
+            rightCenterX = other.rightCenterX;
+            rightCenterY = other.rightCenterY;
+
+            leftCenterX = other.leftCenterX;
+            leftCenterY = other.leftCenterY;
+
+            leftViewFrom = new Rect(other.leftViewFrom);
+            leftViewWhere = new Rect(other.leftViewWhere);
+            rightViewFrom = new Rect(other.rightViewFrom);
+            rightViewWhere = new Rect(other.rightViewWhere);
+
+            adaptedLeftViewFrom = new Rect(other.adaptedLeftViewFrom);
+            adaptedLeftViewWhere = new Rect(other.adaptedLeftViewWhere);
+            adaptedRightViewFrom = new Rect(other.adaptedRightViewFrom);
+            adaptedRightViewWhere = new Rect(other.adaptedRightViewWhere);
         }
-        static public PointF relative(Point abs, int l, int t, int r, int b) {
-            PointF rel = new PointF();
-            rel.x = ((float)(abs.x - l)) / ((float)(r - l));
-            rel.y = ((float)(abs.y - t)) / ((float)(b - t));
-            return rel;
-        }
-        static public PointF relative(PointF abs, float l, float t, float r, float b) {
-            PointF rel = new PointF();
-            rel.x = (abs.x - l) / (r - l);
-            rel.y = (abs.y - t) / (b - t);
-            return rel;
-        }
-        static public Rect correct(RectF abs, RectF rel, int ml, int mt, int mr, int mb) {
-            Rect nabs = new Rect();
-            nabs.left = Math.max(ml, (int)((abs.right - abs.left) * rel.left + abs.left));
-            nabs.top = Math.max(mt, (int)((abs.bottom - abs.top) * rel.top + abs.top));
-            nabs.right = Math.min(mr, (int)((abs.right - abs.left) * rel.right + abs.left));
-            nabs.bottom = Math.min(mb, (int)((abs.bottom - abs.top) * rel.bottom + abs.top));
-            return nabs;
-        }
-        static public Rect correct(Rect abs, RectF rel, int ml, int mt, int mr, int mb) {
-            Rect nabs = new Rect();
-            nabs.left = Math.max(ml, (int)((abs.right - abs.left) * rel.left + abs.left));
-            nabs.top = Math.max(mt, (int)((abs.bottom - abs.top) * rel.top + abs.top));
-            nabs.right = Math.min(mr, (int)((abs.right - abs.left) * rel.right + abs.left));
-            nabs.bottom = Math.min(mb, (int)((abs.bottom - abs.top) * rel.bottom + abs.top));
-            return nabs;
-        }
+    }
+
+    public BinocularView(int displayWidth, int displayHeight) {
+        SetDisplaySizes(displayWidth, displayHeight);
     }
 
     //adapt real size of source bitmap to _focusViewWidth & _focusViewHeight sizes
@@ -214,49 +158,33 @@ public class BinocularView {
         _adaptedRightViewWhere = CalcAdaptedViewsHelper.correct(_rightViewWhere, rightCorrectProportion, 0, 0, _displayWidth, _displayHeight);
     }
 
-    public static class BinocularInfo {
+    public void SetCustomBinocularParams(int focusDistance, int focusVerticalCoordinate, int focusViewWidth, int focusViewHeight) {
+        _focusDistance = focusDistance;
+        _focusVerticalCoordinate = focusVerticalCoordinate;
 
-        public BinocularInfo(){}
+        _focusViewWidth = focusViewWidth;
+        _focusViewHeight = focusViewHeight;
 
-        public int eyeViewHeight, eyeViewWidth;
-        public int simpleViewHeight, simpleViewWidth;
-
-        public int leftCenterX, leftCenterY;
-        public int rightCenterX, rightCenterY;
-
-        public Rect leftViewFrom, rightViewFrom;
-        public Rect leftViewWhere, rightViewWhere;
-
-        public Rect adaptedLeftViewFrom, adaptedRightViewFrom;
-        public Rect adaptedLeftViewWhere, adaptedRightViewWhere;
-
-        public void ImportFrom(BinocularInfo other)
-        {
-            simpleViewHeight = other.simpleViewHeight;
-            simpleViewWidth = other.simpleViewWidth;
-
-            eyeViewHeight = other.eyeViewHeight;
-            eyeViewWidth = other.eyeViewWidth;
-
-            rightCenterX = other.rightCenterX;
-            rightCenterY = other.rightCenterY;
-
-            leftCenterX = other.leftCenterX;
-            leftCenterY = other.leftCenterY;
-
-            leftViewFrom = new Rect(other.leftViewFrom);
-            leftViewWhere = new Rect(other.leftViewWhere);
-            rightViewFrom = new Rect(other.rightViewFrom);
-            rightViewWhere = new Rect(other.rightViewWhere);
-
-            adaptedLeftViewFrom = new Rect(other.adaptedLeftViewFrom);
-            adaptedLeftViewWhere = new Rect(other.adaptedLeftViewWhere);
-            adaptedRightViewFrom = new Rect(other.adaptedRightViewFrom);
-            adaptedRightViewWhere = new Rect(other.adaptedRightViewWhere);
-        }
+        CalcRectangles();
     }
 
-    public BinocularInfo getBinocularInfo() {
+    public void SetDefaultBinocularParams() {
+        _focusDistance = _displayWidth / 2;
+        _focusVerticalCoordinate = _displayHeight / 2;
+
+        _focusViewWidth = _displayWidth / 2;
+        _focusViewHeight = _displayHeight;
+
+        CalcRectangles();
+    }
+
+    public void SetDisplaySizes(int displayWidth, int displayHeight) {
+        _displayHeight = displayHeight;
+        _displayWidth = displayWidth;
+        SetDefaultBinocularParams();
+    }
+
+    public BinocularInfo GetBinocularInfo() {
         BinocularInfo info = new BinocularInfo();
 
         info.simpleViewHeight = _focusViewHeight;
@@ -265,11 +193,10 @@ public class BinocularView {
         info.eyeViewHeight = _leftViewFrom.bottom - _leftViewFrom.top;
         info.eyeViewWidth = _leftViewFrom.right - _leftViewFrom.left;
 
-        info.rightCenterX = _rightCenterX;
-        info.rightCenterY = _rightCenterY;
-
         info.leftCenterX = _leftCenterX;
         info.leftCenterY = _leftCenterY;
+        info.rightCenterX = _rightCenterX;
+        info.rightCenterY = _rightCenterY;
 
         info.leftViewFrom = new Rect(_leftViewFrom);
         info.leftViewWhere = new Rect(_leftViewWhere);
@@ -284,61 +211,14 @@ public class BinocularView {
         return info;
     }
 
-    public BinocularView(int displayWidth, int displayHeight) {
-        _displayHeight = displayHeight;
-        _displayWidth = displayWidth;
-
-        SetDefaultBinocularParams();
-    }
-
-    public void SetDisplaySizes(int displayWidth, int displayHeight) {
-        _displayHeight = displayHeight;
-        _displayWidth = displayWidth;
-
-        SetDefaultBinocularParams();
-    }
-
-    public void SetDefaultBinocularParams() {
-        _focusDistance = _displayWidth / 2;
-        _focusVerticalCoordinate = _displayHeight / 2;
-
-        _focusViewWidth = _displayWidth / 2;
-        _focusViewHeight = _displayHeight;
-
-        CalcRectangles();
-    }
-
-    public void SetCustomBinocularParams(int focusDistance, int focusVerticalCoordinate, int focusViewWidth, int focusViewHeight) {
-        _focusDistance = focusDistance;
-        _focusVerticalCoordinate = focusVerticalCoordinate;
-
-        _focusViewWidth = focusViewWidth;
-        _focusViewHeight = focusViewHeight;
-
-        CalcRectangles();
-    }
-
-    private static int BoundValue(int min, int val, int max) {
-        return Math.min(Math.max(val, min), max);
-    }
-
-    private void VerificateBinocularParams() {
-        _focusDistance = BoundValue(0, _focusDistance, _displayWidth);
-        _focusVerticalCoordinate = BoundValue(0, _focusVerticalCoordinate, _displayHeight);
-
-        _focusViewHeight = BoundValue(0, _focusViewHeight,
-                2 * Math.min(_focusVerticalCoordinate, _displayHeight - _focusVerticalCoordinate));
-        _focusViewWidth = BoundValue(0, _focusViewWidth,
-                Math.max(_focusDistance, _displayWidth - _focusDistance));
-    }
-
     private void CalcRectangles() {
         VerificateBinocularParams();
 
         _leftCenterX = Math.min(_focusViewWidth / 2, (_displayWidth - _focusDistance) / 2);
         _rightCenterX = Math.min(_focusViewWidth / 2, _focusDistance / 2);
 
-        _leftCenterY = _rightCenterY =_focusViewHeight / 2;
+        _leftCenterY = _focusViewHeight / 2;
+        _rightCenterY = _leftCenterY;
 
         _leftViewFrom = new Rect(
                 (_focusViewWidth / 2) - _leftCenterX //left
@@ -363,5 +243,55 @@ public class BinocularView {
                 , _focusVerticalCoordinate - _focusViewHeight / 2 //top
                 , (_displayWidth + _focusDistance) / 2 + Math.min(_focusViewWidth / 2, (_displayWidth - _focusDistance) / 2) //right
                 , _focusVerticalCoordinate + _focusViewHeight / 2); //bottom
+    }
+
+    private void VerificateBinocularParams() {
+        _focusDistance = MathHelper.BoundValue(0, _focusDistance, _displayWidth);
+        _focusVerticalCoordinate = MathHelper.BoundValue(0, _focusVerticalCoordinate, _displayHeight);
+
+        _focusViewHeight = MathHelper.BoundValue(0, _focusViewHeight,
+                2 * Math.min(_focusVerticalCoordinate, _displayHeight - _focusVerticalCoordinate));
+        _focusViewWidth = MathHelper.BoundValue(0, _focusViewWidth,
+                Math.max(_focusDistance, _displayWidth - _focusDistance));
+    }
+}
+
+class MathHelper {
+    public static int BoundValue(int min, int val, int max) {
+        return Math.min(Math.max(val, min), max);
+    }
+}
+
+class CalcAdaptedViewsHelper {
+    static public PointF transition(Point target, int tw, int th, int sw, int sh, double scale) {
+        PointF res = new PointF();
+        res.x = ((float)((target.x - 0.5 * tw) * scale + 0.5 * sw));
+        res.y = ((float)((target.y - 0.5 * th) * scale + 0.5 * sh));
+        return res;
+    }
+
+    static public PointF relative(PointF abs, float l, float t, float r, float b) {
+        PointF rel = new PointF();
+        rel.x = (abs.x - l) / (r - l);
+        rel.y = (abs.y - t) / (b - t);
+        return rel;
+    }
+
+    static public Rect correct(RectF abs, RectF rel, int ml, int mt, int mr, int mb) {
+        Rect nabs = new Rect();
+        nabs.left = Math.max(ml, (int)((abs.right - abs.left) * rel.left + abs.left));
+        nabs.top = Math.max(mt, (int)((abs.bottom - abs.top) * rel.top + abs.top));
+        nabs.right = Math.min(mr, (int)((abs.right - abs.left) * rel.right + abs.left));
+        nabs.bottom = Math.min(mb, (int)((abs.bottom - abs.top) * rel.bottom + abs.top));
+        return nabs;
+    }
+    
+    static public Rect correct(Rect abs, RectF rel, int ml, int mt, int mr, int mb) {
+        Rect nabs = new Rect();
+        nabs.left = Math.max(ml, (int)((abs.right - abs.left) * rel.left + abs.left));
+        nabs.top = Math.max(mt, (int)((abs.bottom - abs.top) * rel.top + abs.top));
+        nabs.right = Math.min(mr, (int)((abs.right - abs.left) * rel.right + abs.left));
+        nabs.bottom = Math.min(mb, (int)((abs.bottom - abs.top) * rel.bottom + abs.top));
+        return nabs;
     }
 }
