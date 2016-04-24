@@ -15,8 +15,8 @@ public class DrawThread extends Thread {
     private CameraDemo _cameraDemo;
     private BinocularView.BinocularInfo _binocularInfo;
 
-    private Object pauseLocker = new Object();
-    private Object changeLocker = new Object();
+    private final Object pauseLocker = new Object();
+    private final Object changeLocker = new Object();
 
     public DrawThread() {}
 

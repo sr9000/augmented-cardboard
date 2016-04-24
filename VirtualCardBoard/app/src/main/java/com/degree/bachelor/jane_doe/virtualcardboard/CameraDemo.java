@@ -15,63 +15,61 @@ import java.util.List;
 public class CameraDemo implements Camera.PreviewCallback {
     private static final int MAGIC_TEXTURE_ID = 10;
 
-    private boolean isNormalOpened;
-    private boolean isNormalConfigured;
-    private boolean isNeededFreeTextures;
+    private boolean _isStarted;
 
-    private Camera cam;
-    private SurfaceTexture camTexture;
-    private Bitmap bitmap;
+    private Camera _camera;
+    private SurfaceTexture _camTexture;
+    private Bitmap _bitmap;
 
-    private byte gBuffer[];
-    private int abgrBuffer[];
+    private byte _callbackBuffer[];
+    private int _abgrBuffer[];
 
     private int _width, _height;
 
     public CameraDemo() {
-        isNormalOpened = false;
-        isNormalConfigured = false;
-        isNeededFreeTextures = false;
-        camTexture = null;
-        bitmap = null;
-        gBuffer = null;
-        abgrBuffer = null;
-        cam = null;
+        _isStarted = false;
+        _camTexture = null;
+        _bitmap = null;
+        _callbackBuffer = null;
+        _abgrBuffer = null;
+        _camera = null;
     }
 
     @Override
     public void onPreviewFrame(byte[] bytes, Camera camera) {
         if (!IsStarted()) return;
-        FastConverterHelper.convertYUV420_NV21toABGR8888(abgrBuffer, bytes, _width, _height);
-        camera.addCallbackBuffer(gBuffer);
-        bitmap.copyPixelsFromBuffer(IntBuffer.wrap(abgrBuffer));
+        FastConverterHelper.convertYUV420_NV21toABGR8888(_abgrBuffer, bytes, _width, _height);
+        camera.addCallbackBuffer(_callbackBuffer);
+        _bitmap.copyPixelsFromBuffer(IntBuffer.wrap(_abgrBuffer));
     }
 
     public void StartPreview(int width, int height) {
-        OpenCamera();
+        _camera = Camera.open();
+        if (_camera == null) return;
         try {
             Configure(width, height);
         } catch (IOException e) {
-            isNormalConfigured = false;
-        }
-        if (isNormalOpened && isNormalConfigured) {
-            cam.startPreview();
-        } else {
             StopPreview();
+            return;
         }
+        _camera.startPreview();
+        _isStarted = true;
     }
 
     public void StopPreview() {
-        if (isNormalOpened) {
-            cam.stopPreview();
-            cam.release();
+        _isStarted = false;
+        if (_camera != null) {
+            _camera.stopPreview();
+            _camera.release();
         }
-        if (isNeededFreeTextures)
-            FreeTextures();
+        _camTexture = null;
+        _bitmap = null;
+        _callbackBuffer = null;
+        _abgrBuffer = null;
     }
 
     public Bitmap GetCapturedBitmap() {
-        return bitmap;
+        return _bitmap;
     }
 
     public int GetHeight() {
@@ -83,37 +81,11 @@ public class CameraDemo implements Camera.PreviewCallback {
     }
 
     public boolean IsStarted() {
-        return isNormalOpened && isNormalConfigured;
-    }
-
-    private void OpenCameraInstance() {
-        cam = null;
-        try {
-            // attempt to get a Camera instance
-            cam = Camera.open();
-        } catch (Exception e) {
-            // Camera is not available (in use or does not exist)
-        }
-    }
-
-    private void OpenCamera() {
-        OpenCameraInstance();
-        isNormalOpened = !(cam == null);
-    }
-
-    private void FreeTextures() {
-        camTexture = null;
-        bitmap = null;
-        gBuffer = null;
-        abgrBuffer = null;
-        isNormalOpened = false;
-        isNormalConfigured = false;
+        return _isStarted;
     }
 
     private void Configure(int width, int height) throws IOException {
-        if (!isNormalOpened) return;
-
-        Camera.Parameters params = cam.getParameters();
+        Camera.Parameters params = _camera.getParameters();
 
         int[] bestRange;
         {//set best fps range
@@ -164,30 +136,23 @@ public class CameraDemo implements Camera.PreviewCallback {
                 }
             }
         }
-        params.setPreviewSize(bestSize.width, bestSize.height);
         _width = bestSize.width;
         _height = bestSize.height;
 
+        params.setPreviewSize(bestSize.width, bestSize.height);
         params.setPreviewFormat(ImageFormat.NV21);
 
-        cam.setParameters(params);
+        _camera.setParameters(params);
 
-        {//bind texture
-            camTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
+        _camTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
+        _camera.setPreviewTexture(_camTexture);
 
-            isNeededFreeTextures = true;
-        }
+        _bitmap = Bitmap.createBitmap(bestSize.width, bestSize.height, Bitmap.Config.ARGB_8888);
+        _callbackBuffer = new byte[(_width * _height * (ImageFormat.getBitsPerPixel(params.getPreviewFormat())) + 7) / 8];
+        _abgrBuffer = new int[_width * _height];
 
-        cam.setPreviewTexture(camTexture);
-
-        bitmap = Bitmap.createBitmap(bestSize.width, bestSize.height, Bitmap.Config.ARGB_8888);
-        gBuffer = new byte[(_width * _height * (ImageFormat.getBitsPerPixel(params.getPreviewFormat())) + 7) / 8];
-        abgrBuffer = new int[_width * _height];
-
-        cam.addCallbackBuffer(gBuffer);
-        cam.setPreviewCallbackWithBuffer(this);
-
-        isNormalConfigured = true;
+        _camera.addCallbackBuffer(_callbackBuffer);
+        _camera.setPreviewCallbackWithBuffer(this);
     }
 }
 
