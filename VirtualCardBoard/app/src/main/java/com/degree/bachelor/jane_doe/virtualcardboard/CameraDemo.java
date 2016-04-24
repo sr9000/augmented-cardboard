@@ -38,7 +38,7 @@ public class CameraDemo implements Camera.PreviewCallback {
     @Override
     public void onPreviewFrame(byte[] bytes, Camera camera) {
         if (!IsStarted()) return;
-        FastConverterHelper.convertYUV420_NV21toABGR8888(_abgrBuffer, bytes, _width, _height);
+        FastConverterHelper.ConvertYUV420_NV21toABGR8888(_abgrBuffer, bytes, _width, _height);
         camera.addCallbackBuffer(_callbackBuffer);
         _bitmap.copyPixelsFromBuffer(IntBuffer.wrap(_abgrBuffer));
     }
@@ -159,7 +159,7 @@ public class CameraDemo implements Camera.PreviewCallback {
 class FastConverterHelper {
     //BGR!!!
     //BlueGreenRed order
-    public static void convertYUV420_NV21toABGR8888(int[] abgrBuffer, byte [] nv21Buffer, int width, int height) {
+    public static void ConvertYUV420_NV21toABGR8888(int[] abgrBuffer, byte [] nv21Buffer, int width, int height) {
         int size = width*height;
         int width2 = width + 2;
         int subwidth = width - 1;
