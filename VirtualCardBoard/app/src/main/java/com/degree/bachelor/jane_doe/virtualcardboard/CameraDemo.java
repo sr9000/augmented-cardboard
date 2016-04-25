@@ -60,7 +60,7 @@ public class CameraDemo implements Camera.PreviewCallback {
 
     public void StopPreview() {
         if (!IsStarted()) return;
-        
+
         _isStarted = false;
         if (_camera != null) {
             _camera.stopPreview();

@@ -39,17 +39,23 @@ namespace VirtualCardBoardClient
 
         public void AllStop()
         {
-
+            _work.Interrupt();
+            _work.Join();
         }
 
         private void Proceed()
         {
-            _s.ReceiveFrom(_buffer, ref _endPoint);
+            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+            args.SetBuffer(_buffer, 0, _buffer.Length);
+            args.Completed += args_Completed;
+            _s.ReceiveFromAsync(args);
+
+            _s.EndReceiveFrom()
         }
 
-        private void Resume()
+        private void args_Completed(object sender, SocketAsyncEventArgs e)
         {
-
+            throw new NotImplementedException();
         }
     }
 }

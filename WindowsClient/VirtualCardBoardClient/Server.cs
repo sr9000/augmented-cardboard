@@ -65,6 +65,7 @@ namespace VirtualCardBoardClient
                     _s.Bind(new IPEndPoint(IPAddress.Any, port));
                     _isStarted = true;
                     _isShouldBeStarted = true;
+                    _serverThread = new ServerThread(_s, _savedCallback);
                     return;
                 }
                 catch
@@ -72,7 +73,6 @@ namespace VirtualCardBoardClient
                     //catch all exceptions
                 }
             }
-
             _s.Close();
             _s = null;
         }
@@ -83,6 +83,7 @@ namespace VirtualCardBoardClient
             if (!IsStarted()) return;
 
             _Stop();
+            _savedCallback = null;
         }
 
         private void _Stop()
@@ -96,7 +97,7 @@ namespace VirtualCardBoardClient
                 _s = null;
             }
             _isStarted = false;
-            _savedCallback = null;
+            
         }
 
         private void Resume()
@@ -107,9 +108,12 @@ namespace VirtualCardBoardClient
             {
                 if (untilCount > 0)
                     Thread.Sleep(untilTime);
+
                 if (!_isShouldBeStarted) return;
-                StopServer();
-                StartServer(_savedCallback);
+
+                _Stop();
+                _Start();
+
                 untilCount++;
                 untilTime += untilTime + SUntilTime;
             } while (!IsStarted() && (untilCount < SUntilCount));
