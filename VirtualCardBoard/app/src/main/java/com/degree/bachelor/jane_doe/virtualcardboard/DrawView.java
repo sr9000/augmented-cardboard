@@ -1,16 +1,22 @@
 package com.degree.bachelor.jane_doe.virtualcardboard;
 
 import android.content.Context;
+import android.os.Vibrator;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 /**
  * Created by Jane-Doe on 4/24/2016.
  */
-public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
+public class DrawView extends SurfaceView implements
+        SurfaceHolder.Callback
+        , View.OnLongClickListener
+{
     private DrawThread _drawThread;
     private CameraDemo _cameraDemo;
     private BinocularView _binocularView;
+    private Context _context;
 
     private final float proportionFocusDistance = 2.0f/3.0f, proportionVerticalCoordinate = 0.5f;
 
@@ -19,11 +25,14 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
     public DrawView(Context context) {
         super(context);
         getHolder().addCallback(this);
+        _context = context;
 
         _binocularView = new BinocularView(0, 0);
         _cameraDemo = new CameraDemo();
         _drawThread = new DrawThread();
         _drawThread.start();
+
+        setOnLongClickListener(this);
     }
 
     @Override
@@ -64,5 +73,19 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceDestroyed(SurfaceHolder holder) {
         _drawThread.SetRunning(false);
         _cameraDemo.StopPreview();
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        //TODO: send broadcast
+        getHandler().post(new Runnable() {
+            @Override
+            public void run() {
+                Vibrator _vibrator = (Vibrator) _context.getSystemService(_context.VIBRATOR_SERVICE);
+
+                _vibrator.vibrate(new long[]{10, 100, 90, 100}, -1);
+            }
+        });
+        return true;
     }
 }
