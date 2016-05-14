@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace VirtualCardBoardClient
 {
-    class Listener
+    public class Listener
     {
         //42 count
         protected static int[] Ports = { 48654, 48670, 48683, 48696, 48699
@@ -67,14 +67,15 @@ namespace VirtualCardBoardClient
             return this;
         }
 
-        public byte[] Read()
+        public byte[] Read(int timeWaitMilliseconds = 0)
         {
             lock (ReaderSynchronizator)
             {
                 try
                 {
+                    InputSocket.ReceiveTimeout = timeWaitMilliseconds;
                     byte[] ret = new byte[10240]; //10 KiB
-                    int lengthRecieved = InputSocket.Receive(ret);
+                    int lengthRecieved = InputSocket. Receive(ret);
                     return ret.Take(lengthRecieved).ToArray();
                 }
                 catch

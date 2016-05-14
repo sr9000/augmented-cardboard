@@ -61,6 +61,7 @@
             this.buttonFromStart.TabIndex = 2;
             this.buttonFromStart.Text = "Next>";
             this.buttonFromStart.UseVisualStyleBackColor = true;
+            this.buttonFromStart.Click += new System.EventHandler(this.buttonFromStart_Click);
             // 
             // StartForm
             // 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VirtualCardBoardClient
 {
-    class VirtualCardBoardInterface
+    public class VirtualCardBoardInterface
     {
         protected Listener AndroidListener = new Listener();
         protected byte[] Secret = {207, 219, 43, 202, 53, 226, 172, 160, 100, 227, 145, 120, 187, 99, 170, 225};
@@ -20,9 +20,9 @@ namespace VirtualCardBoardClient
             }
         }
 
-        public byte[] ReadDataBytes()
+        public byte[] ReadDataBytes(int timeWaitMilliseconds = 0)
         {
-            var rawData = AndroidListener.Read();
+            var rawData = AndroidListener.Read(timeWaitMilliseconds);
             if (rawData.Length < 20)
             {
                 return new List<byte>().ToArray();
