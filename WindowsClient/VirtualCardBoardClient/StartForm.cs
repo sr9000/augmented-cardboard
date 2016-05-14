@@ -25,11 +25,7 @@ namespace VirtualCardBoardClient
             const int waitPeriod = 1000; //1 sec
             while (true)
             {
-                byte[] packetBytes = CardBoardInterface.ReadDataBytes(waitPeriod);
-                if (packetBytes.Length > 0)
-                {
-                    //TODO: parse message
-                }
+                //check Interrupted
                 try
                 {
                     Thread.Sleep(0);
@@ -37,6 +33,19 @@ namespace VirtualCardBoardClient
                 catch (ThreadInterruptedException)
                 {
                     return;
+                }
+
+                //cycle body
+                byte[] packetBytes = CardBoardInterface.ReadDataBytes(waitPeriod);
+                if (packetBytes.Length > 0)
+                {
+                    var msg = MessageParser.Parse(packetBytes);
+                    if (!msg.HasData())
+                    {
+                        continue;
+                    }
+                    //TODO:
+
                 }
             }
         }

@@ -26,7 +26,7 @@ namespace VirtualCardBoardClient
 
         public bool IsStarted()
         {
-            return (InputSocket == null);
+            return (InputSocket != null);
         }
 
         public Listener Start()
