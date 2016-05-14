@@ -10,14 +10,19 @@ using System.Windows.Forms;
 
 namespace VirtualCardBoardClient
 {
-    public partial class MainForm : Form
+    public partial class StartForm : Form
     {
-        public MainForm()
+        public StartForm()
         {
             InitializeComponent();
         }
 
         private void MainForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
         {
 
         }
