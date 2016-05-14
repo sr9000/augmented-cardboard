@@ -15,6 +15,8 @@ namespace VirtualCardBoardClient
     {
         protected VirtualCardBoardInterface CardBoardInterface = new VirtualCardBoardInterface();
         protected Thread VirtualCardBoardsListener;
+        protected List<MessageParser.Message> VirtualCardboardDevicesList = new List<MessageParser.Message>();
+
         public StartForm()
         {
             InitializeComponent();
@@ -44,15 +46,34 @@ namespace VirtualCardBoardClient
                     {
                         continue;
                     }
-                    //TODO:
 
+                    bool isAlreadyContainDevice = false;
+                    IHelloMessageData iNewData = msg.Data;
+                    foreach (var deviceMessage in VirtualCardboardDevicesList)
+                    {
+                        IHelloMessageData iData = deviceMessage.Data;
+                        if (iData.GetName() == iNewData.GetName()
+                            && iData.GetAdress().Equals(iNewData.GetAdress())
+                            && iData.GetPort() == iNewData.GetPort())
+                        {
+                            isAlreadyContainDevice = true;
+                            break;
+                        }
+                    }
+
+                    if (!isAlreadyContainDevice)
+                    {
+                        VirtualCardboardDevicesList.Add(msg);
+                        listBoxVirtualCardboardDevices.Items.Add(((IHelloMessageData) msg.Data).GetName());
+                    }
                 }
             }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-
+            VirtualCardBoardsListener = new Thread(LisenCycle);
+            VirtualCardBoardsListener.Start();
         }
 
         private void groupBox1_Enter(object sender, EventArgs e)
