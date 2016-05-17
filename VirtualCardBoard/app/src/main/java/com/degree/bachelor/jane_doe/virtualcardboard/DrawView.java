@@ -6,6 +6,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import java.net.Inet4Address;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+
 /**
  * Created by Jane-Doe on 4/24/2016.
  */
@@ -81,9 +85,29 @@ public class DrawView extends SurfaceView implements
         getHandler().post(new Runnable() {
             @Override
             public void run() {
-                Vibrator _vibrator = (Vibrator) _context.getSystemService(_context.VIBRATOR_SERVICE);
-
+                Vibrator _vibrator = (Vibrator) _context.getSystemService(Context.VIBRATOR_SERVICE);
                 _vibrator.vibrate(new long[]{10, 100, 90, 100}, -1);
+                Thread worker = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            new BroadcastSender(_context)
+                                    .SendMessage(VC_Message
+                                            .GetHelloMessage(
+                                                    (Inet4Address)Inet4Address
+                                                            .getByAddress(
+                                                                new byte[]{1, 2, 3, 4})
+                                                    , 1234
+                                                    , "Hello World!!!"
+                                            ));
+                        } catch (SocketException e) {
+                            e.printStackTrace();
+                        } catch (UnknownHostException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                worker.start();
             }
         });
         return true;

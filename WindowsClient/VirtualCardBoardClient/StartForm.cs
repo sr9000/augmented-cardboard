@@ -64,7 +64,11 @@ namespace VirtualCardBoardClient
                     if (!isAlreadyContainDevice)
                     {
                         VirtualCardboardDevicesList.Add(msg);
-                        listBoxVirtualCardboardDevices.Items.Add(((IHelloMessageData) msg.Data).GetName());
+                        string name = ((IHelloMessageData) msg.Data).GetName();
+                        Invoke(new MethodInvoker(delegate()
+                        {
+                            listBoxVirtualCardboardDevices.Items.Add(name);
+                        }));
                     }
                 }
             }

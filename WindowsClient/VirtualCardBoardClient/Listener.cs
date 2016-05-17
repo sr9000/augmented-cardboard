@@ -38,6 +38,7 @@ namespace VirtualCardBoardClient
                 try
                 {
                     InputSocket.Bind(new IPEndPoint(IPAddress.Any, port));
+                    InputSocket.EnableBroadcast = true;
                     return this;
                 }
                 catch
