@@ -1,4 +1,4 @@
-package com.degree.bachelor.jane_doe.virtualcardboard;
+package com.degree.bachelor.jane_doe.virtualcardboard.network;
 
 import java.net.Inet4Address;
 

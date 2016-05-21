@@ -1,6 +1,7 @@
-package com.degree.bachelor.jane_doe.virtualcardboard;
+package com.degree.bachelor.jane_doe.virtualcardboard.network;
 
-import java.util.Arrays;
+import com.degree.bachelor.jane_doe.virtualcardboard.network.IHelloMessageData;
+import com.degree.bachelor.jane_doe.virtualcardboard.network.VC_Message;
 
 /**
  * Created by Jane-Doe on 5/15/2016.

@@ -1,4 +1,4 @@
-package com.degree.bachelor.jane_doe.virtualcardboard;
+package com.degree.bachelor.jane_doe.virtualcardboard.network;
 
 import java.net.Inet4Address;
 
@@ -12,6 +12,9 @@ public class VC_Message {
 
     private Type _type;
     private MessageDataContainer _data = new MessageDataContainer();
+
+    //use VC_Message.GetHelloMessage(...) instead constructor
+    private VC_Message(){}
 
     public Type GetType() { return _type; }
     public MessageDataContainer GetData() { return _data; }

@@ -6,6 +6,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import com.degree.bachelor.jane_doe.virtualcardboard.network.BroadcastSender;
+import com.degree.bachelor.jane_doe.virtualcardboard.network.PcInterface;
+import com.degree.bachelor.jane_doe.virtualcardboard.network.VC_Message;
+
 import java.net.Inet4Address;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -21,6 +25,7 @@ public class DrawView extends SurfaceView implements
     private CameraDemo _cameraDemo;
     private BinocularView _binocularView;
     private Context _context;
+    private PcInterface _pcInterface;
 
     private final float proportionFocusDistance = 2.0f/3.0f, proportionVerticalCoordinate = 0.5f;
 
@@ -29,7 +34,9 @@ public class DrawView extends SurfaceView implements
     public DrawView(Context context) {
         super(context);
         getHolder().addCallback(this);
+
         _context = context;
+        _pcInterface = new PcInterface(_context);
 
         _binocularView = new BinocularView(0, 0);
         _cameraDemo = new CameraDemo();
@@ -81,33 +88,12 @@ public class DrawView extends SurfaceView implements
 
     @Override
     public boolean onLongClick(View view) {
-        //TODO: send broadcast
         getHandler().post(new Runnable() {
             @Override
             public void run() {
                 Vibrator _vibrator = (Vibrator) _context.getSystemService(Context.VIBRATOR_SERVICE);
                 _vibrator.vibrate(new long[]{10, 100, 90, 100}, -1);
-                Thread worker = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            new BroadcastSender(_context)
-                                    .SendMessage(VC_Message
-                                            .GetHelloMessage(
-                                                    (Inet4Address)Inet4Address
-                                                            .getByAddress(
-                                                                new byte[]{1, 2, 3, 4})
-                                                    , 1234
-                                                    , "Hello World!!!"
-                                            ));
-                        } catch (SocketException e) {
-                            e.printStackTrace();
-                        } catch (UnknownHostException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                worker.start();
+                _pcInterface.SendBroadcastWelcomeSignal();
             }
         });
         return true;
