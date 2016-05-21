@@ -72,6 +72,7 @@
             this.Controls.Add(this.groupBox1);
             this.Name = "StartForm";
             this.Text = "Virtual Cardboard Client";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.StartForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);

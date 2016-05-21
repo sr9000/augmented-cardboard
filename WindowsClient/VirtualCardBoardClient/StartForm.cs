@@ -89,5 +89,11 @@ namespace VirtualCardBoardClient
         {
 
         }
+
+        private void StartForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            VirtualCardBoardsListener.Interrupt();
+            VirtualCardBoardsListener.Join();
+        }
     }
 }
