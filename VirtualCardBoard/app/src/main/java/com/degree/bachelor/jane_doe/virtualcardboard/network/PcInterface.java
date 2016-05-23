@@ -17,12 +17,18 @@ public class PcInterface {
     private static final String _impossibleError = "Fatal error with code name \"Inet4Address-WTF\". Please report it to developer!";
 
     private Context _context;
+    private RequestListenerThread _listener;
 
     private PcInterface(){}
 
     public PcInterface(Context context)
     {
         _context = context;
+        try {
+            _listener = new RequestListenerThread(_context);
+        } catch (ManualException e) {
+            ErrorWindow.Show(_context, e.getMessage());
+        }
     }
 
     public PcInterface SendBroadcastWelcomeSignal() {
@@ -35,23 +41,14 @@ public class PcInterface {
         worker.start();
         return this;
     }
+
     private void _SendBroadcastWelcomeSignal()
     {
         VC_Message msg;
-        try {
-            msg = VC_Message.GetHelloMessage(
-                    (Inet4Address) Inet4Address
-                            .getByAddress(new byte[]{1, 2, 3, 4})
-                    , 1234
-                    , "Hello World!!!");
-        } catch (UnknownHostException e) {
-            //never happened
-            //cause Inet4Address.getByAddress() use right byte array
-
-            //... but everything possible
-            ErrorWindow.Show(_context, _impossibleError);
-            return;
-        }
+        msg = VC_Message.GetHelloMessage(
+                _listener.GetAddress()
+                , _listener.GetPort()
+                , "Hello World!!!");
 
         try {
             BroadcastSender.SendMessage(_context, msg);

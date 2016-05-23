@@ -8,59 +8,42 @@ import android.view.SurfaceHolder;
  * Created by Jane-Doe on 4/24/2016.
  */
 //special draw thread
-public class DrawThread extends Thread {
-    private boolean _running = false;
+public class DrawThread extends PausableThread {
+    private volatile SurfaceHolder _surfaceHolder;
+    private volatile CameraDemo _cameraDemo;
+    private volatile BinocularView.BinocularInfo _binocularInfo;
 
-    private SurfaceHolder _surfaceHolder;
-    private CameraDemo _cameraDemo;
-    private BinocularView.BinocularInfo _binocularInfo;
-
-    private final Object pauseLocker = new Object();
     private final Object changeLocker = new Object();
 
     public DrawThread() {}
 
     @Override
-    public void run() {
-        //thread drawing cycle
-        while (true) {
-            synchronized (pauseLocker) {
-                if (!_running) {
-                    try {
-                        pauseLocker.wait();
-                    } catch (InterruptedException e) {
-                        return;
-                    }
-                    continue;
-                }
-            }
+    protected void ProcessBody() {
+        synchronized (changeLocker) {
+            if (_surfaceHolder == null
+                    || _binocularInfo == null
+                    || _cameraDemo == null)
+                return;
 
-            synchronized (changeLocker) {
-                if (_surfaceHolder == null
-                        || _binocularInfo == null
-                        || _cameraDemo == null)
-                    continue;
+            if (!_cameraDemo.IsStarted()) return;
 
-                if (!_cameraDemo.IsStarted()) continue;
+            Bitmap captured = null;
+            Canvas canvas = null;
 
-                Bitmap captured = null;
-                Canvas canvas = null;
+            captured = _cameraDemo.GetCapturedBitmap();
+            if (captured == null) return;
 
-                captured = _cameraDemo.GetCapturedBitmap();
-                if (captured == null) continue;
+            try {
+                canvas = _surfaceHolder.lockCanvas();
+                if (canvas == null) return;
 
-                try {
-                    canvas = _surfaceHolder.lockCanvas();
-                    if (canvas == null) continue;
+                //draw action here
+                canvas.drawBitmap(captured, _binocularInfo.adaptedLeftViewFrom, _binocularInfo.adaptedLeftViewWhere, null);
+                canvas.drawBitmap(captured, _binocularInfo.adaptedRightViewFrom, _binocularInfo.adaptedRightViewWhere, null);
 
-                    //draw action here
-                    canvas.drawBitmap(captured, _binocularInfo.adaptedLeftViewFrom, _binocularInfo.adaptedLeftViewWhere, null);
-                    canvas.drawBitmap(captured, _binocularInfo.adaptedRightViewFrom, _binocularInfo.adaptedRightViewWhere, null);
-
-                } finally {
-                    if (canvas != null) {
-                        _surfaceHolder.unlockCanvasAndPost(canvas);
-                    }
+            } finally {
+                if (canvas != null) {
+                    _surfaceHolder.unlockCanvasAndPost(canvas);
                 }
             }
         }
@@ -71,13 +54,6 @@ public class DrawThread extends Thread {
             _cameraDemo = cameraDemo;
             _surfaceHolder = holder;
             _binocularInfo = binocularInfo;
-        }
-    }
-
-    public void SetRunning(boolean running) {
-        synchronized (pauseLocker) {
-            _running = running;
-            pauseLocker.notify();
         }
     }
 }
