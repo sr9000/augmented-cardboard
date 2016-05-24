@@ -3,13 +3,14 @@ package com.degree.bachelor.jane_doe.virtualcardboard.information;
 /**
  * Created by Jane-Doe on 5/21/2016.
  */
-public class ManualException extends Exception {
+public class FatalErrorException extends Exception {
     private static final String _defaultInfo = "Fatal error with code name \"Funny-Bunny\". Please report it to developer!";
+
     private String _info;
 
-    private ManualException(){}
+    private FatalErrorException(){}
 
-    public ManualException(String info) {
+    public FatalErrorException(String info) {
         if (info == null) {
             _info = _defaultInfo;
         } else {

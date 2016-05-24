@@ -1,25 +1,18 @@
 package com.degree.bachelor.jane_doe.virtualcardboard.network;
 
-import android.content.Context;
-import android.net.DhcpInfo;
-import android.net.wifi.WifiManager;
-
-import com.degree.bachelor.jane_doe.virtualcardboard.information.ManualException;
+import com.degree.bachelor.jane_doe.virtualcardboard.information.FatalErrorException;
+import com.degree.bachelor.jane_doe.virtualcardboard.information.WiFiManagerException;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 
 /**
  * Created by Jane-Doe on 5/15/2016.
  */
 public class BroadcastSender {
-    private static final String _deepInet4Address = "Fatal error with code name \"Inet4Address-D\". Please report it to developer!";
-    private static final String _spoiledSocket = "Fatal error with code name \"Socket-SP\". Please report it to developer!";
-    private static final String _badSocket = "Fatal error with code name \"Socket-BD\". Please report it to developer!";
+    private static final String _badSocket = "Fatal error with code name \"Honey-Pony\". Please report it to developer!";
 
     private static final byte[] _secret = new byte[]
             { (byte)207, (byte)219, (byte)43,  (byte)202
@@ -37,7 +30,7 @@ public class BroadcastSender {
             , 49100, 49107, 49121, 49123, 49129
             , 49134, 49135 };
 
-    public static void SendMessage(Context context, VC_Message msg) throws ManualException {
+    public static void SendMessage(IWiFiManager wifiManager, VC_Message msg) throws WiFiManagerException, FatalErrorException {
         byte[] msgBytes = MessageComposer.ComposeMessage(msg);
         int totalCount =
                 _secret.length //secret length
@@ -57,11 +50,8 @@ public class BroadcastSender {
         //set actual data
         System.arraycopy(msgBytes, 0, data, _secret.length + 4, msgBytes.length);
 
-        //create wifiManager for getting broadcast address
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-
         //create packet
-        DatagramPacket sendPacket = new DatagramPacket(data, data.length, getBroadcastAddress(wifiManager), 0);
+        DatagramPacket sendPacket = new DatagramPacket(data, data.length, wifiManager.GetBroadcast(), 0);
 
         //create socket
         DatagramSocket socket;
@@ -69,36 +59,13 @@ public class BroadcastSender {
             socket = new DatagramSocket();
             socket.setBroadcast(true);
         } catch (SocketException e) {
-            throw new ManualException(_badSocket);
+            throw new FatalErrorException(_badSocket);
         }
 
         //send packets
-        try {
-            for (int portNumber : _ports) {
-                sendPacket.setPort(portNumber);
-                socket.send(sendPacket);
-            }
-        } catch (IOException e) {
-            throw new ManualException(_spoiledSocket);
+        for (int portNumber : _ports) {
+            sendPacket.setPort(portNumber);
+            try { socket.send(sendPacket); } catch (IOException ignored) { }
         }
-    }
-
-    private static InetAddress getBroadcastAddress(WifiManager wifiManager) throws ManualException {
-        DhcpInfo dhcp = wifiManager.getDhcpInfo();
-        int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
-
-        byte[] quads = new byte[4];
-        for (int k = 0; k < 4; k++) {
-            quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
-        }
-
-        InetAddress ret;
-        try {
-            ret = InetAddress.getByAddress(quads);
-        } catch (UnknownHostException e) {
-            throw new ManualException(_deepInet4Address);
-        }
-
-        return ret;
     }
 }

@@ -6,13 +6,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import com.degree.bachelor.jane_doe.virtualcardboard.network.BroadcastSender;
 import com.degree.bachelor.jane_doe.virtualcardboard.network.PcInterface;
-import com.degree.bachelor.jane_doe.virtualcardboard.network.VC_Message;
-
-import java.net.Inet4Address;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 
 /**
  * Created by Jane-Doe on 4/24/2016.

@@ -1,22 +1,20 @@
 package com.degree.bachelor.jane_doe.virtualcardboard.network;
 
 import android.content.Context;
-import android.net.DhcpInfo;
-import android.net.wifi.WifiManager;
 
 import com.degree.bachelor.jane_doe.virtualcardboard.LoyalError;
+import com.degree.bachelor.jane_doe.virtualcardboard.MainActivity;
 import com.degree.bachelor.jane_doe.virtualcardboard.PausableThread;
-import com.degree.bachelor.jane_doe.virtualcardboard.information.InfoWindow;
-import com.degree.bachelor.jane_doe.virtualcardboard.information.ManualException;
+import com.degree.bachelor.jane_doe.virtualcardboard.information.FatalErrorException;
+import com.degree.bachelor.jane_doe.virtualcardboard.information.InfoException;
+import com.degree.bachelor.jane_doe.virtualcardboard.information.WiFiManagerException;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 
 /**
  * Created by Jane-Doe on 5/23/2016.
@@ -24,83 +22,130 @@ import java.net.UnknownHostException;
 public class RequestListenerThread extends PausableThread {
     private static final int _max_packet_length = 1048576; //1MiB
     private static final int _receive_timeout = 1000; //1sec
-    private static final int _max_IOExceptions = 5;
 
-    private static final String _noSocket = "Fatal error with code name \"No Server\". Please report it to developer!";
-    private static final String _noAddress = "Fatal error with code name \"Inet4Address-Server\". Please report it to developer!";
-    private static final String _ioError = "Many errors happened, when waiting data from PC.";
+    private static final String _noSocket = "Fatal error with code name \"Orange-Cow\". Please report it to developer!";
+    private static final String _wifiNetworkUnstable = "Error with code name \"Purple-Car\". Maybe Wi-Fi network is unstable. Please swap network or contact with your network administrator. Or you can report it to developer!";
+
+    private static class _ReceiveErrorManager implements Runnable {
+        private static final int _max_IOExceptions = 5;
+        private static final String _ioError = "Many errors with code name \"Cold-Winter\" happened, when waiting data from PC.";
+
+        private LoyalError _errorsInformer;
+
+        public _ReceiveErrorManager() {
+            _errorsInformer = new LoyalError(_max_IOExceptions, _ioError);
+        }
+
+        public void Ouch() throws InfoException {
+            _errorsInformer.Ouch();
+        }
+
+        @Override
+        public void run() {
+            _errorsInformer.Catch();
+        }
+    }
 
     private byte[] _packetBytes = new byte[_max_packet_length];
     private DatagramPacket _packet;
     private DatagramSocket _socket;
-    private LoyalError _errorsInformer;
+
     private Context _context;
-    private Runnable _catch;
+    private _ReceiveErrorManager _receiveErrorManager = new _ReceiveErrorManager();
+    private IWiFiManager _wifiManager;
 
-    public RequestListenerThread(Context context) throws ManualException {
+    private volatile Inet4Address _wifiLocal;
+    private volatile Inet4Address _wifiNet;
+    private volatile int _wifiPort;
+    private final Object syncSocket = new Object();
+
+    public RequestListenerThread(Context context, IWiFiManager wifiManager) {
         _context = context;
+        _wifiManager = wifiManager;
         _packet = new DatagramPacket(_packetBytes, _packetBytes.length);
-        _errorsInformer = new LoyalError(_max_IOExceptions, _ioError);
 
-        _catch = new Runnable() {
-            @Override
-            public void run() {
-                _errorsInformer.Catch();
-            }
-        };
+        synchronized (syncSocket) {
+            _wifiLocal = null;
+            _wifiNet = null;
+            _wifiPort = -1;
+        }
+
+        _socket = null;
+    }
+
+    private void _CheckAddress() throws WiFiManagerException, FatalErrorException {
+        Inet4Address wifiLocal = _wifiManager.GetAddress();
+        Inet4Address wifiNet = _wifiManager.GetNet();
+        if (_wifiLocal == wifiLocal && _wifiNet == wifiNet) { return; }
+
+        synchronized (syncSocket) {
+            _wifiLocal = null;
+            _wifiNet = null;
+            _wifiPort = -1;
+        }
+
+        if (_socket != null) {
+            _socket.close();
+            _socket = null;
+        }
 
         try {
-            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            _socket = new DatagramSocket(0, getLocalAddress(wifiManager));
-            _socket.setSoTimeout(_receive_timeout);
+            _socket = new DatagramSocket(0, wifiLocal);
         } catch (SocketException e) {
-            throw new ManualException(_noSocket);
+            throw new FatalErrorException(_noSocket);
         }
 
-    }
-
-    public Inet4Address GetAddress() {
-        return (Inet4Address)_socket.getLocalAddress();
-    }
-
-    public int GetPort() {
-        return _socket.getLocalPort();
-    }
-
-    private static InetAddress getLocalAddress(WifiManager wifiManager) throws ManualException {
-        DhcpInfo dhcp = wifiManager.getDhcpInfo();
-        int broadcast = dhcp.ipAddress;
-
-        byte[] quads = new byte[4];
-        for (int k = 0; k < 4; k++) {
-            quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
+        synchronized (syncSocket) {
+            _wifiLocal = wifiLocal;
+            _wifiNet = wifiNet;
+            _wifiPort = _socket.getLocalPort();
         }
+    }
 
-        InetAddress ret;
-        try {
-            ret = InetAddress.getByAddress(quads);
-        } catch (UnknownHostException e) {
-            throw new ManualException(_noAddress);
+    public Inet4Address GetAddress() throws WiFiManagerException {
+        synchronized (syncSocket) {
+            if (_wifiLocal == null) {
+                throw new WiFiManagerException(_wifiNetworkUnstable);
+            }
         }
+        return _wifiLocal;
+    }
 
-        return ret;
+    public int GetPort() throws WiFiManagerException {
+        synchronized (syncSocket) {
+            if (_wifiPort < 0) {
+                throw new WiFiManagerException(_wifiNetworkUnstable);
+            }
+        }
+        return _wifiPort;
     }
 
     @Override
     protected void ProcessBody() {
+        boolean doOuch = false;
+
         try {
+            _CheckAddress();
+        } catch (WiFiManagerException e) {
+            Thread.yield();
+            return;
+        } catch (FatalErrorException e) {
+            MainActivity.FatalErrorWindow.Show(_context, e.getMessage());
+        }
+
+        try {
+            _socket.setSoTimeout(_receive_timeout);
             _socket.receive(_packet);
         } catch (SocketTimeoutException e) {
-            //t skip cause it is expected behavior
+            //just skip cause it is expected behavior
+        } catch (IOException e) {
+            doOuch = true;
         }
-        catch (IOException e) {
-            try {
-                //count exceptions
-                _errorsInformer.Ouch();
-            } catch (ManualException e1) {
-                //exceptions limit exceeded
-                InfoWindow.Show(_context, e1.getMessage(), _catch);
-            }
+
+        try {
+            if (doOuch) { _receiveErrorManager.Ouch(); }
+        } catch (InfoException e) {
+            MainActivity.InfoWindow.Show(_context, e.getMessage(), _receiveErrorManager);
         }
     }
 }

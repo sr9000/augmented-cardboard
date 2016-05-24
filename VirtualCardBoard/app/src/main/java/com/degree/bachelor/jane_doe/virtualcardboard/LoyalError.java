@@ -1,6 +1,6 @@
 package com.degree.bachelor.jane_doe.virtualcardboard;
 
-import com.degree.bachelor.jane_doe.virtualcardboard.information.ManualException;
+import com.degree.bachelor.jane_doe.virtualcardboard.information.InfoException;
 
 /**
  * Created by Jane-Doe on 5/23/2016.
@@ -28,14 +28,14 @@ public class LoyalError {
         }
     }
 
-    public LoyalError SetHappenedErrorCount(int happenedErrorCount) throws ManualException {
+    public LoyalError SetHappenedErrorCount(int happenedErrorCount) throws InfoException {
         _counter = Math.max(0, happenedErrorCount);
 
         _counter -= 1;
         return Ouch();
     }
 
-    public LoyalError Ouch() throws ManualException {
+    public LoyalError Ouch() throws InfoException {
         synchronized (_syncCatched) {
             if (!_catched) {
                 return this;
@@ -55,7 +55,7 @@ public class LoyalError {
                     _catched = false;
                 }
             }
-            throw new ManualException(_msg);
+            throw new InfoException(_msg);
         }
 
         return this;

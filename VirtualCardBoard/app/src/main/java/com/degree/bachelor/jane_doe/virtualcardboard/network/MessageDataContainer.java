@@ -1,7 +1,5 @@
 package com.degree.bachelor.jane_doe.virtualcardboard.network;
 
-import com.degree.bachelor.jane_doe.virtualcardboard.network.IHelloMessageData;
-
 import java.net.Inet4Address;
 
 /**
