@@ -5,6 +5,7 @@ import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 
 import com.degree.bachelor.jane_doe.virtualcardboard.MainActivity;
+import com.degree.bachelor.jane_doe.virtualcardboard.VirtualCardBoardState;
 import com.degree.bachelor.jane_doe.virtualcardboard.information.FatalErrorException;
 import com.degree.bachelor.jane_doe.virtualcardboard.information.WiFiManagerException;
 
@@ -18,6 +19,13 @@ public class PcInterface
     implements IWiFiManager
 {
     private static final String _impossibleError = "Fatal error with code name \"Red-Lake\". Please report it to developer!";
+    private static final String _wifiDisabled = "To start you need enable wifi and connect to wifi network :-)";
+
+    public static final byte[] Secret = new byte[]
+            { (byte)207, (byte)219, (byte)43,  (byte)202
+            , (byte)53,  (byte)226, (byte)172, (byte)160
+            , (byte)100, (byte)227, (byte)145, (byte)120
+            , (byte)187, (byte)99,  (byte)170, (byte)225};
 
     private Context _context;
     private RequestListenerThread _listener;
@@ -25,10 +33,10 @@ public class PcInterface
 
     private PcInterface(){}
 
-    public PcInterface(Context context) {
+    public PcInterface(Context context, VirtualCardBoardState virtualCardBoardState) {
         _context = context;
         _wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        _listener = new RequestListenerThread(_context, this);
+        _listener = new RequestListenerThread(_context, this, virtualCardBoardState);
 
         _listener.start();
         _listener.SetRunning(true);
@@ -46,9 +54,9 @@ public class PcInterface
     }
 
     private void _SendBroadcastWelcomeSignal() {
-        VC_Message msg;
+        VCMessage msg;
         try {
-            msg = VC_Message.GetHelloMessage(
+            msg = VCMessage.GetHelloMessage(
                     _listener.GetAddress()
                     , _listener.GetPort()
                     , "Hello World!!!");
@@ -85,7 +93,7 @@ public class PcInterface
     @Override
     public Inet4Address GetAddress() throws WiFiManagerException {
         if (_wifiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLED) {
-            throw new WiFiManagerException(null);
+            throw new WiFiManagerException(_wifiDisabled);
         }
 
         DhcpInfo dhcp = _wifiManager.getDhcpInfo();
@@ -99,7 +107,7 @@ public class PcInterface
     @Override
     public Inet4Address GetBroadcast() throws WiFiManagerException {
         if (_wifiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLED) {
-            throw new WiFiManagerException(null);
+            throw new WiFiManagerException(_wifiDisabled);
         }
 
         DhcpInfo dhcp = _wifiManager.getDhcpInfo();
@@ -113,7 +121,7 @@ public class PcInterface
     @Override
     public Inet4Address GetNet() throws WiFiManagerException {
         if (_wifiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLED) {
-            throw new WiFiManagerException(null);
+            throw new WiFiManagerException(_wifiDisabled);
         }
 
         DhcpInfo dhcp = _wifiManager.getDhcpInfo();

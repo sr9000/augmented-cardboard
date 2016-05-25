@@ -41,6 +41,7 @@
             this.listBoxVirtualCardboardDevices.Name = "listBoxVirtualCardboardDevices";
             this.listBoxVirtualCardboardDevices.Size = new System.Drawing.Size(392, 290);
             this.listBoxVirtualCardboardDevices.TabIndex = 0;
+            this.listBoxVirtualCardboardDevices.SelectedIndexChanged += new System.EventHandler(this.listBoxVirtualCardboardDevices_SelectedIndexChanged);
             // 
             // groupBox1
             // 

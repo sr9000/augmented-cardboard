@@ -7,7 +7,7 @@ import java.net.Inet4Address;
  */
 public class MessageDataContainer
         implements IHelloMessageData
-{
+        , IPingMessageData {
     //IHelloMessageData
     private Inet4Address _address;
     private String _name;
@@ -36,5 +36,10 @@ public class MessageDataContainer
 
     @Override
     public void SetAddress(Inet4Address address) { _address = address; }
+
+    //IPingMessageData
+    @Override
+    public void ParsePingMessageData(byte[] bytes) {}
+
 }
 

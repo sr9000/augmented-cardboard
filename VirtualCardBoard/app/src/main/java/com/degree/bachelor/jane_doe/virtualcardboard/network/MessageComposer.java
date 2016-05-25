@@ -4,20 +4,17 @@ package com.degree.bachelor.jane_doe.virtualcardboard.network;
  * Created by Jane-Doe on 5/15/2016.
  */
 public class MessageComposer {
-    private static final int _signature_error = 255;
-    private static final int _signature_hello = 0;
-
-    public static byte[] ComposeMessage(VC_Message msg)
+    public static byte[] ComposeMessage(VCMessage msg)
     {
         switch (msg.GetType())
         {
             case Hello:
                 return ComposeHelloMessage(msg);
         }
-        return new byte[]{(byte)_signature_error};
+        return new byte[]{(byte)VCMessageSignatures._signature_error};
     }
 
-    private static byte[] ComposeHelloMessage(VC_Message msg)
+    private static byte[] ComposeHelloMessage(VCMessage msg)
     {
         IHelloMessageData idata = msg.GetData();
         int totalCount =
@@ -29,7 +26,7 @@ public class MessageComposer {
         byte[] ret = new byte[totalCount];
 
         //assign signature
-        ret[0] = _signature_hello;
+        ret[0] = (byte)(VCMessageSignatures._signature_hello);
 
         //copy ipv4 address
         System.arraycopy(idata.GetAddress().getAddress(), 0, ret, 1, 4);

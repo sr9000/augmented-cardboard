@@ -44,8 +44,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Message.cs" />
+    <Compile Include="Message2BytesComposer.cs" />
     <Compile Include="MessageDataContainer.cs" />
     <Compile Include="MessageParser.cs" />
+    <Compile Include="Sender.cs" />
     <Compile Include="StartForm.cs">
       <SubType>Form</SubType>
     </Compile>

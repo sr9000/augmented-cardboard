@@ -20,6 +20,7 @@ public class DrawView extends SurfaceView implements
     private BinocularView _binocularView;
     private Context _context;
     private PcInterface _pcInterface;
+    private VirtualCardBoardState _virtualCardBoardState;
 
     private final float proportionFocusDistance = 2.0f/3.0f, proportionVerticalCoordinate = 0.5f;
 
@@ -30,7 +31,8 @@ public class DrawView extends SurfaceView implements
         getHolder().addCallback(this);
 
         _context = context;
-        _pcInterface = new PcInterface(_context);
+        _virtualCardBoardState = new VirtualCardBoardState(_context, this);
+        _pcInterface = new PcInterface(_context, _virtualCardBoardState);
 
         _binocularView = new BinocularView(0, 0);
         _cameraDemo = new CameraDemo();

@@ -5,22 +5,23 @@ import java.net.Inet4Address;
 /**
  * Created by Jane-Doe on 5/15/2016.
  */
-public class VC_Message {
+public class VCMessage {
     public enum Type {
-        Hello
+        Hello,
+        Ping
     }
 
     private Type _type;
     private MessageDataContainer _data = new MessageDataContainer();
 
-    //use VC_Message.GetHelloMessage(...) instead constructor
-    private VC_Message(){}
+    //use VCMessage.GetHelloMessage(...) instead constructor
+    private VCMessage(){}
 
     public Type GetType() { return _type; }
     public MessageDataContainer GetData() { return _data; }
 
-    public static VC_Message GetHelloMessage(Inet4Address address, int port, String name) {
-        VC_Message ret = new VC_Message();
+    public static VCMessage GetHelloMessage(Inet4Address address, int port, String name) {
+        VCMessage ret = new VCMessage();
         ret._type = Type.Hello;
         IHelloMessageData iret = ret._data;
 
@@ -28,6 +29,15 @@ public class VC_Message {
         iret.SetPort(port);
         iret.SetName(name);
 
+        return ret;
+    }
+
+    public static VCMessage ParsePingMessage(byte[] bytes) {
+        VCMessage ret = new VCMessage();
+        ret._type = Type.Ping;
+        IPingMessageData iret = ret._data;
+
+        iret.ParsePingMessageData(bytes);
         return ret;
     }
 

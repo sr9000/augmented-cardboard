@@ -14,11 +14,6 @@ import java.net.SocketException;
 public class BroadcastSender {
     private static final String _badSocket = "Fatal error with code name \"Honey-Pony\". Please report it to developer!";
 
-    private static final byte[] _secret = new byte[]
-            { (byte)207, (byte)219, (byte)43,  (byte)202
-            , (byte)53,  (byte)226, (byte)172, (byte)160
-            , (byte)100, (byte)227, (byte)145, (byte)120
-            , (byte)187, (byte)99,  (byte)170, (byte)225};
     private static final int[] _ports = new int[]
             { 48654, 48670, 48683, 48696, 48699
             , 48702, 48739, 48755, 48773, 48780
@@ -30,25 +25,25 @@ public class BroadcastSender {
             , 49100, 49107, 49121, 49123, 49129
             , 49134, 49135 };
 
-    public static void SendMessage(IWiFiManager wifiManager, VC_Message msg) throws WiFiManagerException, FatalErrorException {
+    public static void SendMessage(IWiFiManager wifiManager, VCMessage msg) throws WiFiManagerException, FatalErrorException {
         byte[] msgBytes = MessageComposer.ComposeMessage(msg);
         int totalCount =
-                _secret.length //secret length
+                PcInterface.Secret.length //secret length
                 + 4     //actual data length
                 + msgBytes.length;  //message actual data
         byte[] data = new byte[totalCount];
 
         //copy secret
-        System.arraycopy(_secret, 0, data, 0, _secret.length);
+        System.arraycopy(PcInterface.Secret, 0, data, 0, PcInterface.Secret.length);
 
         //set length
-        data[_secret.length]     = (byte)(msgBytes.length % 256); //div 256^0
-        data[_secret.length + 1] = (byte)((msgBytes.length / 256) % 256); //div 256^1
-        data[_secret.length + 2] = (byte)((msgBytes.length / 65536) % 256); //div 256^2
-        data[_secret.length + 3] = (byte)((msgBytes.length / 16777216) % 256); //div 256^3
+        data[PcInterface.Secret.length]     = (byte)(msgBytes.length % 256); //div 256^0
+        data[PcInterface.Secret.length + 1] = (byte)((msgBytes.length / 256) % 256); //div 256^1
+        data[PcInterface.Secret.length + 2] = (byte)((msgBytes.length / 65536) % 256); //div 256^2
+        data[PcInterface.Secret.length + 3] = (byte)((msgBytes.length / 16777216) % 256); //div 256^3
 
         //set actual data
-        System.arraycopy(msgBytes, 0, data, _secret.length + 4, msgBytes.length);
+        System.arraycopy(msgBytes, 0, data, PcInterface.Secret.length + 4, msgBytes.length);
 
         //create packet
         DatagramPacket sendPacket = new DatagramPacket(data, data.length, wifiManager.GetBroadcast(), 0);

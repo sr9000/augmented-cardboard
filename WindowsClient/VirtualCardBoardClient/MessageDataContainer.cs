@@ -10,25 +10,53 @@ namespace VirtualCardBoardClient
 {
     public class MessageDataContainer
         : IHelloMessageData
+        , IPingMessageData
     {
         //IHelloMessageData
         protected IPAddress Address;
         protected int Port;
         protected string Name;
 
-        public static MessageDataContainer ParseHelloMessage(byte[] packet)
+        public static class ParseMethods
         {
-            if (packet.Length < 8)
+            public static MessageDataContainer ParseHelloMessage(byte[] packet)
             {
-                return null;
+                if (packet.Length < 8)
+                {
+                    return null;
+                }
+
+                return new MessageDataContainer
+                {
+                    Address = new IPAddress(packet.Skip(1).Take(4).ToArray()),
+                    Port = packet[5] + 256*packet[6],
+                    Name =
+                        (packet[7] == 0)
+                            ? "Default VCB"
+                            : packet.Skip(7).TakeWhile(x => x != 0).Aggregate("", (a, b) => a + (char) b)
+                };
+            }
+        }
+
+        public static class ComposeMethods
+        {
+            public static byte[] ComposePingMessageBytes(MessageDataContainer msgDataContainer)
+            {
+                return new byte[] {0}; //return zero byte
             }
 
-            return new MessageDataContainer
+            public static byte[] ComposeEmptyMessageBytes(MessageDataContainer msgDataContainer)
             {
-                Address = new IPAddress(packet.Skip(1).Take(4).ToArray()),
-                Port = packet[5] + 256*packet[6],
-                Name = (packet[7] == 0)? "Default VCB" : packet.Skip(7).TakeWhile(x => x != 0).Aggregate("", (a, b) => a + (char)b)
-            };
+                return new byte[] {0};
+            }
+        }
+
+        public static class CreateMethods
+        {
+            public static MessageDataContainer CreatePingMessageData()
+            {
+                return new MessageDataContainer();
+            }
         }
 
         public IPAddress GetAdress()
@@ -52,5 +80,9 @@ namespace VirtualCardBoardClient
         IPAddress GetAdress();
         int GetPort();
         string GetName();
+    }
+
+    public interface IPingMessageData
+    {
     }
 }

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace VirtualCardBoardClient
     {
         protected VirtualCardBoardInterface CardBoardInterface = new VirtualCardBoardInterface();
         protected Thread VirtualCardBoardsListener;
-        protected List<MessageParser.Message> VirtualCardboardDevicesList = new List<MessageParser.Message>();
+        protected List<Message> VirtualCardboardDevicesList = new List<Message>();
 
         public StartForm()
         {
@@ -94,6 +95,17 @@ namespace VirtualCardBoardClient
         {
             VirtualCardBoardsListener.Interrupt();
             VirtualCardBoardsListener.Join();
+        }
+
+        private void listBoxVirtualCardboardDevices_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int selectedIndex = listBoxVirtualCardboardDevices.SelectedIndex;
+            
+            var helloMessageData = (IHelloMessageData) (VirtualCardboardDevicesList[selectedIndex].Data);
+            var remoteAddress = new IPEndPoint(helloMessageData.GetAdress(), helloMessageData.GetPort());
+
+            var msg = Message.CreatePingMessage();
+            CardBoardInterface.WriteDataBytes(Message2BytesComposer.ComposeMessageBytes(msg), remoteAddress);
         }
     }
 }

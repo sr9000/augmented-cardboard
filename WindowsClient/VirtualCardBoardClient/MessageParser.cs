@@ -11,49 +11,12 @@ namespace VirtualCardBoardClient
     {
         protected delegate Message SpecifiedPacketParser (byte[] packet);
 
-        protected static SpecifiedPacketParser[] ParserMethods = { Message.HelloParserMethod };
-
-        public class Message
+        protected static SpecifiedPacketParser[] ParserMethods =
         {
-            public enum MessageType
-            {
-                Hello, Empty
-            }
-
-            public MessageType Type { get; protected set; }
-
-            public MessageDataContainer Data { get; protected set; }
-
-            public bool HasData()
-            {
-                return (Data != null);
-            }
-
-            protected Message SetData(MessageDataContainer data)
-            {
-                Data = data;
-                return this;
-            }
-
-            protected Message SetType(MessageType type)
-            {
-                Type = type;
-                return this;
-            }
-
-            public static Message EmptyParserMethod(byte[] packet)
-            {
-                return new Message().SetType(MessageType.Empty);
-            }
-            
-            public static Message HelloParserMethod(byte[] packet)
-            {
-                return new Message()
-                    .SetType(MessageType.Hello)
-                    .SetData(MessageDataContainer.ParseHelloMessage(packet));
-            }
-            
-        }
+            Message.HelloParserMethod   //Hello
+            , Message.EmptyParserMethod //Ping
+            //Empty
+        };
 
         public static Message Parse(byte[] packet)
         {
@@ -64,6 +27,5 @@ namespace VirtualCardBoardClient
 
             return Message.EmptyParserMethod(packet);
         }
-        
     }
 }
