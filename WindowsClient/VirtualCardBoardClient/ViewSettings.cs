@@ -19,14 +19,23 @@ namespace VirtualCardBoardClient
         protected Message DeviceHelloMessage;
         protected VirtualCardBoardInterface CardBoardInterface;
 
+        protected string DeviceStatus;
+
         private ViewSettings()
         {
         }
+
+        protected void UpdateDeviceStatus(string devName, string status)
+        {
+            textBoxDeviceName.Text = devName + " [" + status + "]";
+        }
+
         public ViewSettings(Message deviceHelloMessage, VirtualCardBoardInterface cardBoardInterface)
         {
             InitializeComponent();
             IsGoingBack = false;
             IsAlreadyClosed = false;
+            DeviceStatus = "Waiting";
 
             CardBoardInterface = cardBoardInterface;
             DeviceHelloMessage = deviceHelloMessage;
@@ -34,7 +43,7 @@ namespace VirtualCardBoardClient
                 if (DeviceHelloMessage.Type == Message.MessageType.Hello)
                 {
                     IHelloMessageData iData = DeviceHelloMessage.Data;
-                    textBoxDeviceName.Text = iData.GetName();
+                    UpdateDeviceStatus(iData.GetName(), DeviceStatus);
                 }
                 else
                 {
@@ -69,7 +78,12 @@ namespace VirtualCardBoardClient
             var helloMessageData = (IHelloMessageData)(DeviceHelloMessage.Data);
             var remoteAddress = new IPEndPoint(helloMessageData.GetAdress(), helloMessageData.GetPort());
 
-            var msg = Message.CreatePingMessage();
+            Message msg;
+
+            msg = Message.CreatePingMessage();
+            CardBoardInterface.WriteDataBytes(Message2BytesComposer.ComposeMessageBytes(msg), remoteAddress);
+
+            msg = Message.CreateModeMessage(MessageDataContainer.ModeType.Settings);
             CardBoardInterface.WriteDataBytes(Message2BytesComposer.ComposeMessageBytes(msg), remoteAddress);
         }
     }

@@ -8,6 +8,8 @@ public class MessageParser {
         switch (((int)bytes[0])) {
             case VCMessageSignatures._signature_ping:
                 return VCMessage.ParsePingMessage(bytes);
+            case VCMessageSignatures._signature_mode:
+                return VCMessage.ParseModeMessage(bytes);
         }
         return null;
     }

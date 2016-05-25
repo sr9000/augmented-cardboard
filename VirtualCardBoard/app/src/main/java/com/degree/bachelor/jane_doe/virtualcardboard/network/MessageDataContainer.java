@@ -7,12 +7,25 @@ import java.net.Inet4Address;
  */
 public class MessageDataContainer
         implements IHelloMessageData
-        , IPingMessageData {
+        , IPingMessageData
+        , IModeMessageData
+{
     //IHelloMessageData
     private Inet4Address _address;
     private String _name;
     private int _port;
 
+    //IModeMessageData
+    public enum ModeType {
+        Pic, NoPic, Settings
+    }
+    public static final byte _mode_message_pic = 0;
+    public static final byte _mode_message_no_pic = 1;
+    public static final byte _mode_message_settings = 2;
+
+    private ModeType _mode;
+
+    //IHelloMessageData
     @Override
     public String GetName() {
         return _name;
@@ -40,6 +53,27 @@ public class MessageDataContainer
     //IPingMessageData
     @Override
     public void ParsePingMessageData(byte[] bytes) {}
+
+    //IModeMessageData
+    @Override
+    public void ParseModeMessageData(byte[] bytes) {
+        switch (bytes[0]) {
+            case _mode_message_pic:
+                _mode = ModeType.Pic;
+                break;
+            case _mode_message_no_pic:
+                _mode = ModeType.NoPic;
+                break;
+            case _mode_message_settings:
+                _mode = ModeType.Settings;
+                break;
+        }
+    }
+
+    @Override
+    public ModeType GetMode() {
+        return _mode;
+    }
 
 }
 

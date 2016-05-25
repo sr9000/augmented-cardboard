@@ -2,9 +2,10 @@ package com.degree.bachelor.jane_doe.virtualcardboard;
 
 import android.content.Context;
 import android.os.Vibrator;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 
 import com.degree.bachelor.jane_doe.virtualcardboard.network.PcInterface;
 
@@ -13,16 +14,20 @@ import com.degree.bachelor.jane_doe.virtualcardboard.network.PcInterface;
  */
 public class DrawView extends SurfaceView implements
         SurfaceHolder.Callback
-        , View.OnLongClickListener
 {
+    private final float proportionFocusDistance = 2.0f/3.0f, proportionVerticalCoordinate = 0.5f;
+
     private DrawThread _drawThread;
     private CameraDemo _cameraDemo;
     private BinocularView _binocularView;
     private Context _context;
     private PcInterface _pcInterface;
     private VirtualCardBoardState _virtualCardBoardState;
+    private GestureDetector _gestureDetector;
 
-    private final float proportionFocusDistance = 2.0f/3.0f, proportionVerticalCoordinate = 0.5f;
+    private void SetModeToNoPic() {
+        _virtualCardBoardState.SetMode(VirtualCardBoardState.Mode.NoPic);
+    }
 
     //says to surfaceholder that
     //DrawView control surface events
@@ -39,7 +44,12 @@ public class DrawView extends SurfaceView implements
         _drawThread = new DrawThread();
         _drawThread.start();
 
-        setOnLongClickListener(this);
+        _gestureDetector = new GestureDetector(
+                _context
+                , new GestureDoubleTapListener(
+                    new Runnable() { @Override public void run() { SetModeToNoPic(); } }
+                    , new Runnable() { @Override public void run() { _LongClickAction(); } } )
+        );
     }
 
     @Override
@@ -82,8 +92,7 @@ public class DrawView extends SurfaceView implements
         _cameraDemo.StopPreview();
     }
 
-    @Override
-    public boolean onLongClick(View view) {
+    private void _LongClickAction() {
         getHandler().post(new Runnable() {
             @Override
             public void run() {
@@ -92,6 +101,10 @@ public class DrawView extends SurfaceView implements
                 _pcInterface.SendBroadcastWelcomeSignal();
             }
         });
-        return true;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent e) {
+        return _gestureDetector.onTouchEvent(e);
     }
 }

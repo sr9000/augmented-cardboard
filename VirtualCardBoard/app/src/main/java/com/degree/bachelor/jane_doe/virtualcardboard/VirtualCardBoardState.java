@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Vibrator;
 import android.view.View;
 
+import com.degree.bachelor.jane_doe.virtualcardboard.network.IModeMessageData;
 import com.degree.bachelor.jane_doe.virtualcardboard.network.VCMessage;
 
 /**
@@ -47,6 +48,23 @@ public class VirtualCardBoardState {
         switch (msg.GetType()) {
             case Ping:
                 PingVibrateResponse();
+                break;
+            case Mode:
+                ModeSetFromMessage(msg.GetData());
+                break;
+        }
+    }
+
+    private void ModeSetFromMessage(IModeMessageData idata) {
+        switch (idata.GetMode()) {
+            case Pic:
+                SetMode(Mode.Pic);
+                break;
+            case NoPic:
+                SetMode(Mode.NoPic);
+                break;
+            case Settings:
+                SetMode(Mode.Settings);
                 break;
         }
     }

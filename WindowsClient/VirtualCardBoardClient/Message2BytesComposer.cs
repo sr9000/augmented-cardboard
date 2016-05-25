@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VirtualCardBoardClient
 {
@@ -15,6 +12,7 @@ namespace VirtualCardBoardClient
             {
                 { Message.MessageType.Hello, MessageDataContainer.ComposeMethods.ComposeEmptyMessageBytes }
                 , { Message.MessageType.Ping, MessageDataContainer.ComposeMethods.ComposePingMessageBytes }
+                , { Message.MessageType.Mode, MessageDataContainer.ComposeMethods.ComposeModeMessageBytes }
             };
 
         protected static Dictionary<Message.MessageType, byte> MessageType2Byte = 
@@ -22,6 +20,7 @@ namespace VirtualCardBoardClient
             {
                 { Message.MessageType.Hello, 0 }
                 , { Message.MessageType.Ping, 1 }
+                , { Message.MessageType.Mode, 2 }
             };
 
         public static byte[] ComposeMessageBytes(Message msg)
@@ -32,7 +31,7 @@ namespace VirtualCardBoardClient
             }
 
             return
-                new byte[] { MessageType2Byte[msg.Type]}
+                new [] { MessageType2Byte[msg.Type]}
                 .Concat(MessageType2Delegate[msg.Type](msg.Data))
                 .ToArray();
         }

@@ -8,7 +8,8 @@ import java.net.Inet4Address;
 public class VCMessage {
     public enum Type {
         Hello,
-        Ping
+        Ping,
+        Mode
     }
 
     private Type _type;
@@ -38,6 +39,15 @@ public class VCMessage {
         IPingMessageData iret = ret._data;
 
         iret.ParsePingMessageData(bytes);
+        return ret;
+    }
+
+    public static VCMessage ParseModeMessage(byte[] bytes) {
+        VCMessage ret = new VCMessage();
+        ret._type = Type.Mode;
+        IModeMessageData iret = ret._data;
+
+        iret.ParseModeMessageData(bytes);
         return ret;
     }
 

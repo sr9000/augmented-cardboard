@@ -19,12 +19,42 @@ namespace VirtualCardBoardClient
         protected Thread VirtualCardBoardsListener;
         protected List<Message> VirtualCardboardDevicesList = new List<Message>();
 
+        protected ViewSettings ViewSettingsWindow = null;
+        protected Object ViewSettingsSynchronizator = new Object();
+
         public StartForm()
         {
             InitializeComponent();
         }
 
-        protected void LisenCycle()
+        protected void HelloMessageProceed(Message msg)
+        {
+            bool isAlreadyContainDevice = false;
+            IHelloMessageData iNewData = msg.Data;
+            foreach (var deviceMessage in VirtualCardboardDevicesList)
+            {
+                IHelloMessageData iData = deviceMessage.Data;
+                if (iData.GetName() == iNewData.GetName()
+                    && iData.GetAdress().Equals(iNewData.GetAdress())
+                    && iData.GetPort() == iNewData.GetPort())
+                {
+                    isAlreadyContainDevice = true;
+                    break;
+                }
+            }
+
+            if (!isAlreadyContainDevice)
+            {
+                VirtualCardboardDevicesList.Add(msg);
+                string name = ((IHelloMessageData)msg.Data).GetName();
+                Invoke(new MethodInvoker(delegate()
+                {
+                    listBoxVirtualCardboardDevices.Items.Add(name);
+                }));
+            }
+        }
+
+        protected void ListenCycle()
         {
             const int waitPeriod = 1000; //1 sec
             while (true)
@@ -49,28 +79,17 @@ namespace VirtualCardBoardClient
                         continue;
                     }
 
-                    bool isAlreadyContainDevice = false;
-                    IHelloMessageData iNewData = msg.Data;
-                    foreach (var deviceMessage in VirtualCardboardDevicesList)
+                    switch (msg.Type)
                     {
-                        IHelloMessageData iData = deviceMessage.Data;
-                        if (iData.GetName() == iNewData.GetName()
-                            && iData.GetAdress().Equals(iNewData.GetAdress())
-                            && iData.GetPort() == iNewData.GetPort())
-                        {
-                            isAlreadyContainDevice = true;
+                        case Message.MessageType.Hello:
+                            HelloMessageProceed(msg);
                             break;
-                        }
-                    }
-
-                    if (!isAlreadyContainDevice)
-                    {
-                        VirtualCardboardDevicesList.Add(msg);
-                        string name = ((IHelloMessageData) msg.Data).GetName();
-                        Invoke(new MethodInvoker(delegate()
-                        {
-                            listBoxVirtualCardboardDevices.Items.Add(name);
-                        }));
+                        case Message.MessageType.Ping:
+                            break;
+                        case Message.MessageType.Empty:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException("Unproceeded message ith type \"" + msg.Type + "\"");
                     }
                 }
             }
@@ -78,13 +97,12 @@ namespace VirtualCardBoardClient
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            VirtualCardBoardsListener = new Thread(LisenCycle);
+            VirtualCardBoardsListener = new Thread(ListenCycle);
             VirtualCardBoardsListener.Start();
         }
 
         private void groupBox1_Enter(object sender, EventArgs e)
         {
-
         }
 
         private void buttonFromStart_Click(object sender, EventArgs e)
@@ -95,9 +113,19 @@ namespace VirtualCardBoardClient
                 return;
             }
             int selectedIndex = listBoxVirtualCardboardDevices.SelectedIndex;
-            ViewSettings formViewSettings = new ViewSettings(VirtualCardboardDevicesList[selectedIndex], CardBoardInterface);
-            formViewSettings.Show(this);
-            formViewSettings.SetBounds(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
+            lock (ViewSettingsSynchronizator)
+            {
+                ViewSettingsWindow = new ViewSettings(VirtualCardboardDevicesList[selectedIndex], CardBoardInterface);
+                ViewSettingsWindow.Show(this);
+                ViewSettingsWindow.SetBounds(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
+                ViewSettingsWindow.FormClosing += (o, args) =>
+                {
+                    lock (ViewSettingsSynchronizator)
+                    {
+                        ViewSettingsWindow = null;
+                    }
+                };
+            }
             Hide();
         }
 
@@ -110,7 +138,7 @@ namespace VirtualCardBoardClient
         private void listBoxVirtualCardboardDevices_SelectedIndexChanged(object sender, EventArgs e)
         {
             int selectedIndex = listBoxVirtualCardboardDevices.SelectedIndex;
-            
+
             var helloMessageData = (IHelloMessageData) (VirtualCardboardDevicesList[selectedIndex].Data);
             var remoteAddress = new IPEndPoint(helloMessageData.GetAdress(), helloMessageData.GetPort());
 

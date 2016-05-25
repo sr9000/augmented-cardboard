@@ -7,4 +7,5 @@ public class VCMessageSignatures {
     public static final int _signature_error = 255;
     public static final int _signature_hello = 0;
     public static final int _signature_ping = 1;
+    public static final int _signature_mode = 2;
 }

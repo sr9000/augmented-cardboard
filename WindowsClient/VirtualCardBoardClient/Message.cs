@@ -11,6 +11,8 @@ namespace VirtualCardBoardClient
         public enum MessageType
         {
             Hello, Ping, Empty
+            , Mode
+            , SettRq, SettRp
         }
 
         public MessageType Type { get; protected set; }
@@ -51,6 +53,13 @@ namespace VirtualCardBoardClient
             return new Message()
                 .SetType(MessageType.Ping)
                 .SetData(MessageDataContainer.CreateMethods.CreatePingMessageData());
+        }
+
+        public static Message CreateModeMessage(MessageDataContainer.ModeType mode)
+        {
+            return new Message()
+                .SetType(MessageType.Mode)
+                .SetData(MessageDataContainer.CreateMethods.CreateModeMessageData(mode));
         }
     }
 }
