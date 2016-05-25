@@ -3,6 +3,7 @@ package com.degree.bachelor.jane_doe.virtualcardboard.network;
 import android.content.Context;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 
 import com.degree.bachelor.jane_doe.virtualcardboard.MainActivity;
 import com.degree.bachelor.jane_doe.virtualcardboard.VirtualCardBoardState;
@@ -53,13 +54,23 @@ public class PcInterface
         return this;
     }
 
+    private static String _GetDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        if (model.startsWith(manufacturer)) {
+            return model;
+        } else {
+            return manufacturer + " " + model;
+        }
+    }
+
     private void _SendBroadcastWelcomeSignal() {
         VCMessage msg;
         try {
             msg = VCMessage.GetHelloMessage(
                     _listener.GetAddress()
                     , _listener.GetPort()
-                    , "Hello World!!!");
+                    , _GetDeviceName());
         } catch (WiFiManagerException e) {
             MainActivity.InfoWindow.Show(_context, e.getMessage(), null);
             return;
