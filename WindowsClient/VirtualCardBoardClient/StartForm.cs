@@ -88,7 +88,10 @@ namespace VirtualCardBoardClient
 
         private void buttonFromStart_Click(object sender, EventArgs e)
         {
-
+            ViewSettings formViewSettings = new ViewSettings();
+            formViewSettings.Show(this);
+            formViewSettings.SetBounds(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
+            Hide();
         }
 
         private void StartForm_FormClosing(object sender, FormClosingEventArgs e)

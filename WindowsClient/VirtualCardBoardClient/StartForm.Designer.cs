@@ -36,19 +36,25 @@
             // 
             // listBoxVirtualCardboardDevices
             // 
+            this.listBoxVirtualCardboardDevices.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBoxVirtualCardboardDevices.FormattingEnabled = true;
             this.listBoxVirtualCardboardDevices.Location = new System.Drawing.Point(6, 19);
             this.listBoxVirtualCardboardDevices.Name = "listBoxVirtualCardboardDevices";
-            this.listBoxVirtualCardboardDevices.Size = new System.Drawing.Size(392, 290);
+            this.listBoxVirtualCardboardDevices.Size = new System.Drawing.Size(411, 290);
             this.listBoxVirtualCardboardDevices.TabIndex = 0;
             this.listBoxVirtualCardboardDevices.SelectedIndexChanged += new System.EventHandler(this.listBoxVirtualCardboardDevices_SelectedIndexChanged);
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.listBoxVirtualCardboardDevices);
             this.groupBox1.Location = new System.Drawing.Point(13, 13);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(404, 312);
+            this.groupBox1.Size = new System.Drawing.Size(417, 312);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Active Virtual Card Boards";
@@ -56,7 +62,8 @@
             // 
             // buttonFromStart
             // 
-            this.buttonFromStart.Location = new System.Drawing.Point(342, 331);
+            this.buttonFromStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonFromStart.Location = new System.Drawing.Point(355, 331);
             this.buttonFromStart.Name = "buttonFromStart";
             this.buttonFromStart.Size = new System.Drawing.Size(75, 23);
             this.buttonFromStart.TabIndex = 2;
@@ -68,9 +75,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(429, 365);
+            this.ClientSize = new System.Drawing.Size(442, 373);
             this.Controls.Add(this.buttonFromStart);
             this.Controls.Add(this.groupBox1);
+            this.MinimumSize = new System.Drawing.Size(300, 300);
             this.Name = "StartForm";
             this.Text = "Virtual Cardboard Client";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.StartForm_FormClosing);
