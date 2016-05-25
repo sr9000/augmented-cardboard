@@ -15,19 +15,12 @@ import com.degree.bachelor.jane_doe.virtualcardboard.network.PcInterface;
 public class DrawView extends SurfaceView implements
         SurfaceHolder.Callback
 {
-    private final float proportionFocusDistance = 2.0f/3.0f, proportionVerticalCoordinate = 0.5f;
-
     private DrawThread _drawThread;
-    private CameraDemo _cameraDemo;
-    private BinocularView _binocularView;
+
     private Context _context;
     private PcInterface _pcInterface;
     private VirtualCardBoardState _virtualCardBoardState;
     private GestureDetector _gestureDetector;
-
-    private void SetModeToNoPic() {
-        _virtualCardBoardState.SetMode(VirtualCardBoardState.Mode.NoPic);
-    }
 
     //says to surfaceholder that
     //DrawView control surface events
@@ -39,57 +32,44 @@ public class DrawView extends SurfaceView implements
         _virtualCardBoardState = new VirtualCardBoardState(_context, this);
         _pcInterface = new PcInterface(_context, _virtualCardBoardState);
 
-        _binocularView = new BinocularView(0, 0);
-        _cameraDemo = new CameraDemo();
         _drawThread = new DrawThread();
         _drawThread.start();
 
         _gestureDetector = new GestureDetector(
                 _context
                 , new GestureDoubleTapListener(
-                    new Runnable() { @Override public void run() { SetModeToNoPic(); } }
+                    new Runnable() { @Override public void run() { _SetModeToNoPic(); } }
                     , new Runnable() { @Override public void run() { _LongClickAction(); } } )
         );
+    }
+
+    private void _SetModeToNoPic() {
+        _virtualCardBoardState.SetMode(VirtualCardBoardState.Mode.NoPic);
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         //hot changes
         _drawThread.SetRunning(false);
-        _cameraDemo.StopPreview();
+        _virtualCardBoardState.UpdateSurfaceSizes(width, height);
 
-        _binocularView.SetDisplaySizes(width, height);
-        _binocularView.SetCustomBinocularParams(((int)(width*proportionFocusDistance)), ((int)(height*proportionVerticalCoordinate)), width, height);
-        BinocularView.BinocularInfo info = _binocularView.GetBinocularInfo();
-        _cameraDemo.StartPreview(info.simpleViewWidth, info.simpleViewHeight);
+        _drawThread.SetObjects(holder, _virtualCardBoardState);
 
-        _binocularView.CalcAdaptedViews(_cameraDemo.GetWidth(), _cameraDemo.GetHeight());
-        info = _binocularView.GetBinocularInfo();
-
-        _drawThread.SetObjects(holder, _cameraDemo, info, _virtualCardBoardState);
         _drawThread.SetRunning(true);
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        int width = holder.getSurfaceFrame().width();
-        int height = holder.getSurfaceFrame().height();
-        _binocularView.SetDisplaySizes(width, height);
-        _binocularView.SetCustomBinocularParams(((int)(width*proportionFocusDistance)), ((int)(height*proportionVerticalCoordinate)), width, height);
-        BinocularView.BinocularInfo info = _binocularView.GetBinocularInfo();
-        _cameraDemo.StartPreview(info.simpleViewWidth, info.simpleViewHeight);
+        _virtualCardBoardState.InitSurfaceSizes(holder.getSurfaceFrame().width(), holder.getSurfaceFrame().height());
 
-        _binocularView.CalcAdaptedViews(_cameraDemo.GetWidth(), _cameraDemo.GetHeight());
-        info = _binocularView.GetBinocularInfo();
-
-        _drawThread.SetObjects(holder, _cameraDemo, info, _virtualCardBoardState);
+        _drawThread.SetObjects(holder, _virtualCardBoardState);
         _drawThread.SetRunning(true);
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         _drawThread.SetRunning(false);
-        _cameraDemo.StopPreview();
+        _virtualCardBoardState.StopProcesses();
     }
 
     private void _LongClickAction() {
