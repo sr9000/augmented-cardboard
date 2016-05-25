@@ -146,6 +146,9 @@ public class CameraDemo implements Camera.PreviewCallback {
         params.setPreviewSize(bestSize.width, bestSize.height);
         params.setPreviewFormat(ImageFormat.NV21);
 
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        params.setExposureCompensation(params.getMinExposureCompensation());
+
         _camera.setParameters(params);
 
         _camTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
