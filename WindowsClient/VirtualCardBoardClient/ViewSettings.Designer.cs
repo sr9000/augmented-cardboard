@@ -28,41 +28,41 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.buttonFromStart = new System.Windows.Forms.Button();
+            this.buttonFromSettings = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.label1 = new System.Windows.Forms.Label();
             this.textBoxDeviceName = new System.Windows.Forms.TextBox();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownEyesDistance = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownVerticalPosition = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownWidth = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownHeigh = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.buttonPing = new System.Windows.Forms.Button();
+            this.buttonBack = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownEyesDistance)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVerticalPosition)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownWidth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownHeigh)).BeginInit();
             this.SuspendLayout();
             // 
-            // buttonFromStart
+            // buttonFromSettings
             // 
-            this.buttonFromStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonFromStart.Location = new System.Drawing.Point(355, 331);
-            this.buttonFromStart.Name = "buttonFromStart";
-            this.buttonFromStart.Size = new System.Drawing.Size(75, 23);
-            this.buttonFromStart.TabIndex = 7;
-            this.buttonFromStart.Text = "Next>";
-            this.buttonFromStart.UseVisualStyleBackColor = true;
+            this.buttonFromSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonFromSettings.Location = new System.Drawing.Point(355, 331);
+            this.buttonFromSettings.Name = "buttonFromSettings";
+            this.buttonFromSettings.Size = new System.Drawing.Size(75, 23);
+            this.buttonFromSettings.TabIndex = 7;
+            this.buttonFromSettings.Text = "Next>";
+            this.buttonFromSettings.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
@@ -94,11 +94,11 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.button1);
-            this.splitContainer1.Panel2.Controls.Add(this.numericUpDown4);
-            this.splitContainer1.Panel2.Controls.Add(this.numericUpDown3);
-            this.splitContainer1.Panel2.Controls.Add(this.numericUpDown2);
-            this.splitContainer1.Panel2.Controls.Add(this.numericUpDown1);
+            this.splitContainer1.Panel2.Controls.Add(this.buttonPing);
+            this.splitContainer1.Panel2.Controls.Add(this.numericUpDownHeigh);
+            this.splitContainer1.Panel2.Controls.Add(this.numericUpDownWidth);
+            this.splitContainer1.Panel2.Controls.Add(this.numericUpDownVerticalPosition);
+            this.splitContainer1.Panel2.Controls.Add(this.numericUpDownEyesDistance);
             this.splitContainer1.Panel2.Controls.Add(this.textBoxDeviceName);
             this.splitContainer1.Size = new System.Drawing.Size(411, 293);
             this.splitContainer1.SplitterDistance = 144;
@@ -125,41 +125,41 @@
             this.textBoxDeviceName.Size = new System.Drawing.Size(176, 20);
             this.textBoxDeviceName.TabIndex = 0;
             // 
-            // numericUpDown1
+            // numericUpDownEyesDistance
             // 
-            this.numericUpDown1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.numericUpDownEyesDistance.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDown1.Location = new System.Drawing.Point(3, 42);
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(260, 20);
-            this.numericUpDown1.TabIndex = 2;
+            this.numericUpDownEyesDistance.Location = new System.Drawing.Point(3, 42);
+            this.numericUpDownEyesDistance.Name = "numericUpDownEyesDistance";
+            this.numericUpDownEyesDistance.Size = new System.Drawing.Size(260, 20);
+            this.numericUpDownEyesDistance.TabIndex = 2;
             // 
-            // numericUpDown2
+            // numericUpDownVerticalPosition
             // 
-            this.numericUpDown2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.numericUpDownVerticalPosition.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDown2.Location = new System.Drawing.Point(3, 68);
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(260, 20);
-            this.numericUpDown2.TabIndex = 3;
+            this.numericUpDownVerticalPosition.Location = new System.Drawing.Point(3, 68);
+            this.numericUpDownVerticalPosition.Name = "numericUpDownVerticalPosition";
+            this.numericUpDownVerticalPosition.Size = new System.Drawing.Size(260, 20);
+            this.numericUpDownVerticalPosition.TabIndex = 3;
             // 
-            // numericUpDown3
+            // numericUpDownWidth
             // 
-            this.numericUpDown3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.numericUpDownWidth.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDown3.Location = new System.Drawing.Point(3, 107);
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(260, 20);
-            this.numericUpDown3.TabIndex = 4;
+            this.numericUpDownWidth.Location = new System.Drawing.Point(3, 107);
+            this.numericUpDownWidth.Name = "numericUpDownWidth";
+            this.numericUpDownWidth.Size = new System.Drawing.Size(260, 20);
+            this.numericUpDownWidth.TabIndex = 4;
             // 
-            // numericUpDown4
+            // numericUpDownHeigh
             // 
-            this.numericUpDown4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.numericUpDownHeigh.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDown4.Location = new System.Drawing.Point(3, 133);
-            this.numericUpDown4.Name = "numericUpDown4";
-            this.numericUpDown4.Size = new System.Drawing.Size(260, 20);
-            this.numericUpDown4.TabIndex = 5;
+            this.numericUpDownHeigh.Location = new System.Drawing.Point(3, 133);
+            this.numericUpDownHeigh.Name = "numericUpDownHeigh";
+            this.numericUpDownHeigh.Size = new System.Drawing.Size(260, 20);
+            this.numericUpDownHeigh.TabIndex = 5;
             // 
             // label2
             // 
@@ -206,35 +206,36 @@
             this.label5.Text = "Height:";
             this.label5.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // button1
+            // buttonPing
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(185, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Ping";
-            this.button1.UseVisualStyleBackColor = true;
+            this.buttonPing.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonPing.Location = new System.Drawing.Point(185, 3);
+            this.buttonPing.Name = "buttonPing";
+            this.buttonPing.Size = new System.Drawing.Size(75, 23);
+            this.buttonPing.TabIndex = 1;
+            this.buttonPing.Text = "Ping";
+            this.buttonPing.UseVisualStyleBackColor = true;
+            this.buttonPing.Click += new System.EventHandler(this.buttonPing_Click);
             // 
-            // button2
+            // buttonBack
             // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(274, 330);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 6;
-            this.button2.Text = "<Back";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.buttonBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonBack.Location = new System.Drawing.Point(274, 330);
+            this.buttonBack.Name = "buttonBack";
+            this.buttonBack.Size = new System.Drawing.Size(75, 23);
+            this.buttonBack.TabIndex = 6;
+            this.buttonBack.Text = "<Back";
+            this.buttonBack.UseVisualStyleBackColor = true;
+            this.buttonBack.Click += new System.EventHandler(this.buttonBack_Click);
             // 
             // ViewSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(442, 373);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.buttonBack);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.buttonFromStart);
+            this.Controls.Add(this.buttonFromSettings);
             this.MinimumSize = new System.Drawing.Size(300, 300);
             this.Name = "ViewSettings";
             this.Text = "View Settings";
@@ -246,17 +247,17 @@
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownEyesDistance)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVerticalPosition)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownWidth)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownHeigh)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button buttonFromStart;
+        private System.Windows.Forms.Button buttonFromSettings;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Label label1;
@@ -265,11 +266,11 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.NumericUpDown numericUpDown4;
-        private System.Windows.Forms.NumericUpDown numericUpDown3;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.NumericUpDown numericUpDownHeigh;
+        private System.Windows.Forms.NumericUpDown numericUpDownWidth;
+        private System.Windows.Forms.NumericUpDown numericUpDownVerticalPosition;
+        private System.Windows.Forms.NumericUpDown numericUpDownEyesDistance;
+        private System.Windows.Forms.Button buttonPing;
+        private System.Windows.Forms.Button buttonBack;
     }
 }

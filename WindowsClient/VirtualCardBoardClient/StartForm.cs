@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using VirtualCardBoardClient.Properties;
 
 namespace VirtualCardBoardClient
 {
@@ -88,7 +89,13 @@ namespace VirtualCardBoardClient
 
         private void buttonFromStart_Click(object sender, EventArgs e)
         {
-            ViewSettings formViewSettings = new ViewSettings();
+            if (listBoxVirtualCardboardDevices.SelectedItem == null)
+            {
+                MessageBox.Show(Resources.StartForm_buttonFromStart_Click_Device_Not_Selected);
+                return;
+            }
+            int selectedIndex = listBoxVirtualCardboardDevices.SelectedIndex;
+            ViewSettings formViewSettings = new ViewSettings(VirtualCardboardDevicesList[selectedIndex], CardBoardInterface);
             formViewSettings.Show(this);
             formViewSettings.SetBounds(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
             Hide();
