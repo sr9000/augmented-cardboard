@@ -10,6 +10,8 @@ public class MessageComposer {
         {
             case Hello:
                 return ComposeHelloMessage(msg);
+            case Settings:
+                return ComposeSettingsMessage(msg);
         }
         return new byte[]{(byte)VCMessageSignatures._signature_error};
     }
@@ -45,6 +47,13 @@ public class MessageComposer {
         return ret;
     }
 
+    private static void _assign_32bit_int_to_array(byte[] array, int offset, int value) {
+        array[offset]     = (byte)(value % 256); //div 256^0
+        array[offset + 1] = (byte)((value / 256) % 256); //div 256^1
+        array[offset + 2] = (byte)((value / 65536) % 256); //div 256^2
+        array[offset + 3] = (byte)((value / 16777216) % 256); //div 256^3
+    }
+
     private static byte[] ComposeSettingsMessage(VCMessage msg)
     {
         ISettingsMessageData idata = msg.GetData();
@@ -57,25 +66,28 @@ public class MessageComposer {
                 + 4  //simpleHeight
                 + 4  //inet4address //[nulls]
                 + 2; //port         //[nulls]
-        //todo:
+
         //create array
         byte[] ret = new byte[totalCount];
 
         //assign signature
-        ret[0] = (byte)(VCMessageSignatures._signature_hello);
+        ret[0] = (byte)(VCMessageSignatures._signature_settings);
 
-        //copy ipv4 address
-        System.arraycopy(idata.GetAddress().getAddress(), 0, ret, 1, 4);
+        //assign flags
+        ret[1] = idata.GetFlags();
 
-        //copy port number
-        ret[5] = (byte)(idata.GetPort() % 256);
-        ret[6] = (byte)(idata.GetPort() / 256);
+        if ((idata.GetFlags() & (MessageDataContainer._mission_assign | MessageDataContainer._mission_inform)) != 0) {
+            _assign_32bit_int_to_array(ret, 2, idata.GetFocusDistance());
+            _assign_32bit_int_to_array(ret, 6, idata.GetFocusVerticalCoordinate());
+            _assign_32bit_int_to_array(ret, 10, idata.GetSimpleViewWidth());
+            _assign_32bit_int_to_array(ret, 14, idata.GetSimpleViewHeight());
+        }
 
-        //copy device name
-        System.arraycopy(idata.GetName().getBytes(), 0, ret, 7, totalCount - 7 - 1);
-
-        //assign null terminate symbol
-        ret[totalCount - 1] = 0;
+        if ((idata.GetFlags() & MessageDataContainer._mission_request) != 0) {
+            System.arraycopy(idata.GetRemoteAddress().getAddress(), 0, ret, 18, 4);
+            ret[22] = (byte)(idata.GetRemotePort() % 256);
+            ret[23] = (byte)(idata.GetRemotePort() / 256);
+        }
 
         //return packet
         return ret;
