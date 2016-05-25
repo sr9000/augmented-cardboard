@@ -56,7 +56,7 @@ public class DrawView extends SurfaceView implements
         _binocularView.CalcAdaptedViews(_cameraDemo.GetWidth(), _cameraDemo.GetHeight());
         info = _binocularView.GetBinocularInfo();
 
-        _drawThread.SetObjects(holder, _cameraDemo, info);
+        _drawThread.SetObjects(holder, _cameraDemo, info, _virtualCardBoardState);
         _drawThread.SetRunning(true);
     }
 
@@ -72,7 +72,7 @@ public class DrawView extends SurfaceView implements
         _binocularView.CalcAdaptedViews(_cameraDemo.GetWidth(), _cameraDemo.GetHeight());
         info = _binocularView.GetBinocularInfo();
 
-        _drawThread.SetObjects(holder, _cameraDemo, info);
+        _drawThread.SetObjects(holder, _cameraDemo, info, _virtualCardBoardState);
         _drawThread.SetRunning(true);
     }
 

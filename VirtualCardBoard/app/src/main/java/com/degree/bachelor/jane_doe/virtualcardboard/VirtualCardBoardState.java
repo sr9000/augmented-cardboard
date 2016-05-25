@@ -13,11 +13,30 @@ public class VirtualCardBoardState {
     private View _view;
     private Context _context;
 
+    public volatile Mode _virtualCardBoardMode;
+    private final Object _syncMode = new Object();
+
     private VirtualCardBoardState(){}
+
+    public enum Mode {
+        NoPic, Settings, Pic
+    }
 
     public VirtualCardBoardState(Context context, View view) {
         _view = view;
         _context = context;
+        _virtualCardBoardMode = Mode.Settings;
+    }
+
+    public VirtualCardBoardState SetMode(Mode newMode) {
+        synchronized (_syncMode) {
+            _virtualCardBoardMode = newMode;
+        }
+        return this;
+    }
+
+    public Mode GetMode() {
+        return _virtualCardBoardMode;
     }
 
     public void ProceedRequestMessage(VCMessage msg) {
