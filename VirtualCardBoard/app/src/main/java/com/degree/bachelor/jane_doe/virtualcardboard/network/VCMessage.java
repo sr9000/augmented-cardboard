@@ -45,6 +45,7 @@ public class VCMessage {
         iret.SetFocusVerticalCoordinate(binocularInfo.focusVerticalCoordinate);
         iret.SetSimpleViewHeight(binocularInfo.simpleViewHeight);
         iret.SetSimpleViewWidth(binocularInfo.simpleViewWidth);
+        iret.SetMessageMission(MessageDataContainer._mission_inform);
 
         return ret;
     }

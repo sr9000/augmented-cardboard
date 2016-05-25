@@ -49,11 +49,15 @@ public class MessageComposer {
     {
         ISettingsMessageData idata = msg.GetData();
         int totalCount =
-                1   //_signature_settings
-                + 4 //focusDist
-                + 4 //focusVert
-                + 4 //simpleWidth
-                + 4; //simpleHeight
+                1    //_signature_settings
+                + 1  //message mission(flags)
+                + 4  //focusDist
+                + 4  //focusVert
+                + 4  //simpleWidth
+                + 4  //simpleHeight
+                + 4  //inet4address //[nulls]
+                + 2; //port         //[nulls]
+        //todo:
         //create array
         byte[] ret = new byte[totalCount];
 

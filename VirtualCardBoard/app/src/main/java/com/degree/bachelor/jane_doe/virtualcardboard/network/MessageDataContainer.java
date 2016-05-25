@@ -31,6 +31,13 @@ public class MessageDataContainer
     //ISettingsMessageData
     private int _focusDistance, _focusVerticalCoordinate;
     private int _simpleViewHeight, _simpleViewWidth;
+    private byte _messageMission;
+    private int _remotePort;
+    private Inet4Address _remoteAddress;
+
+    public static final byte _mission_inform = 1;
+    public static final byte _mission_request = 2;
+    public static final byte _mission_assign = 4;
 
     //IHelloMessageData
     @Override
@@ -96,6 +103,19 @@ public class MessageDataContainer
     public void SetSimpleViewWidth(int simpleViewWidth) { _simpleViewWidth = simpleViewWidth; }
 
     @Override
+    public void SetMessageMission(byte flags) { _messageMission = (byte)(flags & 0x7); }
+
+    @Override
+    public void SetRemotePort(int portNumber) {
+        //todo: not implemented
+    }
+
+    @Override
+    public void SetRemoteAddress(Inet4Address address) {
+        //todo: not implemented
+    }
+
+    @Override
     public int GetFocusDistance() { return _focusDistance; }
 
     @Override
@@ -106,6 +126,15 @@ public class MessageDataContainer
 
     @Override
     public int GetSimpleViewWidth() { return _simpleViewWidth; }
+
+    @Override
+    public int GetRemotePort() { return _remotePort; }
+
+    @Override
+    public Inet4Address GetRemoteAddress() { return _remoteAddress; }
+
+    @Override
+    public byte GetFlags() { return _messageMission; }
 
 }
 
