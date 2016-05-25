@@ -1,5 +1,7 @@
 package com.degree.bachelor.jane_doe.virtualcardboard.network;
 
+import com.degree.bachelor.jane_doe.virtualcardboard.BinocularView;
+
 import java.net.Inet4Address;
 
 /**
@@ -9,7 +11,8 @@ public class VCMessage {
     public enum Type {
         Hello,
         Ping,
-        Mode
+        Mode,
+        Settings
     }
 
     private Type _type;
@@ -29,6 +32,19 @@ public class VCMessage {
         iret.SetAddress(address);
         iret.SetPort(port);
         iret.SetName(name);
+
+        return ret;
+    }
+
+    public static VCMessage GetSettingsMessage(BinocularView.BinocularInfo binocularInfo) {
+        VCMessage ret = new VCMessage();
+        ret._type = Type.Settings;
+        ISettingsMessageData iret = ret._data;
+
+        iret.SetFocusDistance(binocularInfo.focusDistance);
+        iret.SetFocusVerticalCoordinate(binocularInfo.focusVerticalCoordinate);
+        iret.SetSimpleViewHeight(binocularInfo.simpleViewHeight);
+        iret.SetSimpleViewWidth(binocularInfo.simpleViewWidth);
 
         return ret;
     }

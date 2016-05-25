@@ -8,4 +8,5 @@ public class VCMessageSignatures {
     public static final int _signature_hello = 0;
     public static final int _signature_ping = 1;
     public static final int _signature_mode = 2;
+    public static final int _signature_settings = 3;
 }

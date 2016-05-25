@@ -22,9 +22,6 @@ public class VirtualCardBoardState {
     public volatile Mode _virtualCardBoardMode;
     private final Object _syncMode = new Object();
 
-    //BinocularParams
-    private int _focusDistance, _verticalCoordinate, _width, _height;
-
     public enum Mode {
         NoPic, Settings, Pic
     }
@@ -63,13 +60,11 @@ public class VirtualCardBoardState {
     }
 
     public void InitSurfaceSizes(int width, int height) {
-        _focusDistance = ((int) (width * proportionFocusDistance));
-        _verticalCoordinate = ((int) (height * proportionVerticalCoordinate));
-        _width = width;
-        _height = height;
+        int focusDistance = ((int) (width * proportionFocusDistance));
+        int verticalCoordinate = ((int) (height * proportionVerticalCoordinate));
 
         _binocularView.SetDisplaySizes(width, height);
-        _binocularView.SetCustomBinocularParams(_focusDistance, _verticalCoordinate, _width, _height);
+        _binocularView.SetCustomBinocularParams(focusDistance, verticalCoordinate, width, height);
         _binocularInfo = _binocularView.GetBinocularInfo();
 
         synchronized (_syncMode) {
@@ -86,7 +81,10 @@ public class VirtualCardBoardState {
             }
 
             _binocularView.SetDisplaySizes(width, height);
-            _binocularView.SetCustomBinocularParams(_focusDistance, _verticalCoordinate, _width, _height);
+            _binocularView.SetCustomBinocularParams(_binocularInfo.focusDistance
+                    , _binocularInfo.focusVerticalCoordinate
+                    , _binocularInfo.simpleViewWidth
+                    , _binocularInfo.simpleViewHeight);
             _binocularInfo = _binocularView.GetBinocularInfo();
 
             if (_virtualCardBoardMode != Mode.Settings) {

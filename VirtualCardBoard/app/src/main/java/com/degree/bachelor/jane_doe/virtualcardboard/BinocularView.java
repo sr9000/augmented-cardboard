@@ -24,6 +24,8 @@ public class BinocularView {
     public static class BinocularInfo {
         public BinocularInfo(){}
 
+        public int focusDistance, focusVerticalCoordinate;
+
         public int eyeViewHeight, eyeViewWidth;
         public int simpleViewHeight, simpleViewWidth;
 
@@ -38,6 +40,9 @@ public class BinocularView {
 
         public void ImportFrom(BinocularInfo other)
         {
+            focusDistance = other.focusDistance;
+            focusVerticalCoordinate = other.focusVerticalCoordinate;
+
             simpleViewHeight = other.simpleViewHeight;
             simpleViewWidth = other.simpleViewWidth;
 
@@ -186,6 +191,9 @@ public class BinocularView {
 
     public BinocularInfo GetBinocularInfo() {
         BinocularInfo info = new BinocularInfo();
+
+        info.focusDistance = _focusDistance;
+        info.focusVerticalCoordinate = _focusVerticalCoordinate;
 
         info.simpleViewHeight = _focusViewHeight;
         info.simpleViewWidth = _focusViewWidth;
