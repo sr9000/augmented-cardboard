@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace VirtualCardBoardClient
         protected Socket InputSocket;
         protected Object ReaderSynchronizator = new Object();
 
-        public IPAddress GetAddress()
+        /*public IPAddress GetAddress()
         {
             var ipEndPoint = InputSocket.LocalEndPoint as IPEndPoint;
             if (ipEndPoint != null)
@@ -32,7 +33,7 @@ namespace VirtualCardBoardClient
                 return ipEndPoint.Address;
             }
             return null;
-        }
+        }*/
 
         public int GetPort()
         {
@@ -88,7 +89,7 @@ namespace VirtualCardBoardClient
             return this;
         }
 
-        public byte[] Read(int timeWaitMilliseconds = 0)
+        public ClientBytes Read(int timeWaitMilliseconds = 0)
         {
             lock (ReaderSynchronizator)
             {
@@ -96,12 +97,41 @@ namespace VirtualCardBoardClient
                 {
                     InputSocket.ReceiveTimeout = timeWaitMilliseconds;
                     byte[] ret = new byte[10240]; //10 KiB
-                    int lengthRecieved = InputSocket. Receive(ret);
-                    return ret.Take(lengthRecieved).ToArray();
+                    EndPoint remouteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                    int lengthRecieved = InputSocket.ReceiveFrom(ret, ref remouteEndPoint);
+
+                    IPEndPoint localEndPoint = null;
+                    foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
+                    {
+                        foreach (var ipAddressInformation in networkInterface.GetIPProperties().UnicastAddresses)
+                        {
+                            if (ipAddressInformation.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                            {
+                                var mask = ipAddressInformation.IPv4Mask.GetAddressBytes();
+                                var subnet1 = ((IPEndPoint) remouteEndPoint).Address.GetAddressBytes()
+                                    .Zip(mask, (a, b) => a & b);
+                                var subnet2 = ipAddressInformation.Address.GetAddressBytes()
+                                    .Zip(mask, (a, b) => a & b);
+                                if (subnet1.Zip(subnet2, (a, b) => a == b).All(x => x))
+                                {
+                                    localEndPoint = new IPEndPoint(ipAddressInformation.Address, ((IPEndPoint)InputSocket.LocalEndPoint).Port);
+                                }
+                            }
+                        }
+                    }
+                    
+                    return new ClientBytes()
+                    {
+                        PacketBytes = ret.Take(lengthRecieved).ToArray()
+                        , LocalEndPoint = localEndPoint
+                    };
                 }
                 catch
                 {
-                    return new List<byte>().ToArray();//return an empty array
+                    return new ClientBytes()
+                    {
+                        PacketBytes = new List<byte>().ToArray()
+                    };
                 }
             }
         }

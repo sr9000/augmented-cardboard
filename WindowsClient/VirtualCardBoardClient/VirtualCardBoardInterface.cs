@@ -22,18 +22,24 @@ namespace VirtualCardBoardClient
             }
         }
 
-        public byte[] ReadDataBytes(int timeWaitMilliseconds = 0)
+        public ClientBytes ReadDataBytes(int timeWaitMilliseconds = 0)
         {
             var rawData = AndroidListener.Read(timeWaitMilliseconds);
-            if (rawData.Length < (Secret.Length + 4))
+            if (rawData.PacketBytes.Length < (Secret.Length + 4))
             {
-                return new List<byte>().ToArray();
+                return new ClientBytes()
+                {
+                    PacketBytes = new List<byte>().ToArray()
+                };
             }
-            bool isPassSecret = rawData.Take(Secret.Length).Zip(Secret, (a, b) => a == b).All(x => x);
-            var data = rawData.Skip(Secret.Length);
+            bool isPassSecret = rawData.PacketBytes.Take(Secret.Length).Zip(Secret, (a, b) => a == b).All(x => x);
+            var data = rawData.PacketBytes.Skip(Secret.Length);
             if (!isPassSecret)
             {
-                return new List<byte>().ToArray();
+                return new ClientBytes()
+                {
+                    PacketBytes = new List<byte>().ToArray()
+                };
             }
             int length;
             {
@@ -50,9 +56,16 @@ namespace VirtualCardBoardClient
             var clearData = data.Skip(4).ToArray();
             if (clearData.Length > length || length < 0)
             {
-                return new List<byte>().ToArray();
+                return new ClientBytes()
+                {
+                    PacketBytes = new List<byte>().ToArray()
+                };
             }
-            return clearData.Take(length).ToArray();
+            return new ClientBytes()
+            {
+                PacketBytes = clearData.Take(length).ToArray()
+                , LocalEndPoint = rawData.LocalEndPoint
+            };
         }
 
         public VirtualCardBoardInterface WriteDataBytes(byte[] dataBytes, IPEndPoint remoteAddress)
@@ -75,10 +88,10 @@ namespace VirtualCardBoardClient
             return this;
         }
 
-        public IPAddress GetServerAddress()
+        /*public IPAddress GetServerAddress()
         {
             return AndroidListener.GetAddress();
-        }
+        }*/
 
         public int GetServerPort()
         {

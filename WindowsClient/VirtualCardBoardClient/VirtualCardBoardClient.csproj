@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientBytes.cs" />
+    <Compile Include="ClientMessage.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Message2BytesComposer.cs" />
     <Compile Include="MessageDataContainer.cs" />

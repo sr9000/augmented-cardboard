@@ -32,15 +32,19 @@ public class VirtualCardBoardState {
 
     private VirtualCardBoardState(){}
 
-    public VirtualCardBoardState(Context context, View view, PcInterface pcInterface) {
+    public VirtualCardBoardState(Context context, View view) {
         _view = view;
         _context = context;
-        _pcInterface = pcInterface;
         _virtualCardBoardMode = Mode.Settings;
 
         _binocularView = new BinocularView(0, 0);
         _binocularInfo = _binocularView.GetBinocularInfo();
         _cameraDemo = new CameraDemo();
+    }
+
+    public void initPcInterface(PcInterface pcInterface)
+    {
+        _pcInterface = pcInterface;
     }
 
     private void _UpdateBinocularParams(int focusDistance, int focusVerticalPosition, int simpleWidth, int simpleHeight) {

@@ -9,25 +9,25 @@ namespace VirtualCardBoardClient
 {
     public partial class StartForm : Form
     {
-        protected VirtualCardBoardInterface CardBoardInterface = new VirtualCardBoardInterface();
+        protected volatile VirtualCardBoardInterface CardBoardInterface = new VirtualCardBoardInterface();
         protected Thread VirtualCardBoardsListener;
-        protected List<Message> VirtualCardboardDevicesList = new List<Message>();
+        protected volatile List<ClientMessage> VirtualCardboardDevicesList = new List<ClientMessage>();
 
-        protected ViewSettings ViewSettingsWindow = null;
-        protected Object ViewSettingsSynchronizator = new Object();
+        protected volatile ViewSettings ViewSettingsWindow = null;
+        protected volatile Object ViewSettingsSynchronizator = new Object();
 
         public StartForm()
         {
             InitializeComponent();
         }
 
-        protected void HelloMessageProceed(Message msg)
+        protected void HelloMessageProceed(Message msg, IPEndPoint localEndPoint)
         {
             bool isAlreadyContainDevice = false;
             IHelloMessageData iNewData = msg.Data;
             foreach (var deviceMessage in VirtualCardboardDevicesList)
             {
-                IHelloMessageData iData = deviceMessage.Data;
+                IHelloMessageData iData = deviceMessage.RecievedMessage.Data;
                 if (iData.GetName() == iNewData.GetName()
                     && iData.GetAdress().Equals(iNewData.GetAdress())
                     && iData.GetPort() == iNewData.GetPort())
@@ -39,7 +39,12 @@ namespace VirtualCardBoardClient
 
             if (!isAlreadyContainDevice)
             {
-                VirtualCardboardDevicesList.Add(msg);
+                VirtualCardboardDevicesList.Add(
+                    new ClientMessage()
+                    {
+                        RecievedMessage = msg
+                        , LocalEnpPoint = localEndPoint
+                    });
                 string name = ((IHelloMessageData)msg.Data).GetName();
                 Invoke(new MethodInvoker(delegate()
                 {
@@ -70,7 +75,7 @@ namespace VirtualCardBoardClient
 
                     ViewSettingsWindow.DeviceStatus = ViewSettings.StatusReady;
                     ViewSettingsWindow.UpdateDeviceStatus(
-                        ((IHelloMessageData)ViewSettingsWindow.DeviceHelloMessage.Data).GetName()
+                        ((IHelloMessageData)ViewSettingsWindow.DeviceHelloMessage.RecievedMessage.Data).GetName()
                         , ViewSettingsWindow.DeviceStatus);
                 }
             }
@@ -92,7 +97,8 @@ namespace VirtualCardBoardClient
                 }
 
                 //cycle body
-                byte[] packetBytes = CardBoardInterface.ReadDataBytes(waitPeriod);
+                var packet = CardBoardInterface.ReadDataBytes(waitPeriod);
+                byte[] packetBytes = packet.PacketBytes;
                 if (packetBytes.Length > 0)
                 {
                     var msg = MessageParser.Parse(packetBytes);
@@ -104,7 +110,7 @@ namespace VirtualCardBoardClient
                     switch (msg.Type)
                     {
                         case Message.MessageType.Hello:
-                            HelloMessageProceed(msg);
+                            HelloMessageProceed(msg, packet.LocalEndPoint);
                             break;
                         case Message.MessageType.Ping:
                             break;
@@ -162,9 +168,11 @@ namespace VirtualCardBoardClient
 
         private void listBoxVirtualCardboardDevices_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (listBoxVirtualCardboardDevices.Items.Count <= 0) return;
+
             int selectedIndex = listBoxVirtualCardboardDevices.SelectedIndex;
 
-            var helloMessageData = (IHelloMessageData) (VirtualCardboardDevicesList[selectedIndex].Data);
+            var helloMessageData = (IHelloMessageData) (VirtualCardboardDevicesList[selectedIndex].RecievedMessage.Data);
             var remoteAddress = new IPEndPoint(helloMessageData.GetAdress(), helloMessageData.GetPort());
 
             var msg = Message.CreatePingMessage();

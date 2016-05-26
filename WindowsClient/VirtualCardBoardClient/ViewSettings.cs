@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -20,42 +21,54 @@ namespace VirtualCardBoardClient
         protected volatile bool IsGoingBack;
         protected volatile bool IsAlreadyClosed;
 
-        public Message DeviceHelloMessage;
+        public ClientMessage DeviceHelloMessage;
         protected VirtualCardBoardInterface CardBoardInterface;
 
-        public string DeviceStatus;
-        public Object SyncStatus = new Object();
+        public volatile string DeviceStatus;
+        public volatile Object SyncStatus = new Object();
+
+        protected volatile bool IsChangeEventBlocked;
+        protected volatile Object SyncNumericsUpdater = new Object();
 
         private ViewSettings()
         {
         }
 
-        public void UpdateDeviceStatus(string devName, string status)
+        private void testf(string devName, string status)
         {
             textBoxDeviceName.Text = devName + status;
         }
 
-        public ViewSettings(Message deviceHelloMessage, VirtualCardBoardInterface cardBoardInterface)
+        public void UpdateDeviceStatus(string devName, string status)
+        {
+            BeginInvoke(new MethodInvoker(delegate
+            {
+                testf(devName, status);
+                //textBoxDeviceName.Text = devName + status;
+            }));
+        }
+
+        public ViewSettings(ClientMessage deviceHelloMessage, VirtualCardBoardInterface cardBoardInterface)
         {
             lock (SyncStatus)
             {
                 InitializeComponent();
                 IsGoingBack = false;
                 IsAlreadyClosed = false;
+                IsChangeEventBlocked = false;
                 DeviceStatus = StatusReady;
 
                 CardBoardInterface = cardBoardInterface;
                 DeviceHelloMessage = deviceHelloMessage;
                 {
-                    if (DeviceHelloMessage.Type == Message.MessageType.Hello)
+                    if (DeviceHelloMessage.RecievedMessage.Type == Message.MessageType.Hello)
                     {
-                        IHelloMessageData iData = DeviceHelloMessage.Data;
-                        UpdateDeviceStatus(iData.GetName(), DeviceStatus);
+                        IHelloMessageData iData = DeviceHelloMessage.RecievedMessage.Data;
                     }
                     else
                     {
                         throw new Exception("DeviceHelloMessage.Type must be Message.MessageType.Hello instead \"" +
-                                            DeviceHelloMessage.Type + "\"!");
+                                            DeviceHelloMessage.RecievedMessage.Type + "\"!");
                     }
                 }
             }
@@ -91,7 +104,7 @@ namespace VirtualCardBoardClient
         {
             lock (SyncStatus)
             {
-                var helloMessageData = (IHelloMessageData) (DeviceHelloMessage.Data);
+                var helloMessageData = (IHelloMessageData) (DeviceHelloMessage.RecievedMessage.Data);
                 var remoteAddress = new IPEndPoint(helloMessageData.GetAdress(), helloMessageData.GetPort());
 
                 var msg = Message.CreatePingMessage();
@@ -104,7 +117,7 @@ namespace VirtualCardBoardClient
 
         private void _SendModeSettings()
         {
-            IHelloMessageData idata = DeviceHelloMessage.Data;
+            IHelloMessageData idata = DeviceHelloMessage.RecievedMessage.Data;
             var msg = Message.CreateModeMessage(MessageDataContainer.ModeType.Settings);
 
             CardBoardInterface.WriteDataBytes(
@@ -114,7 +127,7 @@ namespace VirtualCardBoardClient
 
         private void _SendModeNoPic()
         {
-            IHelloMessageData idata = DeviceHelloMessage.Data;
+            IHelloMessageData idata = DeviceHelloMessage.RecievedMessage.Data;
             var msg = Message.CreateModeMessage(MessageDataContainer.ModeType.NoPic);
 
             CardBoardInterface.WriteDataBytes(
@@ -124,7 +137,7 @@ namespace VirtualCardBoardClient
 
         private void _SendModePic()
         {
-            IHelloMessageData idata = DeviceHelloMessage.Data;
+            IHelloMessageData idata = DeviceHelloMessage.RecievedMessage.Data;
             var msg = Message.CreateModeMessage(MessageDataContainer.ModeType.Pic);
 
             CardBoardInterface.WriteDataBytes(
@@ -137,8 +150,8 @@ namespace VirtualCardBoardClient
             
             Message msg = Message.CreateSettingsMessage(
                 MessageDataContainer.MissionRequest, 0, 0, 0, 0
-                , CardBoardInterface.GetServerAddress(), CardBoardInterface.GetServerPort());
-            IHelloMessageData idata = DeviceHelloMessage.Data;
+                , DeviceHelloMessage.LocalEnpPoint.Address, CardBoardInterface.GetServerPort());
+            IHelloMessageData idata = DeviceHelloMessage.RecievedMessage.Data;
 
             CardBoardInterface.WriteDataBytes(
                 Message2BytesComposer.ComposeMessageBytes(msg)
@@ -151,30 +164,48 @@ namespace VirtualCardBoardClient
 
         private void ViewSettings_Load(object sender, EventArgs e)
         {
+            IHelloMessageData iData = DeviceHelloMessage.RecievedMessage.Data;
             lock (SyncStatus)
             {
+                UpdateDeviceStatus(iData.GetName(), DeviceStatus);
+
+                numericUpDownEyesDistance.Maximum = Decimal.MaxValue;
+                numericUpDownHeigh.Maximum = Decimal.MaxValue;
+                numericUpDownVerticalPosition.Maximum = Decimal.MaxValue;
+                numericUpDownWidth.Maximum = Decimal.MaxValue;
+                _SendModeSettings();
                 _SendSettingsRequet();
             }
         }
 
         public void UpdateBinocularParams(int focusDist, int focusVert, int width, int height)
         {
-            numericUpDownEyesDistance.Value = focusDist;
-            numericUpDownVerticalPosition.Value = focusVert;
-            numericUpDownWidth.Value = width;
-            numericUpDownHeigh.Value = height;
+            BeginInvoke (new MethodInvoker(delegate
+            {
+                lock (SyncNumericsUpdater)
+                {
+                    IsChangeEventBlocked = true;
+
+                    numericUpDownEyesDistance.Value = focusDist;
+                    numericUpDownVerticalPosition.Value = focusVert;
+                    numericUpDownWidth.Value = width;
+                    numericUpDownHeigh.Value = height;
+
+                    IsChangeEventBlocked = false;
+                }
+            }));
         }
 
         protected void _SendSettingsRequestAssign()
         {
             Message msg = Message.CreateSettingsMessage(
-                MessageDataContainer.MissionRequest & MessageDataContainer.MissionAssign
+                MessageDataContainer.MissionRequest | MessageDataContainer.MissionAssign
                 , (int) numericUpDownEyesDistance.Value
                 , (int) numericUpDownVerticalPosition.Value
                 , (int) numericUpDownWidth.Value
                 , (int) numericUpDownHeigh.Value
-                , CardBoardInterface.GetServerAddress(), CardBoardInterface.GetServerPort());
-            IHelloMessageData idata = DeviceHelloMessage.Data;
+                , DeviceHelloMessage.LocalEnpPoint.Address, CardBoardInterface.GetServerPort());
+            IHelloMessageData idata = DeviceHelloMessage.RecievedMessage.Data;
 
             CardBoardInterface.WriteDataBytes(
                 Message2BytesComposer.ComposeMessageBytes(msg)
@@ -186,9 +217,11 @@ namespace VirtualCardBoardClient
 
         private void numericUpDownEyesDistance_ValueChanged(object sender, EventArgs e)
         {
+            if (IsChangeEventBlocked) return;
             lock (SyncStatus)
             {
-                _SendSettingsRequestAssign();
+                //if (DeviceStatus == StatusReady) 
+                    _SendSettingsRequestAssign();
             }
         }
 
@@ -199,25 +232,31 @@ namespace VirtualCardBoardClient
 
         private void numericUpDownWidth_ValueChanged(object sender, EventArgs e)
         {
+            if (IsChangeEventBlocked) return;
             lock (SyncStatus)
             {
-                _SendSettingsRequestAssign();
+                //if (DeviceStatus == StatusReady) 
+                    _SendSettingsRequestAssign();
             }
         }
 
         private void numericUpDownVerticalPosition_ValueChanged(object sender, EventArgs e)
         {
+            if (IsChangeEventBlocked) return;
             lock (SyncStatus)
             {
-                _SendSettingsRequestAssign();
+                //if (DeviceStatus == StatusReady) 
+                    _SendSettingsRequestAssign();
             }
         }
 
         private void numericUpDownHeigh_ValueChanged(object sender, EventArgs e)
         {
+            if (IsChangeEventBlocked) return;
             lock (SyncStatus)
             {
-                _SendSettingsRequestAssign();
+                //if (DeviceStatus == StatusReady) 
+                    _SendSettingsRequestAssign();
             }
         }
     }

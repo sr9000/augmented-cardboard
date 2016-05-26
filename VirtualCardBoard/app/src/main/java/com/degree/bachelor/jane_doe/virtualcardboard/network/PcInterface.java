@@ -38,6 +38,7 @@ public class PcInterface
     public PcInterface(Context context, VirtualCardBoardState virtualCardBoardState) {
         _context = context;
         _wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        virtualCardBoardState.initPcInterface(this);//VERY IMPORTANT!!!!
         _listener = new RequestListenerThread(_context, this, virtualCardBoardState);
 
         try {

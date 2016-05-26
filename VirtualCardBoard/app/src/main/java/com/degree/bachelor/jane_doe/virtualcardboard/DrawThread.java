@@ -79,7 +79,7 @@ public class DrawThread extends PausableThread {
 
                         canvas.drawRect(new Rect(
                                 binocularInfo.leftViewWhere.left
-                                , binocularInfo.leftCenterY
+                                , binocularInfo.leftViewWhere.top + binocularInfo.leftCenterY
                                 , binocularInfo.leftViewWhere.left + binocularInfo.leftCenterX
                                 , binocularInfo.leftViewWhere.bottom
                         ), _color2);
@@ -87,11 +87,11 @@ public class DrawThread extends PausableThread {
                                 binocularInfo.leftViewWhere.left + binocularInfo.leftCenterX
                                 , binocularInfo.leftViewWhere.top
                                 , binocularInfo.leftViewWhere.right
-                                , binocularInfo.leftCenterY
+                                , binocularInfo.leftViewWhere.top + binocularInfo.leftCenterY
                         ), _color2);
                         canvas.drawRect(new Rect(
                                 binocularInfo.rightViewWhere.left
-                                , binocularInfo.rightCenterY
+                                , binocularInfo.leftViewWhere.top + binocularInfo.rightCenterY
                                 , binocularInfo.rightViewWhere.left + binocularInfo.rightCenterX
                                 , binocularInfo.rightViewWhere.bottom
                         ), _color2);
@@ -99,7 +99,7 @@ public class DrawThread extends PausableThread {
                                 binocularInfo.rightViewWhere.left + binocularInfo.rightCenterX
                                 , binocularInfo.rightViewWhere.top
                                 , binocularInfo.rightViewWhere.right
-                                , binocularInfo.rightCenterY
+                                , binocularInfo.leftViewWhere.top + binocularInfo.rightCenterY
                         ), _color2);
                         break;
                     }

@@ -29,7 +29,7 @@ public class DrawView extends SurfaceView implements
         getHolder().addCallback(this);
 
         _context = context;
-        _virtualCardBoardState = new VirtualCardBoardState(_context, this);
+        _virtualCardBoardState = new VirtualCardBoardState(_context, this);//VERY IMPORTANT
         _pcInterface = new PcInterface(_context, _virtualCardBoardState);
 
         _drawThread = new DrawThread();
