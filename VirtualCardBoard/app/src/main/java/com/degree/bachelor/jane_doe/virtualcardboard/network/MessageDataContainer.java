@@ -1,6 +1,8 @@
 package com.degree.bachelor.jane_doe.virtualcardboard.network;
 
 import java.net.Inet4Address;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 
 /**
  * Created by Jane-Doe on 5/15/2016.
@@ -15,8 +17,6 @@ public class MessageDataContainer
     private Inet4Address _address;
     private String _name;
     private int _port;
-
-
 
     //IModeMessageData
     public enum ModeType {
@@ -106,14 +106,10 @@ public class MessageDataContainer
     public void SetMessageMission(byte flags) { _messageMission = (byte)(flags & 0x7); }
 
     @Override
-    public void SetRemotePort(int portNumber) {
-        //todo: not implemented
-    }
+    public void SetRemotePort(int portNumber) { _remotePort = portNumber; }
 
     @Override
-    public void SetRemoteAddress(Inet4Address address) {
-        //todo: not implemented
-    }
+    public void SetRemoteAddress(Inet4Address address) { _remoteAddress = address; }
 
     @Override
     public int GetFocusDistance() { return _focusDistance; }
@@ -135,6 +131,41 @@ public class MessageDataContainer
 
     @Override
     public byte GetFlags() { return _messageMission; }
+
+    private int _array_to_32bit_int(byte[] array, int offset) {
+        int ret = 0;
+
+        int multiplier = 1;
+        for (int i = 0; i < 4; ++i)
+        {
+            ret += (((int)array[i + offset]) & 0xFF) * multiplier;
+            multiplier *= 256;
+        }
+
+        return ret;
+    }
+
+    @Override
+    public void ParseSettingsMessageData(byte[] bytes) {
+        _messageMission = bytes[1];
+
+        if ((_messageMission & (MessageDataContainer._mission_assign | MessageDataContainer._mission_inform)) != 0) {
+            _focusDistance = _array_to_32bit_int(bytes, 2);
+            _focusVerticalCoordinate = _array_to_32bit_int(bytes, 6);
+            _simpleViewWidth = _array_to_32bit_int(bytes, 10);
+            _simpleViewHeight = _array_to_32bit_int(bytes, 14);
+        }
+
+        if ((_messageMission & MessageDataContainer._mission_request) != 0) {
+            byte[] addr = new byte[4];
+            System.arraycopy(bytes, 18, addr, 0, 4);
+            try {
+                _remoteAddress = (Inet4Address) Inet4Address.getByAddress(addr);
+            } catch (UnknownHostException ignored) {}
+
+            _remotePort = (bytes[22] & 0xFF) + 256 * (bytes[23] & 0xFF);
+        }
+    }
 
 }
 

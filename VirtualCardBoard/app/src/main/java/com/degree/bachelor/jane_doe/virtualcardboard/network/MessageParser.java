@@ -10,6 +10,8 @@ public class MessageParser {
                 return VCMessage.ParsePingMessage(bytes);
             case VCMessageSignatures._signature_mode:
                 return VCMessage.ParseModeMessage(bytes);
+            case VCMessageSignatures._signature_settings:
+                return VCMessage.ParseSettingsMessage(bytes);
         }
         return null;
     }

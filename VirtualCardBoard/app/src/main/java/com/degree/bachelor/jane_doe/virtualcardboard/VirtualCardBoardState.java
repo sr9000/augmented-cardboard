@@ -5,6 +5,9 @@ import android.os.Vibrator;
 import android.view.View;
 
 import com.degree.bachelor.jane_doe.virtualcardboard.network.IModeMessageData;
+import com.degree.bachelor.jane_doe.virtualcardboard.network.ISettingsMessageData;
+import com.degree.bachelor.jane_doe.virtualcardboard.network.MessageDataContainer;
+import com.degree.bachelor.jane_doe.virtualcardboard.network.PcInterface;
 import com.degree.bachelor.jane_doe.virtualcardboard.network.VCMessage;
 
 /**
@@ -18,6 +21,7 @@ public class VirtualCardBoardState {
     private volatile CameraDemo _cameraDemo;
     private volatile BinocularView _binocularView;
     private volatile BinocularView.BinocularInfo _binocularInfo;
+    private volatile PcInterface _pcInterface;
 
     public volatile Mode _virtualCardBoardMode;
     private final Object _syncMode = new Object();
@@ -28,14 +32,33 @@ public class VirtualCardBoardState {
 
     private VirtualCardBoardState(){}
 
-    public VirtualCardBoardState(Context context, View view) {
+    public VirtualCardBoardState(Context context, View view, PcInterface pcInterface) {
         _view = view;
         _context = context;
+        _pcInterface = pcInterface;
         _virtualCardBoardMode = Mode.Settings;
 
         _binocularView = new BinocularView(0, 0);
         _binocularInfo = _binocularView.GetBinocularInfo();
         _cameraDemo = new CameraDemo();
+    }
+
+    private void _UpdateBinocularParams(int focusDistance, int focusVerticalPosition, int simpleWidth, int simpleHeight) {
+        synchronized (_syncMode) {
+            if (_virtualCardBoardMode != Mode.Settings) {
+                _cameraDemo.StopPreview();
+            }
+
+            _binocularView.SetCustomBinocularParams(focusDistance
+                    , focusVerticalPosition
+                    , simpleWidth
+                    , simpleHeight);
+            _binocularInfo = _binocularView.GetBinocularInfo();
+
+            if (_virtualCardBoardMode != Mode.Settings) {
+                _EnableCamera();
+            }
+        }
     }
 
     private void _EnableCamera() {
@@ -122,6 +145,26 @@ public class VirtualCardBoardState {
             case Mode:
                 ModeSetFromMessage(msg.GetData());
                 break;
+            case Settings:
+                SettingsProceed(msg.GetData());
+                break;
+        }
+    }
+
+    private void SettingsProceed(ISettingsMessageData data) {
+        if ((data.GetFlags() & MessageDataContainer._mission_inform) != 0) {
+            //skip
+        }
+        if ((data.GetFlags() & MessageDataContainer._mission_assign) != 0) {
+            _UpdateBinocularParams(data.GetFocusDistance()
+                , data.GetFocusVerticalCoordinate()
+                , data.GetSimpleViewWidth()
+                , data.GetSimpleViewHeight());
+        }
+        if ((data.GetFlags() & MessageDataContainer._mission_request) != 0) {
+            _pcInterface.SendVCMessage(VCMessage.GetSettingsMessage(GetBinocularInfo())
+                , data.GetRemoteAddress()
+                , data.GetRemotePort());
         }
     }
 

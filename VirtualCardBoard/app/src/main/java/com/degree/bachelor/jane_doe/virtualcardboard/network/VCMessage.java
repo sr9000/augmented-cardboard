@@ -68,4 +68,13 @@ public class VCMessage {
         return ret;
     }
 
+    public static VCMessage ParseSettingsMessage(byte[] bytes) {
+        VCMessage ret = new VCMessage();
+        ret._type = Type.Settings;
+        ISettingsMessageData iret = ret._data;
+
+        iret.ParseSettingsMessageData(bytes);
+        return ret;
+    }
+
 }

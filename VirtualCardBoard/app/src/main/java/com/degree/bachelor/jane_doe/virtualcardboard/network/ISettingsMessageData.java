@@ -21,4 +21,6 @@ public interface ISettingsMessageData {
     int GetRemotePort();
     Inet4Address GetRemoteAddress();
     byte GetFlags();
+
+    void ParseSettingsMessageData(byte[] bytes);
 }
