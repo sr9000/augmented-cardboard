@@ -31,6 +31,7 @@ public class PcInterface
     private Context _context;
     private RequestListenerThread _listener;
     private WifiManager _wifiManager;
+    private ResponseSender _sender;
 
     private PcInterface(){}
 
@@ -39,8 +40,29 @@ public class PcInterface
         _wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         _listener = new RequestListenerThread(_context, this, virtualCardBoardState);
 
+        try {
+            _sender = new ResponseSender();
+        } catch (FatalErrorException e) {
+            MainActivity.FatalErrorWindow.Show(_context, e.getMessage());
+        }
+
         _listener.start();
         _listener.SetRunning(true);
+    }
+
+    public PcInterface SendVCMessage(final VCMessage msg, final Inet4Address address, final int port) {
+        Thread worker = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                _SendVCMessage(msg, address, port);
+            }
+        });
+        worker.start();
+        return this;
+    }
+
+    private void _SendVCMessage(VCMessage msg, Inet4Address address, int port) {
+        _sender.SendMessage(msg, address, port);
     }
 
     public PcInterface SendBroadcastWelcomeSignal() {

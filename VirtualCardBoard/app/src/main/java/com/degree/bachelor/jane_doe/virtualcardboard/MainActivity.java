@@ -83,7 +83,7 @@ public class MainActivity extends Activity
             });
         }
 
-        public static void _Show(Context context, String msg)
+        private static void _Show(Context context, String msg)
         {
             if (msg == null) {
                 msg = _default;
