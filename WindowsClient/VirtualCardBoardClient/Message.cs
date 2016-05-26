@@ -12,7 +12,7 @@ namespace VirtualCardBoardClient
         {
             Hello, Ping, Empty
             , Mode
-            , SettRq, SettRp
+            , Settings
         }
 
         public MessageType Type { get; protected set; }
@@ -46,6 +46,12 @@ namespace VirtualCardBoardClient
             return new Message()
                 .SetType(MessageType.Hello)
                 .SetData(MessageDataContainer.ParseMethods.ParseHelloMessage(packet));
+        }
+        public static Message SettingsParserMethod(byte[] packet)
+        {
+            return new Message()
+                .SetType(MessageType.Settings)
+                .SetData(MessageDataContainer.ParseMethods.ParseSettingsMessage(packet));
         }
 
         public static Message CreatePingMessage()

@@ -13,6 +13,7 @@ namespace VirtualCardBoardClient
                 { Message.MessageType.Hello, MessageDataContainer.ComposeMethods.ComposeEmptyMessageBytes }
                 , { Message.MessageType.Ping, MessageDataContainer.ComposeMethods.ComposePingMessageBytes }
                 , { Message.MessageType.Mode, MessageDataContainer.ComposeMethods.ComposeModeMessageBytes }
+                , { Message.MessageType.Mode, MessageDataContainer.ComposeMethods.ComposeSettingsBytes }
             };
 
         protected static Dictionary<Message.MessageType, byte> MessageType2Byte = 
@@ -21,6 +22,7 @@ namespace VirtualCardBoardClient
                 { Message.MessageType.Hello, 0 }
                 , { Message.MessageType.Ping, 1 }
                 , { Message.MessageType.Mode, 2 }
+                , { Message.MessageType.Settings, 3 }
             };
 
         public static byte[] ComposeMessageBytes(Message msg)

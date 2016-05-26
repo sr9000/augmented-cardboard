@@ -13,8 +13,10 @@ namespace VirtualCardBoardClient
 
         protected static SpecifiedPacketParser[] ParserMethods =
         {
-            Message.HelloParserMethod   //Hello
-            , Message.EmptyParserMethod //Ping
+            Message.HelloParserMethod      //Hello
+            , Message.EmptyParserMethod    //Ping
+            , Message.EmptyParserMethod    //Mode
+            , Message.SettingsParserMethod //Settings
             //Empty
         };
 
