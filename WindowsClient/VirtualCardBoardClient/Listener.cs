@@ -24,6 +24,26 @@ namespace VirtualCardBoardClient
         protected Socket InputSocket;
         protected Object ReaderSynchronizator = new Object();
 
+        public IPAddress GetAddress()
+        {
+            var ipEndPoint = InputSocket.LocalEndPoint as IPEndPoint;
+            if (ipEndPoint != null)
+            {
+                return ipEndPoint.Address;
+            }
+            return null;
+        }
+
+        public int GetPort()
+        {
+            var ipEndPoint = InputSocket.LocalEndPoint as IPEndPoint;
+            if (ipEndPoint != null)
+            {
+                return ipEndPoint.Port;
+            }
+            return 0;
+        }
+
         public bool IsStarted()
         {
             return (InputSocket != null);

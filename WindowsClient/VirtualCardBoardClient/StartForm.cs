@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using VirtualCardBoardClient.Properties;
 
@@ -54,6 +48,34 @@ namespace VirtualCardBoardClient
             }
         }
 
+        protected void SettingsMessageProceed(Message msg)
+        {
+            lock (ViewSettingsSynchronizator)
+            {
+                if (ViewSettingsWindow == null) return;
+
+                lock (ViewSettingsWindow.SyncStatus)
+                {
+                    ISettingsMessageData idata = msg.Data;
+
+                    if ((idata.GetFlags() & MessageDataContainer.MissionInform) != 0)
+                    {
+                        ViewSettingsWindow.UpdateBinocularParams(
+                            idata.GetFocusDistance()
+                            , idata.GetFocusVerticalCoordinate()
+                            , idata.GetSimpleViewWidth()
+                            , idata.GetSimpleViewHeight()
+                            );
+                    }
+
+                    ViewSettingsWindow.DeviceStatus = ViewSettings.StatusReady;
+                    ViewSettingsWindow.UpdateDeviceStatus(
+                        ((IHelloMessageData)ViewSettingsWindow.DeviceHelloMessage.Data).GetName()
+                        , ViewSettingsWindow.DeviceStatus);
+                }
+            }
+        }
+
         protected void ListenCycle()
         {
             const int waitPeriod = 1000; //1 sec
@@ -87,6 +109,9 @@ namespace VirtualCardBoardClient
                         case Message.MessageType.Ping:
                             break;
                         case Message.MessageType.Empty:
+                            break;
+                        case Message.MessageType.Settings:
+                            SettingsMessageProceed(msg);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException("Unproceeded message ith type \"" + msg.Type + "\"");

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -66,6 +67,15 @@ namespace VirtualCardBoardClient
             return new Message()
                 .SetType(MessageType.Mode)
                 .SetData(MessageDataContainer.CreateMethods.CreateModeMessageData(mode));
+        }
+
+        public static Message CreateSettingsMessage(
+            byte flags, int focusDist, int focusVertPos, int width, int height, IPAddress address, int port)
+        {
+            return new Message()
+                .SetType(MessageType.Settings)
+                .SetData(MessageDataContainer.CreateMethods.CreateSettingsMessageData(
+                    flags, focusDist, focusVertPos, width, height, address, port));
         }
     }
 }

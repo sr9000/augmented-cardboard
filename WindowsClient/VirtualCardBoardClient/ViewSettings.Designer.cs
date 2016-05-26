@@ -31,27 +31,27 @@
             this.buttonFromSettings = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.label1 = new System.Windows.Forms.Label();
-            this.textBoxDeviceName = new System.Windows.Forms.TextBox();
-            this.numericUpDownEyesDistance = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDownVerticalPosition = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDownWidth = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDownHeigh = new System.Windows.Forms.NumericUpDown();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.buttonPing = new System.Windows.Forms.Button();
+            this.numericUpDownHeigh = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownWidth = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownVerticalPosition = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownEyesDistance = new System.Windows.Forms.NumericUpDown();
+            this.textBoxDeviceName = new System.Windows.Forms.TextBox();
             this.buttonBack = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownEyesDistance)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVerticalPosition)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownHeigh)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownWidth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVerticalPosition)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownEyesDistance)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonFromSettings
@@ -104,62 +104,38 @@
             this.splitContainer1.SplitterDistance = 144;
             this.splitContainer1.TabIndex = 0;
             // 
-            // label1
+            // label5
             // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(68, 6);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(73, 13);
-            this.label1.TabIndex = 100;
-            this.label1.Text = "Device name:";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(100, 135);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(41, 13);
+            this.label5.TabIndex = 100;
+            this.label5.Text = "Height:";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // textBoxDeviceName
+            // label4
             // 
-            this.textBoxDeviceName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxDeviceName.Location = new System.Drawing.Point(3, 3);
-            this.textBoxDeviceName.Name = "textBoxDeviceName";
-            this.textBoxDeviceName.ReadOnly = true;
-            this.textBoxDeviceName.Size = new System.Drawing.Size(176, 20);
-            this.textBoxDeviceName.TabIndex = 0;
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(103, 109);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(38, 13);
+            this.label4.TabIndex = 100;
+            this.label4.Text = "Width:";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // numericUpDownEyesDistance
+            // label3
             // 
-            this.numericUpDownEyesDistance.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDownEyesDistance.Location = new System.Drawing.Point(3, 42);
-            this.numericUpDownEyesDistance.Name = "numericUpDownEyesDistance";
-            this.numericUpDownEyesDistance.Size = new System.Drawing.Size(260, 20);
-            this.numericUpDownEyesDistance.TabIndex = 2;
-            // 
-            // numericUpDownVerticalPosition
-            // 
-            this.numericUpDownVerticalPosition.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDownVerticalPosition.Location = new System.Drawing.Point(3, 68);
-            this.numericUpDownVerticalPosition.Name = "numericUpDownVerticalPosition";
-            this.numericUpDownVerticalPosition.Size = new System.Drawing.Size(260, 20);
-            this.numericUpDownVerticalPosition.TabIndex = 3;
-            // 
-            // numericUpDownWidth
-            // 
-            this.numericUpDownWidth.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDownWidth.Location = new System.Drawing.Point(3, 107);
-            this.numericUpDownWidth.Name = "numericUpDownWidth";
-            this.numericUpDownWidth.Size = new System.Drawing.Size(260, 20);
-            this.numericUpDownWidth.TabIndex = 4;
-            // 
-            // numericUpDownHeigh
-            // 
-            this.numericUpDownHeigh.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDownHeigh.Location = new System.Drawing.Point(3, 133);
-            this.numericUpDownHeigh.Name = "numericUpDownHeigh";
-            this.numericUpDownHeigh.Size = new System.Drawing.Size(260, 20);
-            this.numericUpDownHeigh.TabIndex = 5;
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(57, 70);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(84, 13);
+            this.label3.TabIndex = 100;
+            this.label3.Text = "Vertical position:";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // label2
             // 
@@ -173,38 +149,16 @@
             this.label2.Text = "Distance between eyes:";
             this.label2.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // label3
+            // label1
             // 
-            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(57, 70);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(84, 13);
-            this.label3.TabIndex = 100;
-            this.label3.Text = "Vertical position:";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // label4
-            // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(103, 109);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(38, 13);
-            this.label4.TabIndex = 100;
-            this.label4.Text = "Width:";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // label5
-            // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(100, 135);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(41, 13);
-            this.label5.TabIndex = 100;
-            this.label5.Text = "Height:";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(68, 6);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(73, 13);
+            this.label1.TabIndex = 100;
+            this.label1.Text = "Device name:";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // buttonPing
             // 
@@ -216,6 +170,57 @@
             this.buttonPing.Text = "Ping";
             this.buttonPing.UseVisualStyleBackColor = true;
             this.buttonPing.Click += new System.EventHandler(this.buttonPing_Click);
+            // 
+            // numericUpDownHeigh
+            // 
+            this.numericUpDownHeigh.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.numericUpDownHeigh.Location = new System.Drawing.Point(3, 133);
+            this.numericUpDownHeigh.Name = "numericUpDownHeigh";
+            this.numericUpDownHeigh.Size = new System.Drawing.Size(260, 20);
+            this.numericUpDownHeigh.TabIndex = 5;
+            this.numericUpDownHeigh.ValueChanged += new System.EventHandler(this.numericUpDownHeigh_ValueChanged);
+            // 
+            // numericUpDownWidth
+            // 
+            this.numericUpDownWidth.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.numericUpDownWidth.Location = new System.Drawing.Point(3, 107);
+            this.numericUpDownWidth.Name = "numericUpDownWidth";
+            this.numericUpDownWidth.Size = new System.Drawing.Size(260, 20);
+            this.numericUpDownWidth.TabIndex = 4;
+            this.numericUpDownWidth.ValueChanged += new System.EventHandler(this.numericUpDownWidth_ValueChanged);
+            // 
+            // numericUpDownVerticalPosition
+            // 
+            this.numericUpDownVerticalPosition.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.numericUpDownVerticalPosition.Location = new System.Drawing.Point(3, 68);
+            this.numericUpDownVerticalPosition.Name = "numericUpDownVerticalPosition";
+            this.numericUpDownVerticalPosition.Size = new System.Drawing.Size(260, 20);
+            this.numericUpDownVerticalPosition.TabIndex = 3;
+            this.numericUpDownVerticalPosition.ValueChanged += new System.EventHandler(this.numericUpDownVerticalPosition_ValueChanged);
+            this.numericUpDownVerticalPosition.Click += new System.EventHandler(this.numericUpDownVerticalPosition_Click);
+            // 
+            // numericUpDownEyesDistance
+            // 
+            this.numericUpDownEyesDistance.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.numericUpDownEyesDistance.Location = new System.Drawing.Point(3, 42);
+            this.numericUpDownEyesDistance.Name = "numericUpDownEyesDistance";
+            this.numericUpDownEyesDistance.Size = new System.Drawing.Size(260, 20);
+            this.numericUpDownEyesDistance.TabIndex = 2;
+            this.numericUpDownEyesDistance.ValueChanged += new System.EventHandler(this.numericUpDownEyesDistance_ValueChanged);
+            // 
+            // textBoxDeviceName
+            // 
+            this.textBoxDeviceName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxDeviceName.Location = new System.Drawing.Point(3, 3);
+            this.textBoxDeviceName.Name = "textBoxDeviceName";
+            this.textBoxDeviceName.ReadOnly = true;
+            this.textBoxDeviceName.Size = new System.Drawing.Size(176, 20);
+            this.textBoxDeviceName.TabIndex = 0;
             // 
             // buttonBack
             // 
@@ -240,6 +245,7 @@
             this.Name = "ViewSettings";
             this.Text = "View Settings";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ViewSettings_FormClosing);
+            this.Load += new System.EventHandler(this.ViewSettings_Load);
             this.groupBox1.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
@@ -247,10 +253,10 @@
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownEyesDistance)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVerticalPosition)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownHeigh)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownWidth)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVerticalPosition)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownEyesDistance)).EndInit();
             this.ResumeLayout(false);
 
         }

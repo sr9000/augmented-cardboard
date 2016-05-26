@@ -74,5 +74,15 @@ namespace VirtualCardBoardClient
             AndroidSender.Write(bytes, remoteAddress);
             return this;
         }
+
+        public IPAddress GetServerAddress()
+        {
+            return AndroidListener.GetAddress();
+        }
+
+        public int GetServerPort()
+        {
+            return AndroidListener.GetPort();
+        }
     }
 }
