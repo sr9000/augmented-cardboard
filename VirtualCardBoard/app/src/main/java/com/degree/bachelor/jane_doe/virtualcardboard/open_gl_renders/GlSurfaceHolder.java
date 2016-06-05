@@ -1,6 +1,5 @@
 package com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
@@ -15,7 +14,7 @@ public class GlSurfaceHolder {
     private SceneRenderer _renderer; // borrow this interface
 
     public GlSurfaceHolder(Context context) {
-        _renderer = new SceneRenderer(1, 1);
+        _renderer = new SceneRenderer(1, 1, this);
 
         _surfaceView = new GLSurfaceView(context);
         //_surfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
