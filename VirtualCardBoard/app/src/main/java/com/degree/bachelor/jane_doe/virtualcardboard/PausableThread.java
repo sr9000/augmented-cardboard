@@ -7,10 +7,14 @@ public abstract class PausableThread extends Thread {
     private volatile boolean _running = false;
     private final Object pauseLocker = new Object();
 
+    protected void InitProcess(){}
+
     protected abstract void ProcessBody();
 
     @Override
     public void run() {
+        InitProcess();
+
         while (true) {
             synchronized (pauseLocker) {
                 if (!_running) {

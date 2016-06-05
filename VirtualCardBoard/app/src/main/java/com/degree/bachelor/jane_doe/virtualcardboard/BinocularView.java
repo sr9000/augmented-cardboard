@@ -211,10 +211,10 @@ public class BinocularView {
         info.rightViewFrom = new Rect(_rightViewFrom);
         info.rightViewWhere = new Rect(_rightViewWhere);
 
-        info.adaptedLeftViewFrom = new Rect(_adaptedLeftViewFrom);
-        info.adaptedLeftViewWhere = new Rect(_adaptedLeftViewWhere);
-        info.adaptedRightViewFrom = new Rect(_adaptedRightViewFrom);
-        info.adaptedRightViewWhere = new Rect(_adaptedRightViewWhere);
+        if(_adaptedLeftViewFrom != null) info.adaptedLeftViewFrom = new Rect(_adaptedLeftViewFrom);
+        if(_adaptedLeftViewWhere != null) info.adaptedLeftViewWhere = new Rect(_adaptedLeftViewWhere);
+        if(_adaptedRightViewFrom != null) info.adaptedRightViewFrom = new Rect(_adaptedRightViewFrom);
+        if(_adaptedRightViewWhere != null) info.adaptedRightViewWhere = new Rect(_adaptedRightViewWhere);
 
         return info;
     }

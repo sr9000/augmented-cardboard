@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.degree.bachelor.jane_doe.virtualcardboard"
-        minSdkVersion 11;
+        minSdkVersion 10;
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"

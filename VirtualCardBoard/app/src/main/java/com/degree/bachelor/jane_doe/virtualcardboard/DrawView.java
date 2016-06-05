@@ -44,7 +44,8 @@ public class DrawView extends SurfaceView implements
     }
 
     private void _SetModeToNoPic() {
-        _virtualCardBoardState.SetMode(VirtualCardBoardState.Mode.NoPic);
+        //todo: _virtualCardBoardState.SetMode(VirtualCardBoardState.Mode.NoPic);
+        _virtualCardBoardState.SetMode(VirtualCardBoardState.Mode.Pic);
     }
 
     @Override

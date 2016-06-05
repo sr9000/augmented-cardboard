@@ -9,6 +9,7 @@ import com.degree.bachelor.jane_doe.virtualcardboard.network.ISettingsMessageDat
 import com.degree.bachelor.jane_doe.virtualcardboard.network.MessageDataContainer;
 import com.degree.bachelor.jane_doe.virtualcardboard.network.PcInterface;
 import com.degree.bachelor.jane_doe.virtualcardboard.network.VCMessage;
+import com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders.GlScene;
 
 /**
  * Created by Jane-Doe on 5/25/2016.
@@ -22,9 +23,14 @@ public class VirtualCardBoardState {
     private volatile BinocularView _binocularView;
     private volatile BinocularView.BinocularInfo _binocularInfo;
     private volatile PcInterface _pcInterface;
+    private volatile GlScene _scene;
 
     public volatile Mode _virtualCardBoardMode;
     private final Object _syncMode = new Object();
+
+    public GlScene GetGlScene() {
+        return _scene;
+    }
 
     public enum Mode {
         NoPic, Settings, Pic
@@ -40,6 +46,7 @@ public class VirtualCardBoardState {
         _binocularView = new BinocularView(0, 0);
         _binocularInfo = _binocularView.GetBinocularInfo();
         _cameraDemo = new CameraDemo();
+        _scene = new GlScene();
     }
 
     public void initPcInterface(PcInterface pcInterface)
@@ -51,6 +58,7 @@ public class VirtualCardBoardState {
         synchronized (_syncMode) {
             if (_virtualCardBoardMode != Mode.Settings) {
                 _cameraDemo.StopPreview();
+                _scene.StopPreview();
             }
 
             _binocularView.SetCustomBinocularParams(focusDistance
@@ -68,6 +76,7 @@ public class VirtualCardBoardState {
     private void _EnableCamera() {
         BinocularView.BinocularInfo info = _binocularView.GetBinocularInfo();
         _cameraDemo.StartPreview(info.simpleViewWidth, info.simpleViewHeight);
+        _scene.StartPreview(_cameraDemo.GetWidth(), _cameraDemo.GetHeight(), _cameraDemo.GetVerticalAngle());
         _binocularView.CalcAdaptedViews(_cameraDemo.GetWidth(), _cameraDemo.GetHeight());
         _binocularInfo = _binocularView.GetBinocularInfo();
     }
@@ -77,12 +86,15 @@ public class VirtualCardBoardState {
     }
 
     public BinocularView.BinocularInfo GetBinocularInfo() {
-        return _binocularInfo;
+        synchronized (_syncMode) {
+            return _binocularInfo;
+        }
     }
 
     public void StopProcesses() {
         synchronized (_syncMode) {
             _cameraDemo.StopPreview();
+            _scene.StopPreview();
         }
     }
 
@@ -105,6 +117,7 @@ public class VirtualCardBoardState {
         synchronized (_syncMode) {
             if (_virtualCardBoardMode != Mode.Settings) {
                 _cameraDemo.StopPreview();
+                _scene.StopPreview();
             }
 
             _binocularView.SetDisplaySizes(width, height);
@@ -126,6 +139,7 @@ public class VirtualCardBoardState {
 
             if (_virtualCardBoardMode == Mode.Settings) {
                 _cameraDemo.StopPreview();
+                _scene.StopPreview();
             } else {
                 _EnableCamera();
             }

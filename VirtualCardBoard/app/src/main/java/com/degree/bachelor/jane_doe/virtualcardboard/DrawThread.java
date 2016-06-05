@@ -7,6 +7,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.SurfaceHolder;
 
+import com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders.GlScene;
+
 /**
  * Created by Jane-Doe on 4/24/2016.
  */
@@ -105,6 +107,8 @@ public class DrawThread extends PausableThread {
                     }
                     case Pic: {
                         if (!cameraDemo.IsStarted()) break;
+                        GlScene scene = _virtualCardBoardState.GetGlScene();
+                        if (!scene.IsStarted()) break;
 
                         canvas = _surfaceHolder.lockCanvas();
                         if (canvas == null) break;
@@ -122,6 +126,20 @@ public class DrawThread extends PausableThread {
                                 , binocularInfo.adaptedRightViewFrom
                                 , binocularInfo.adaptedRightViewWhere
                                 , null);
+
+
+                        captured = scene.GetRenderedBitmap();
+                        if (captured == null) break;
+
+                        canvas.drawBitmap(captured
+                                , binocularInfo.adaptedLeftViewFrom
+                                , binocularInfo.adaptedLeftViewWhere
+                                , null);
+                        canvas.drawBitmap(captured
+                                , binocularInfo.adaptedRightViewFrom
+                                , binocularInfo.adaptedRightViewWhere
+                                , null);
+
                         break;
                     }
                 }

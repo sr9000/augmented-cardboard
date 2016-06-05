@@ -18,21 +18,25 @@ public class CameraDemo implements Camera.PreviewCallback {
     private boolean _isStarted;
 
     private Camera _camera;
-    private SurfaceTexture _camTexture;
     private Bitmap _bitmap;
 
     private byte _callbackBuffer[];
     private int _abgrBuffer[];
 
     private int _width, _height;
+    private float _verticalAngle;
 
     public CameraDemo() {
         _isStarted = false;
-        _camTexture = null;
         _bitmap = null;
         _callbackBuffer = null;
         _abgrBuffer = null;
         _camera = null;
+    }
+
+    public float GetVerticalAngle()
+    {
+        return _verticalAngle;
     }
 
     @Override
@@ -66,7 +70,6 @@ public class CameraDemo implements Camera.PreviewCallback {
             _camera.stopPreview();
             _camera.release();
         }
-        _camTexture = null;
         _bitmap = null;
         _callbackBuffer = null;
         _abgrBuffer = null;
@@ -146,13 +149,15 @@ public class CameraDemo implements Camera.PreviewCallback {
         params.setPreviewSize(bestSize.width, bestSize.height);
         params.setPreviewFormat(ImageFormat.NV21);
 
-        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
         params.setExposureCompensation(params.getMinExposureCompensation());
+
+        _verticalAngle = params.getVerticalViewAngle();
 
         _camera.setParameters(params);
 
-        _camTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
-        _camera.setPreviewTexture(_camTexture);
+        //_camTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
+        //_camera.setPreviewTexture(_camTexture);
 
         _bitmap = Bitmap.createBitmap(bestSize.width, bestSize.height, Bitmap.Config.ARGB_8888);
         _callbackBuffer = new byte[(_width * _height * (ImageFormat.getBitsPerPixel(params.getPreviewFormat())) + 7) / 8];
