@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.ViewGroup;
 
 import com.degree.bachelor.jane_doe.virtualcardboard.information.CallbackDialogOnClickListener;
 import com.degree.bachelor.jane_doe.virtualcardboard.information.EmptyDialogOnClickListener;
+import com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders.GlSurfaceHolder;
 
 public class MainActivity extends Activity
 {
@@ -18,7 +21,10 @@ public class MainActivity extends Activity
         InfoWindow.mainActivity = this;
         FatalErrorWindow.mainActivity = this;
 
-        this.setContentView(new DrawView(this));
+        GlSurfaceHolder tHolder = new GlSurfaceHolder(this);
+        setContentView(new DrawView(this, tHolder));
+
+        getWindow().addContentView(tHolder.getView(), new ViewGroup.LayoutParams(1, 1));
     }
 
     public static class InfoWindow {

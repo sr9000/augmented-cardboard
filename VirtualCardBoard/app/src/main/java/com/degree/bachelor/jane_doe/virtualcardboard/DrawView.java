@@ -1,5 +1,6 @@
 package com.degree.bachelor.jane_doe.virtualcardboard;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Vibrator;
 import android.view.GestureDetector;
@@ -8,6 +9,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.degree.bachelor.jane_doe.virtualcardboard.network.PcInterface;
+import com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders.GlSurfaceHolder;
 
 /**
  * Created by Jane-Doe on 4/24/2016.
@@ -24,13 +26,13 @@ public class DrawView extends SurfaceView implements
 
     //says to surfaceholder that
     //DrawView control surface events
-    public DrawView(Context context) {
-        super(context);
+    public DrawView(Activity activity, GlSurfaceHolder glSurfaceHolder) {
+        super(activity);
         getHolder().addCallback(this);
 
-        _context = context;
-        _virtualCardBoardState = new VirtualCardBoardState(_context, this);//VERY IMPORTANT
-        _pcInterface = new PcInterface(_context, _virtualCardBoardState);
+        _context = activity;
+        _virtualCardBoardState = new VirtualCardBoardState(_context, this, glSurfaceHolder);//VERY IMPORTANT
+        _pcInterface = new PcInterface(_context, _virtualCardBoardState);  //ONLY THIS ORDER
 
         _drawThread = new DrawThread();
         _drawThread.start();

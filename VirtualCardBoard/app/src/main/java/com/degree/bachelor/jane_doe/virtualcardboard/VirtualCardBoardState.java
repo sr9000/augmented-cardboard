@@ -10,6 +10,7 @@ import com.degree.bachelor.jane_doe.virtualcardboard.network.MessageDataContaine
 import com.degree.bachelor.jane_doe.virtualcardboard.network.PcInterface;
 import com.degree.bachelor.jane_doe.virtualcardboard.network.VCMessage;
 import com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders.GlScene;
+import com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders.GlSurfaceHolder;
 
 /**
  * Created by Jane-Doe on 5/25/2016.
@@ -38,7 +39,7 @@ public class VirtualCardBoardState {
 
     private VirtualCardBoardState(){}
 
-    public VirtualCardBoardState(Context context, View view) {
+    public VirtualCardBoardState(Context context, View view, GlSurfaceHolder glSurfaceHolder) {
         _view = view;
         _context = context;
         _virtualCardBoardMode = Mode.Settings;
@@ -46,7 +47,7 @@ public class VirtualCardBoardState {
         _binocularView = new BinocularView(0, 0);
         _binocularInfo = _binocularView.GetBinocularInfo();
         _cameraDemo = new CameraDemo();
-        _scene = new GlScene(_context);
+        _scene = new GlScene(glSurfaceHolder);
     }
 
     public void initPcInterface(PcInterface pcInterface)
