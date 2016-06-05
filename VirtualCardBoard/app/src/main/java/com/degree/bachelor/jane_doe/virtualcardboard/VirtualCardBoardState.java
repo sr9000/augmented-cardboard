@@ -46,7 +46,7 @@ public class VirtualCardBoardState {
         _binocularView = new BinocularView(0, 0);
         _binocularInfo = _binocularView.GetBinocularInfo();
         _cameraDemo = new CameraDemo();
-        _scene = new GlScene();
+        _scene = new GlScene(_context);
     }
 
     public void initPcInterface(PcInterface pcInterface)
