@@ -2,6 +2,7 @@ package com.degree.bachelor.jane_doe.virtualcardboard;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.os.Vibrator;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -29,6 +30,7 @@ public class DrawView extends SurfaceView implements
     public DrawView(Activity activity, GlSurfaceHolder glSurfaceHolder) {
         super(activity);
         getHolder().addCallback(this);
+        getHolder().setFormat(PixelFormat.RGBA_8888);
 
         _context = activity;
         _virtualCardBoardState = new VirtualCardBoardState(_context, this, glSurfaceHolder);//VERY IMPORTANT

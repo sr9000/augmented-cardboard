@@ -99,7 +99,7 @@ public class GlScene  {
 
                 gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
                 // set the colour for the triangle
-                gl.glColor4f(0.0f, 1.0f, 0.0f, 0.5f);
+                gl.glColor4f(0.5f, 0.8f, 0.0f, 0.5f);
                 // Point to our vertex buffer
                 gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertexBuffer);
                 // Draw the vertices as triangle strip

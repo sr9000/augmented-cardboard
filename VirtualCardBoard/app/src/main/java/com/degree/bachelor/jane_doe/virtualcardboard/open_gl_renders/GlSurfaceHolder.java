@@ -2,6 +2,7 @@ package com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.view.View;
 
@@ -17,7 +18,7 @@ public class GlSurfaceHolder {
         _renderer = new SceneRenderer(1, 1, this);
 
         _surfaceView = new GLSurfaceView(context);
-        //_surfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        _surfaceView.getHolder().setFormat(PixelFormat.RGBA_8888);
         //_surfaceView.setVisibility(View.INVISIBLE);
 
         _surfaceView.setEGLConfigChooser(8, 8, 8, 8, 0, 0);
