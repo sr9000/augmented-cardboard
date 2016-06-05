@@ -1,8 +1,14 @@
 package com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
+import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
+import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.degree.bachelor.jane_doe.virtualcardboard.PausableThread;
 
@@ -24,29 +30,32 @@ import static javax.microedition.khronos.egl.EGL10.*;
  */
 public class ScenePixelBuffer {
     private volatile PausableThread _drawer;
-    private volatile Bitmap _bitmap;
-    private final Object _syncBitmap = new Object();
+
+    private SceneRenderer _renderer;
 
 
-    public ScenePixelBuffer(final int width, final int height, final Renderer renderer) {
+
+    public ScenePixelBuffer(final int width, final int height, final Context context, final SceneRenderer renderer) {
+        _renderer = renderer;
         _drawer = new PausableThread() {
             final static String TAG = "ScenePixelBuffer";
             final static boolean LIST_CONFIGS = false;
 
             Renderer mRenderer; // borrow this interface
             int mWidth, mHeight;
+            GLSurfaceView _surfaceView;
 
 
-            EGL10 mEGL;
-            EGLDisplay mEGLDisplay;
-            EGLConfig[] mEGLConfigs;
-            EGLConfig mEGLConfig;
-            EGLContext mEGLContext;
-            EGLSurface mEGLSurface;
-            GL10 mGL;
+            //EGL10 mEGL;
+            //EGLDisplay mEGLDisplay;
+            //EGLConfig[] mEGLConfigs;
+            //EGLConfig mEGLConfig;
+            //EGLContext mEGLContext;
+            //EGLSurface mEGLSurface;
+            //GL10 mGL;
 
             String mThreadOwner;
-
+/*
             private EGLConfig chooseConfig() {
                 int[] attribList = new int[] {
                         EGL_LUMINANCE_SIZE, 0,
@@ -102,33 +111,7 @@ public class ScenePixelBuffer {
                 return mEGL.eglGetConfigAttrib(mEGLDisplay, config,
                         attribute, value)? value[0] : 0;
             }
-
-            private void convertToBitmap() {
-                if (!Thread.currentThread().getName().equals(mThreadOwner)) {
-                    //Log.e(TAG, "getBitmap: This thread does not own the OpenGL context.");
-                    return;
-                }
-
-                Buffer ib = ByteBuffer.allocateDirect(4*mWidth*mHeight).order(ByteOrder.nativeOrder());
-                //IntBuffer ibt = IntBuffer.allocate(mWidth*mHeight);
-                mGL.glFinish();
-                mEGL.eglWaitGL();
-                int err = mGL.glGetError();
-
-                mGL.glReadPixels(0, 0, mWidth, mHeight , GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, ib);
-
-                // Convert upside down mirror-reversed image to right-side up normal image.
-                //for (int i = 0; i < mHeight; i++) {
-                //    for (int j = 0; j < mWidth; j++) {
-                //        ibt.put((mHeight-i-1)*mWidth + j, ib.get(i*mWidth + j));
-                //    }
-                //}
-
-                synchronized (_syncBitmap) {
-                    _bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
-                    _bitmap.copyPixelsFromBuffer(ib);
-                }
-            }
+*/
 
             @Override
             protected void InitProcess() {
@@ -136,7 +119,24 @@ public class ScenePixelBuffer {
                 mHeight = height;
                 mRenderer = renderer;
 
-                int[] version = new int[2];
+                Looper.prepare();
+                _surfaceView = new GLSurfaceView(context);
+                Looper.loop();
+                _surfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+                _surfaceView.setVisibility(View.INVISIBLE);
+
+                _surfaceView.setEGLConfigChooser(8, 8, 8, 8, 0, 0);
+
+                ViewGroup.LayoutParams params = _surfaceView.getLayoutParams();
+                params.width = mWidth;
+                params.height = mHeight;
+                _surfaceView.setLayoutParams(params);
+
+                _surfaceView.setRenderer(renderer);
+
+
+
+                /*int[] version = new int[2];
                 int[] attribList = new int[] {
                         EGL_WIDTH, mWidth,
                         EGL_HEIGHT, mHeight,
@@ -177,7 +177,7 @@ public class ScenePixelBuffer {
 
                 // Call the renderer initialization routines
                 mRenderer.onSurfaceCreated(mGL, mEGLConfig);
-                mRenderer.onSurfaceChanged(mGL, mWidth, mHeight);
+                mRenderer.onSurfaceChanged(mGL, mWidth, mHeight);*/
 
 
             }
@@ -185,8 +185,7 @@ public class ScenePixelBuffer {
             @Override
             protected void ProcessBody() {
                 // Call the renderer draw routine
-                mRenderer.onDrawFrame(mGL);
-                convertToBitmap();
+                _surfaceView.postInvalidate();
                 Thread.yield();
             }
 
@@ -197,10 +196,7 @@ public class ScenePixelBuffer {
     }
 
     public Bitmap getBitmap() {
-        synchronized (_syncBitmap) {
-            if (_bitmap == null) return null;
-            return Bitmap.createBitmap(_bitmap);
-        }
+        return _renderer.getBitmap();
     }
 
     public void Stop() {

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
+import android.view.View;
 
 
 /**
@@ -13,8 +14,7 @@ import android.opengl.GLSurfaceView.Renderer;
 public class GlScene  {
     private volatile ScenePixelBuffer _scenePixelBuffer;
     private volatile boolean _isStarted;
-    private volatile Renderer _renderer;
-    private volatile GLSurfaceView _sceneSurface;
+    private volatile SceneRenderer _renderer;
     private Context _context;
 
     public GlScene(Context context) {
@@ -23,8 +23,6 @@ public class GlScene  {
 
         _renderer = new SceneRenderer();
         _isStarted = false;
-        _sceneSurface = new GLSurfaceView(_context);
-        _sceneSurface.getHolder().setFormat(PixelFormat.TRANSLUCENT);
     }
 
     public boolean IsStarted() {
@@ -38,7 +36,7 @@ public class GlScene  {
 
     public void StartPreview(int width, int height, float fova) {
         //todo:
-        _scenePixelBuffer = new ScenePixelBuffer(width, height, _renderer);
+        _scenePixelBuffer = new ScenePixelBuffer(width, height, _context, _renderer);
         //_scenePixelBuffer.setRenderer(_renderer);
         _isStarted = true;
     }

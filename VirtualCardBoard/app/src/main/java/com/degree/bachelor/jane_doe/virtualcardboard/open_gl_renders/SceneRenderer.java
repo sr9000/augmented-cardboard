@@ -1,8 +1,10 @@
 package com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders;
 
+import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -14,6 +16,10 @@ import javax.microedition.khronos.opengles.GL10;
  * Created by Jane-Doe on 5/28/2016.
  */
 public class SceneRenderer implements GLSurfaceView.Renderer {
+    private volatile Bitmap _bitmap;
+    private final Object _syncBitmap = new Object();
+    private int _width, _height;
+
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
 
@@ -24,17 +30,50 @@ public class SceneRenderer implements GLSurfaceView.Renderer {
         if(height == 0) {                       //Prevent A Divide By Zero By
             height = 1;                         //Making Height Equal One
         }
-        gl.glViewport(0, 0, width, height);     //Reset The Current Viewport
+        _width = width;
+        _height = height;
+
+        synchronized (_syncBitmap) {
+            _bitmap = Bitmap.createBitmap(_width, _height, Bitmap.Config.ARGB_8888);
+        }
+
+        gl.glViewport(0, 0, _width, _height);     //Reset The Current Viewport
         gl.glMatrixMode(GL10.GL_PROJECTION);    //Select The Projection Matrix
         gl.glLoadIdentity();                    //Reset The Projection Matrix
 
         //Calculate The Aspect Ratio Of The Window
-        GLU.gluPerspective(gl, 45.0f, (float)width / (float)height, 0.1f, 100.0f);
+        GLU.gluPerspective(gl, 45.0f, (float)_width / (float)_height, 0.1f, 100.0f);
 
         gl.glMatrixMode(GL10.GL_MODELVIEW);     //Select The Modelview Matrix
         gl.glLoadIdentity();                    //Reset The Modelview Matrix
     }
 
+    private void convertToBitmap(GL10 mGL) {
+        Buffer ib = ByteBuffer.allocateDirect(4*_width*_height).order(ByteOrder.nativeOrder());
+        //IntBuffer ibt = IntBuffer.allocate(mWidth*mHeight);
+        mGL.glFinish();
+        int err = mGL.glGetError();
+
+        mGL.glReadPixels(0, 0, _width, _height , GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, ib);
+
+        // Convert upside down mirror-reversed image to right-side up normal image.
+        //for (int i = 0; i < mHeight; i++) {
+        //    for (int j = 0; j < mWidth; j++) {
+        //        ibt.put((mHeight-i-1)*mWidth + j, ib.get(i*mWidth + j));
+        //    }
+        //}
+
+        synchronized (_syncBitmap) {
+            _bitmap.copyPixelsFromBuffer(ib);
+        }
+    }
+
+    public Bitmap getBitmap() {
+        synchronized (_syncBitmap) {
+            if (_bitmap == null) return null;
+            return Bitmap.createBitmap(_bitmap);
+        }
+    }
 
     @Override
     public void onDrawFrame(GL10 gl) {
@@ -78,5 +117,6 @@ public class SceneRenderer implements GLSurfaceView.Renderer {
             gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
 
         }
+        convertToBitmap(gl);
     }
 }
