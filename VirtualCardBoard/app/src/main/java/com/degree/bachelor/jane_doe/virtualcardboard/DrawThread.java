@@ -1,10 +1,14 @@
 package com.degree.bachelor.jane_doe.virtualcardboard;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.Shader;
 import android.view.SurfaceHolder;
 
 import com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders.GlScene;
@@ -131,14 +135,18 @@ public class DrawThread extends PausableThread {
                         captured = scene.GetRenderedBitmap();
                         if (captured == null) break;
 
+                        Paint p = new Paint();
+                        p.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
+                        //p.setShader(new BitmapShader(captured, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
+
                         canvas.drawBitmap(captured
                                 , binocularInfo.adaptedLeftViewFrom
                                 , binocularInfo.adaptedLeftViewWhere
-                                , null);
+                                , p);
                         canvas.drawBitmap(captured
                                 , binocularInfo.adaptedRightViewFrom
                                 , binocularInfo.adaptedRightViewWhere
-                                , null);
+                                , p);
 
                         break;
                     }
