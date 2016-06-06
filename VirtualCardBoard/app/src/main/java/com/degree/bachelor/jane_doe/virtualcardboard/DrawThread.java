@@ -23,7 +23,7 @@ public class DrawThread extends PausableThread {
 
     private final Object changeLocker = new Object();
 
-    private Paint _color1, _color2;
+    private Paint _color1, _color2, _blend;
 
     public DrawThread()
     {
@@ -35,6 +35,9 @@ public class DrawThread extends PausableThread {
 
         _color1.setColor(Color.GREEN);
         _color2.setColor(Color.CYAN);
+
+        _blend = new Paint();
+        _blend.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
     }
 
     @Override
@@ -131,22 +134,17 @@ public class DrawThread extends PausableThread {
                                 , binocularInfo.adaptedRightViewWhere
                                 , null);
 
-
                         captured = scene.GetRenderedBitmap();
                         if (captured == null) break;
-
-                        Paint p = new Paint();
-                        p.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
-                        //p.setShader(new BitmapShader(captured, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
 
                         canvas.drawBitmap(captured
                                 , binocularInfo.adaptedLeftViewFrom
                                 , binocularInfo.adaptedLeftViewWhere
-                                , p);
+                                , _blend);
                         canvas.drawBitmap(captured
                                 , binocularInfo.adaptedRightViewFrom
                                 , binocularInfo.adaptedRightViewWhere
-                                , p);
+                                , _blend);
 
                         break;
                     }
