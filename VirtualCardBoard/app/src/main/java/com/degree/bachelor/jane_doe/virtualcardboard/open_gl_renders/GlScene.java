@@ -20,8 +20,8 @@ import javax.microedition.khronos.opengles.GL10;
  * Created by Jane-Doe on 5/28/2016.
  */
 public class GlScene  {
-    private volatile GlSurfaceHolder _glSurfaceHolder;
-    private volatile boolean _isStarted;
+    private GlSurfaceHolder _glSurfaceHolder;
+    private boolean _isStarted;
 
     public GlScene(GlSurfaceHolder glSurfaceHolder, Activity activity) {
         _glSurfaceHolder = glSurfaceHolder;
@@ -72,20 +72,18 @@ public class GlScene  {
 
     private class _glOnDraw implements ISceneRendererManager.GlOnDrawRunnable, SensorEventListener {
 
-        Sensor _orientation;
-        GlCameraMath _camMath;
-        volatile boolean _isSet = false;
+        private Sensor _orientation;
+        private GlCameraMath _camMath;
+        private boolean _isSet = false;
 
-        float[] vector;
-        float[] center = new float[3];
-        float[] up = new float[3];
-        final Object _synvVector = new Object();
+        private float[] center = new float[3];
+        private float[] up = new float[3];
 
         public _glOnDraw(Activity activity) {
             SensorManager sensorManager = (SensorManager)activity.getSystemService(Context.SENSOR_SERVICE);
             _orientation = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
             _camMath = new GlCameraMath();
-            sensorManager.registerListener(this, _orientation, SensorManager.SENSOR_DELAY_FASTEST);
+            sensorManager.registerListener(this, _orientation, SensorManager.SENSOR_DELAY_UI);
         }
 
         @Override
@@ -98,13 +96,13 @@ public class GlScene  {
             // Drawing
             //gl.glTranslatef(0.0f, 0.0f, -5.0f);     // move 5 units INTO the screen
             // is the same as moving the camera 5 units away
-            synchronized (_synvVector) {
-                _camMath.GetTransformedCenterAndUpVectors(vector, center, up);
-            }
+            //synchronized (_synvVector) {
+
+            //}
             GLU.gluLookAt(gl, 0f, 0f, 0f, center[0], center[1], center[2], up[0], up[1], up[2]);
 
 
-            
+
             {// Draw the triangle
                 FloatBuffer vertexBuffer;   // buffer holding the vertices
                 float vertices[] = {
@@ -140,18 +138,14 @@ public class GlScene  {
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
             if (_isSet) {
-                synchronized (_synvVector) {
-                    vector = sensorEvent.values;
-                }
+                _camMath.GetTransformedCenterAndUpVectors(sensorEvent.values, center, up);
             } else {
-                _camMath.SetUpCenter(sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2]);
+                _camMath.SetUpCenter(sensorEvent.values);
                 _isSet = true;
             }
         }
 
         @Override
-        public void onAccuracyChanged(Sensor sensor, int i) {
-
-        }
+        public void onAccuracyChanged(Sensor sensor, int i) { }
     }
 }

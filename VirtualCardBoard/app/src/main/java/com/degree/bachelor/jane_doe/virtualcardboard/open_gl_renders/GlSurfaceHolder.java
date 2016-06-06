@@ -19,10 +19,8 @@ public class GlSurfaceHolder {
 
         _surfaceView = new GLSurfaceView(context);
         _surfaceView.getHolder().setFormat(PixelFormat.RGBA_8888);
-        //_surfaceView.setVisibility(View.INVISIBLE);
 
         _surfaceView.setEGLConfigChooser(8, 8, 8, 8, 0, 0);
-        //_surfaceView.setLayoutParams(new ViewGroup.LayoutParams(mWidth, mHeight));
 
         _surfaceView.setRenderer(_renderer);
 

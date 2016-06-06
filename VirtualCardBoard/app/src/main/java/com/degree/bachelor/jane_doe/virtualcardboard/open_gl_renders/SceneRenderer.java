@@ -1,6 +1,8 @@
 package com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.view.ViewGroup;
 
@@ -16,6 +18,9 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class SceneRenderer implements GLSurfaceView.Renderer, ISceneRendererManager {
     private volatile Bitmap _bitmap;
+    private volatile Bitmap _retBitmap;
+    private volatile Canvas _canvas4RetBitmap;
+    private volatile Buffer _buffer;
     private final Object _syncBitmap = new Object();
 
     private volatile int _width = 0, _height = 1;
@@ -38,42 +43,34 @@ public class SceneRenderer implements GLSurfaceView.Renderer, ISceneRendererMana
 
     @Override
     public ISceneRendererManager SetupGl(int width, int height) {
-        synchronized (_syncSetup) {
-            _width = width;
-            _height = (height > 0)? height : 1;
+        _width = width;
+        _height = (height > 0)? height : 1;
 
-            ViewGroup.LayoutParams params = _glSurfaceHolder.getView().getLayoutParams();
-            params.width = width;
-            params.height = height;
-            _glSurfaceHolder.getView().setLayoutParams(params);
+        ViewGroup.LayoutParams params = _glSurfaceHolder.getView().getLayoutParams();
+        params.width = width;
+        params.height = height;
+        _glSurfaceHolder.getView().setLayoutParams(params);
 
-            _isNeedSetupGl = true;
-        }
+        _isNeedSetupGl = true;
         return this;
     }
 
     @Override
     public ISceneRendererManager DrawingOn() {
-        synchronized (_syncSetup) {
-            _isDrawing = true;
-        }
+        _isDrawing = true;
         return this;
     }
 
     @Override
     public ISceneRendererManager DrawingOff() {
-        synchronized (_syncSetup) {
-            _isDrawing = false;
-        }
+        _isDrawing = false;
         return this;
     }
 
     @Override
     public ISceneRendererManager SetGlMethods(GlSetupRunnable glViewSetup, GlOnDrawRunnable glDraw) {
-        synchronized (_syncMethods) {
-            _glSetupRunnable = glViewSetup;
-            _glOnDrawRunnable = glDraw;
-        }
+        _glSetupRunnable = glViewSetup;
+        _glOnDrawRunnable = glDraw;
         return this;
     }
 
@@ -83,55 +80,26 @@ public class SceneRenderer implements GLSurfaceView.Renderer, ISceneRendererMana
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) { }
 
-    private void _convertToBitmap(GL10 mGL) {
-        byte[] arr = new byte[4*_width*_height];
-        Buffer ib = ByteBuffer.wrap(arr).order(ByteOrder.nativeOrder());
-        //IntBuffer ibt = IntBuffer.allocate(mWidth*mHeight);
-        mGL.glFinish();
-        int err = mGL.glGetError();
-
-        mGL.glReadPixels(0, 0, _width, _height , GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, ib);
-
-        // Convert upside down mirror-reversed image to right-side up normal image.
-        //for (int i = 0; i < mHeight; i++) {
-        //    for (int j = 0; j < mWidth; j++) {
-        //        ibt.put((mHeight-i-1)*mWidth + j, ib.get(i*mWidth + j));
-        //    }
-        //}
-
-        synchronized (_syncBitmap) {
-            _bitmap.copyPixelsFromBuffer(ib);
-        }
-    }
-
     public Bitmap getBitmap() {
-        synchronized (_syncBitmap) {
-            if (_bitmap == null) return null;
-            return Bitmap.createBitmap(_bitmap);
-        }
+        return _bitmap;
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        synchronized (_syncMethods) {
-            synchronized (_syncSetup) {
-                if (_isNeedSetupGl) {
-                    if (_glSetupRunnable != null) {
-                        _glSetupRunnable.run(gl, _width, _height);
-                    }
-                    synchronized (_syncBitmap) {
-                        _bitmap = Bitmap.createBitmap(_width, _height, Bitmap.Config.ARGB_8888);
-                    }
-                    _isNeedSetupGl = false;
-                }
-
-                if (_isDrawing) {
-                    if (_glOnDrawRunnable != null) {
-                        _glOnDrawRunnable.run(gl);
-                        _convertToBitmap(gl);
-                    }
-                }
+        if (_isNeedSetupGl) {
+            if (_glSetupRunnable != null) {
+                _glSetupRunnable.run(gl, _width, _height);
             }
+            _bitmap = Bitmap.createBitmap(_width, _height, Bitmap.Config.ARGB_8888);
+            _buffer = ByteBuffer.allocate(4*_width*_height).order(ByteOrder.nativeOrder());
+            _isNeedSetupGl = false;
+        }
+
+        if (_isDrawing && _glOnDrawRunnable != null) {
+            _glOnDrawRunnable.run(gl);
+
+            gl.glReadPixels(0, 0, _width, _height , GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, _buffer);
+            _bitmap.copyPixelsFromBuffer(_buffer);
         }
     }
 }
