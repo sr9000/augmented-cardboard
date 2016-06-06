@@ -26,10 +26,10 @@ public class GlCameraMath {
 
         float p0, i0, j0, k0;
 
-        p0 =   a*b + x0*xc + y0*yc + z0*zc;
-        i0 = -b*x0 +  a*xc + yc*z0 - y0*zc;
-        j0 = -b*y0 +  a*yc - xc*z0 + x0*zc;
-        k0 = xc*y0 - x0*yc -  b*z0 +  a*zc;
+        p0 = a*b + x0*xc + y0*yc + z0*zc;
+        i0 = -b*x0 + a*xc - yc*z0 + y0*zc;
+        j0 = -b*y0 + a*yc + xc*z0 - x0*zc;
+        k0 = -xc*y0 + x0*yc - b*z0 + a*zc;
 
         float pc, ic, jc, kc;
 
@@ -48,8 +48,8 @@ public class GlCameraMath {
         outCenter[1] = 2.0f * (y*z - x*w);
         outCenter[2] = z*z + w*w - x*x - y*y;
 
-        outUp[0] = 2.0f * (x*y - z*w);
-        outUp[1] = y*y + w*w - x*x - z*z;
-        outUp[2] = 2.0f * (x*w + y*z);
+        outUp[0] = w*w + x*x - y*y - z*z;
+        outUp[1] = 2f*x*y + 2f*w*z;
+        outUp[2] = -2f*w*y + 2f*x*z;
     }
 }

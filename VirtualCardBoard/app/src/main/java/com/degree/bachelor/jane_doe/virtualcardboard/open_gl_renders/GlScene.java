@@ -76,6 +76,7 @@ public class GlScene  {
         private GlCameraMath _camMath;
         private boolean _isSet = false;
 
+        private float[] vector = new float[3];
         private float[] center = new float[3];
         private float[] up = new float[3];
 
@@ -137,6 +138,9 @@ public class GlScene  {
 
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
+            //vector[0] = sensorEvent.values[1];
+            //vector[1] = -sensorEvent.values[0];
+            //vector[2] = -sensorEvent.values[2];
             if (_isSet) {
                 _camMath.GetTransformedCenterAndUpVectors(sensorEvent.values, center, up);
             } else {
