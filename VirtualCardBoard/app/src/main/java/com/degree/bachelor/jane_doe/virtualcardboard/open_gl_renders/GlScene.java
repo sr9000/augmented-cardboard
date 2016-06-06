@@ -1,6 +1,12 @@
 package com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.opengl.GLU;
 
 import java.nio.ByteBuffer;
@@ -17,10 +23,10 @@ public class GlScene  {
     private volatile GlSurfaceHolder _glSurfaceHolder;
     private volatile boolean _isStarted;
 
-    public GlScene(GlSurfaceHolder glSurfaceHolder) {
+    public GlScene(GlSurfaceHolder glSurfaceHolder, Activity activity) {
         _glSurfaceHolder = glSurfaceHolder;
         _isStarted = false;
-        _glSurfaceHolder.getSceneRendererManager().SetGlMethods(new _glSetupView(), new _glOnDraw());
+        _glSurfaceHolder.getSceneRendererManager().SetGlMethods(new _glSetupView(), new _glOnDraw(activity));
     }
 
     public boolean IsStarted() {
@@ -64,7 +70,23 @@ public class GlScene  {
         }
     }
 
-    private class _glOnDraw implements ISceneRendererManager.GlOnDrawRunnable {
+    private class _glOnDraw implements ISceneRendererManager.GlOnDrawRunnable, SensorEventListener {
+
+        Sensor _orientation;
+        GlCameraMath _camMath;
+        volatile boolean _isSet = false;
+
+        float[] vector;
+        float[] center = new float[3];
+        float[] up = new float[3];
+        final Object _synvVector = new Object();
+
+        public _glOnDraw(Activity activity) {
+            SensorManager sensorManager = (SensorManager)activity.getSystemService(Context.SENSOR_SERVICE);
+            _orientation = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            _camMath = new GlCameraMath();
+            sensorManager.registerListener(this, _orientation, SensorManager.SENSOR_DELAY_FASTEST);
+        }
 
         @Override
         public void run(GL10 gl) {
@@ -74,15 +96,21 @@ public class GlScene  {
             // Reset the Modelview Matrix
             gl.glLoadIdentity();
             // Drawing
-            gl.glTranslatef(0.0f, 0.0f, -5.0f);     // move 5 units INTO the screen
+            //gl.glTranslatef(0.0f, 0.0f, -5.0f);     // move 5 units INTO the screen
             // is the same as moving the camera 5 units away
+            synchronized (_synvVector) {
+                _camMath.GetTransformedCenterAndUpVectors(vector, center, up);
+            }
+            GLU.gluLookAt(gl, 0f, 0f, 0f, center[0], center[1], center[2], up[0], up[1], up[2]);
 
+
+            
             {// Draw the triangle
                 FloatBuffer vertexBuffer;   // buffer holding the vertices
                 float vertices[] = {
-                        -0.5f, -0.5f, 0.0f,        // V1 - first vertex (x,y,z)
-                        0.5f, -0.5f, 0.0f,        // V2 - second vertex
-                        0.0f, 0.5f, 0.0f         // V3 - third vertex
+                           0f,    0f, 5f,        // V1 - first vertex (x,y,z)
+                         0.5f,    0f, 5f,        // V2 - second vertex
+                         0.5f,  0.2f, 5f         // V3 - third vertex
                 };
                 // a float has 4 bytes so we allocate for each coordinate 4 bytes
                 ByteBuffer vertexByteBuffer = ByteBuffer.allocateDirect(vertices.length * 4);
@@ -107,6 +135,23 @@ public class GlScene  {
                 //Disable the client state before leaving
                 gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
             }
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent sensorEvent) {
+            if (_isSet) {
+                synchronized (_synvVector) {
+                    vector = sensorEvent.values;
+                }
+            } else {
+                _camMath.SetUpCenter(sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2]);
+                _isSet = true;
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int i) {
+
         }
     }
 }

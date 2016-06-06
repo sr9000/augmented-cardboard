@@ -1,5 +1,6 @@
 package com.degree.bachelor.jane_doe.virtualcardboard;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Vibrator;
 import android.view.View;
@@ -39,15 +40,15 @@ public class VirtualCardBoardState {
 
     private VirtualCardBoardState(){}
 
-    public VirtualCardBoardState(Context context, View view, GlSurfaceHolder glSurfaceHolder) {
+    public VirtualCardBoardState(Activity activity, View view, GlSurfaceHolder glSurfaceHolder) {
         _view = view;
-        _context = context;
+        _context = activity;
         _virtualCardBoardMode = Mode.Settings;
 
         _binocularView = new BinocularView(0, 0);
         _binocularInfo = _binocularView.GetBinocularInfo();
         _cameraDemo = new CameraDemo();
-        _scene = new GlScene(glSurfaceHolder);
+        _scene = new GlScene(glSurfaceHolder, activity);
     }
 
     public void initPcInterface(PcInterface pcInterface)

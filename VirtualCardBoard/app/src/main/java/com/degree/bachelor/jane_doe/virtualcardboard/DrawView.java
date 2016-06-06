@@ -33,7 +33,7 @@ public class DrawView extends SurfaceView implements
         getHolder().setFormat(PixelFormat.RGBA_8888);
 
         _context = activity;
-        _virtualCardBoardState = new VirtualCardBoardState(_context, this, glSurfaceHolder);//VERY IMPORTANT
+        _virtualCardBoardState = new VirtualCardBoardState(activity, this, glSurfaceHolder);//VERY IMPORTANT
         _pcInterface = new PcInterface(_context, _virtualCardBoardState);  //ONLY THIS ORDER
 
         _drawThread = new DrawThread();
