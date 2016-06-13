@@ -91,6 +91,11 @@ public class GlScene  {
         private volatile float[] center = new float[3];
         private volatile float[] up = new float[3];
 
+        private volatile FloatBuffer vertexBuffer;
+        private volatile FloatBuffer texBuffer;
+        private volatile ShortBuffer indexBuffer;
+        private volatile int totalPoints;
+
         public _glOnDraw(Activity activity) {
             _algorithm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.gcdtrp2rs);
             int w = _algorithm.getWidth();
@@ -99,6 +104,76 @@ public class GlScene  {
             _orientation = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
             _camMath = new GlCameraMath();
             sensorManager.registerListener(this, _orientation, SensorManager.SENSOR_DELAY_UI);
+
+            _genVertexes(5f, 1f, (753f/1024f), 8);
+        }
+
+        private void _genVertexes(float R, float Tx, float Ty, int N) {
+            final float upx = -0.577f*R;
+            final float dwx =  0.577f*R;
+
+            final float upty = 0f;
+            final float dwty = Ty;
+
+            float  z;
+            float  y;
+            float tx;
+
+            z = 0f;
+            y = -R;
+
+            tx = 0f;
+
+            float v[] = new float[3 * 2 * (N + 1)];
+            float t[] = new float[2 * 2 * (N + 1)];
+
+            short i[] = new short[3 * 2 * N];
+
+            totalPoints = 6 * N;
+
+            v[0] = dwx; v[1] = y; v[2] = z;
+            v[3] = upx; v[4] = y; v[5] = z;
+
+            t[0] = tx; t[1] = dwty;
+            t[2] = tx; t[3] = upty;
+
+            for (int n = 1; n <= N; ++n) {
+                z = (float)(Math.sin((Math.PI * (N - n)) / N) * R);
+                y = (float)(Math.cos((Math.PI * (N - n)) / N) * R);
+
+                tx = (Tx * n) / N;
+
+                v[6*n    ] = dwx; v[6*n + 1] = y; v[6*n + 2] = z;
+                v[6*n + 3] = upx; v[6*n + 4] = y; v[6*n + 5] = z;
+
+                t[4*n    ] = tx; t[4*n + 1] = dwty;
+                t[4*n + 2] = tx; t[4*n + 3] = upty;
+
+                i[6 * (n - 1)    ] = (short)(2 * (n - 1)    );
+                i[6 * (n - 1) + 1] = (short)(2 * (n - 1) + 1);
+                i[6 * (n - 1) + 2] = (short)(2 * (n - 1) + 2);
+                i[6 * (n - 1) + 3] = (short)(2 * (n - 1) + 3);
+                i[6 * (n - 1) + 4] = (short)(2 * (n - 1) + 2);
+                i[6 * (n - 1) + 5] = (short)(2 * (n - 1) + 1);
+            }
+
+            // buffer holding the verticesoat has 4 bytes so we allocate for each coordinate 4 bytes
+            ByteBuffer vertexByteBuffer = ByteBuffer.allocateDirect(v.length * 4);
+            vertexByteBuffer.order(ByteOrder.nativeOrder());
+            vertexBuffer = vertexByteBuffer.asFloatBuffer();
+            vertexBuffer.put(v);
+
+            // buffer holding the texicesoat has 4 bytes so we allocate for each coordinate 4 bytes
+            ByteBuffer texByteBuffer = ByteBuffer.allocateDirect(t.length * 4);
+            texByteBuffer.order(ByteOrder.nativeOrder());
+            texBuffer = texByteBuffer.asFloatBuffer();
+            texBuffer.put(t);
+
+            // buffer holding the indicesoat has 2 bytes so we allocate for each coordinate 2 bytes
+            ByteBuffer indexByteBuffer = ByteBuffer.allocateDirect(i.length * 2);
+            indexByteBuffer.order(ByteOrder.nativeOrder());
+            indexBuffer = indexByteBuffer.asShortBuffer();
+            indexBuffer.put(i);
         }
 
         @Override
@@ -162,52 +237,8 @@ public class GlScene  {
 
 
             {// Draw the triangle
-                FloatBuffer vertexBuffer;   // buffer holding the vertices
-                float vertices[] = {
-                          -1f,   -1f, 5f,        // V1 - first vertex (x,y,z)
-                         1.5f,   -1f, 5f,        // V2 - second vertex
-                         1.5f,  2.0f, 5f         // V3 - third vertex
-                };
-                // a float has 4 bytes so we allocate for each coordinate 4 bytes
-                ByteBuffer vertexByteBuffer = ByteBuffer.allocateDirect(vertices.length * 4);
-                vertexByteBuffer.order(ByteOrder.nativeOrder());
-                // allocates the memory from the byte buffer
-                vertexBuffer = vertexByteBuffer.asFloatBuffer();
-                // fill the vertexBuffer with the vertices
-                vertexBuffer.put(vertices);
-                // set the cursor position to the beginning of the buffer
                 vertexBuffer.position(0);
-
-                FloatBuffer texBuffer;   // buffer holding the vertices
-                float texices[] = {
-                        0.0f,  0.0f,        // V1 - first vertex (x,y,z)
-                        0.0f,  1.0f,        // V2 - second vertex
-                        1.0f,  1.0f         // V3 - third vertex
-                };
-                // a float has 4 bytes so we allocate for each coordinate 4 bytes
-                ByteBuffer texByteBuffer = ByteBuffer.allocateDirect(texices.length * 4);
-                texByteBuffer.order(ByteOrder.nativeOrder());
-                // allocates the memory from the byte buffer
-                texBuffer = texByteBuffer.asFloatBuffer();
-                // fill the vertexBuffer with the vertices
-                texBuffer.put(texices);
-                // set the cursor position to the beginning of the buffer
                 texBuffer.position(0);
-
-                ShortBuffer indexBuffer;   // buffer holding the vertices
-                short indices[] = {
-                        2,        // V1 - first vertex (x,y,z)
-                        1,        // V2 - second vertex
-                        0         // V3 - third vertex
-                };
-                // a float has 4 bytes so we allocate for each coordinate 4 bytes
-                ByteBuffer indexByteBuffer = ByteBuffer.allocateDirect(vertices.length * 2);
-                indexByteBuffer.order(ByteOrder.nativeOrder());
-                // allocates the memory from the byte buffer
-                indexBuffer = indexByteBuffer.asShortBuffer();
-                // fill the vertexBuffer with the vertices
-                indexBuffer.put(indices);
-                // set the cursor position to the beginning of the buffer
                 indexBuffer.position(0);
 
                 // Counter-clockwise winding.
@@ -234,7 +265,7 @@ public class GlScene  {
                 gl.glBindTexture(GL11.GL_TEXTURE_2D, mTextureId);
                 gl.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
 
-                gl.glDrawElements(GL11.GL_TRIANGLES, indices.length,
+                gl.glDrawElements(GL11.GL_TRIANGLES, totalPoints,
                         GL11.GL_UNSIGNED_SHORT, indexBuffer);
 
                 gl.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
