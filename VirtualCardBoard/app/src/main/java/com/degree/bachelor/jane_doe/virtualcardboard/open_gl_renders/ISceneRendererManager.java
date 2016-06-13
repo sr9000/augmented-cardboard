@@ -8,14 +8,14 @@ import javax.microedition.khronos.opengles.GL11;
  */
 public interface ISceneRendererManager {
     interface GlSetupRunnable {
-        void run(GL11 gl, int width, int height);
+        void run(GL11 gl, int width, int height, float vangle);
     }
 
     interface GlOnDrawRunnable {
         void run(GL11 gl);
     }
 
-    ISceneRendererManager SetupGl(int width, int height);
+    ISceneRendererManager SetupGl(int width, int height, float vangle);
 
     ISceneRendererManager DrawingOn();
 

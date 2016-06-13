@@ -26,6 +26,7 @@ public class SceneRenderer implements GLSurfaceView.Renderer, ISceneRendererMana
     private final Object _syncBitmap = new Object();
 
     private volatile int _width = 0, _height = 1;
+    private volatile float _vangle = 45f;
     private volatile boolean _isNeedSetupGl = false;
     private volatile boolean _isDrawing = false;
     private volatile GlSurfaceHolder _glSurfaceHolder;
@@ -44,7 +45,7 @@ public class SceneRenderer implements GLSurfaceView.Renderer, ISceneRendererMana
     }
 
     @Override
-    public ISceneRendererManager SetupGl(int width, int height) {
+    public ISceneRendererManager SetupGl(int width, int height, float vangle) {
         _width = width;
         _height = (height > 0)? height : 1;
 
@@ -53,6 +54,7 @@ public class SceneRenderer implements GLSurfaceView.Renderer, ISceneRendererMana
         params.height = height;
         _glSurfaceHolder.getView().setLayoutParams(params);
 
+        _vangle = vangle;
         _isNeedSetupGl = true;
         return this;
     }
@@ -94,7 +96,7 @@ public class SceneRenderer implements GLSurfaceView.Renderer, ISceneRendererMana
         }
         if (_isNeedSetupGl) {
             if (_glSetupRunnable != null) {
-                _glSetupRunnable.run(gl, _width, _height);
+                _glSetupRunnable.run(gl, _width, _height, _vangle);
             }
             _bitmap = Bitmap.createBitmap(_width, _height, Bitmap.Config.ARGB_8888);
             _buffer = ByteBuffer.allocate(4*_width*_height).order(ByteOrder.nativeOrder());

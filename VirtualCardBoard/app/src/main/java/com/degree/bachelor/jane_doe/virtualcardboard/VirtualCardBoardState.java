@@ -78,12 +78,12 @@ public class VirtualCardBoardState {
 
     private void _EnableCamera() {
         BinocularView.BinocularInfo info = _binocularView.GetBinocularInfo();
-        //_cameraDemo.StartPreview(info.simpleViewWidth, info.simpleViewHeight);
-        //_scene.StartPreview(_cameraDemo.GetWidth(), _cameraDemo.GetHeight(), _cameraDemo.GetVerticalAngle());
-        //_binocularView.CalcAdaptedViews(_cameraDemo.GetWidth(), _cameraDemo.GetHeight());
+        _cameraDemo.StartPreview(info.simpleViewWidth, info.simpleViewHeight);
+        _scene.StartPreview(_cameraDemo.GetWidth(), _cameraDemo.GetHeight(), _cameraDemo.GetVerticalAngle());
+        _binocularView.CalcAdaptedViews(_cameraDemo.GetWidth(), _cameraDemo.GetHeight());
 
-        _scene.StartPreview(info.simpleViewWidth, info.simpleViewHeight, 90f);
-        _binocularView.CalcAdaptedViews(info.simpleViewWidth, info.simpleViewHeight);
+        //_scene.StartPreview(info.simpleViewWidth, info.simpleViewHeight, 90f);
+        //_binocularView.CalcAdaptedViews(info.simpleViewWidth, info.simpleViewHeight);
         _binocularInfo = _binocularView.GetBinocularInfo();
     }
 

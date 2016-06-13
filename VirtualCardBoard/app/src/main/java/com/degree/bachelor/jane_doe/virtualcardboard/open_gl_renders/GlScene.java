@@ -47,7 +47,7 @@ public class GlScene  {
 
     public void StartPreview(int width, int height, float fova) {
         //todo: fova
-        _glSurfaceHolder.getSceneRendererManager().SetupGl(width, height).DrawingOn();
+        _glSurfaceHolder.getSceneRendererManager().SetupGl(width, height, fova).DrawingOn();
         //_glSurfaceHolder.setRenderer(_renderer);
         _isStarted = true;
     }
@@ -64,13 +64,13 @@ public class GlScene  {
     private class _glSetupView implements ISceneRendererManager.GlSetupRunnable {
 
         @Override
-        public void run(GL11 gl, int width, int height) {
+        public void run(GL11 gl, int width, int height, float vangle) {
             gl.glViewport(0, 0, width, height);     //Reset The Current Viewport
             gl.glMatrixMode(GL11.GL_PROJECTION);    //Select The Projection Matrix
             gl.glLoadIdentity();                    //Reset The Projection Matrix
 
             //Calculate The Aspect Ratio Of The Window
-            GLU.gluPerspective(gl, 45.0f, (float)width / (float)height, 0.1f, 100.0f);
+            GLU.gluPerspective(gl, vangle, (float)width / (float)height, 0.1f, 100.0f);
 
             gl.glMatrixMode(GL11.GL_MODELVIEW);     //Select The Modelview Matrix
             gl.glLoadIdentity();                    //Reset The Modelview Matrix*/
@@ -178,53 +178,39 @@ public class GlScene  {
 
         @Override
         public void run(GL11 gl) {
-            int err;
             if (!_isTexInit) {
-                err = gl.glGetError();
                 gl.glEnable(GL11.GL_TEXTURE_2D);
-                err = gl.glGetError();
                 textures = new int[1];
                 gl.glGenTextures(1, textures, 0);
-                err = gl.glGetError();
                 mTextureId = textures[0];
 
                 gl.glBindTexture(GL11.GL_TEXTURE_2D, mTextureId);
-                err = gl.glGetError();
                 // Create Nearest Filtered Texture
                 gl.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER,
                         GL11.GL_LINEAR);
-                err = gl.glGetError();
                 gl.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER,
                         GL11.GL_LINEAR);
-                err = gl.glGetError();
 
                 // Different possible texture parameters, e.g. GL11.GL_CLAMP_TO_EDGE
                 gl.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
                         GL11.GL_CLAMP_TO_EDGE);
-                err = gl.glGetError();
                 gl.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
                         GL11.GL_CLAMP_TO_EDGE);
-                err = gl.glGetError();
 
-                gl.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-                err = gl.glGetError();
+                gl.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
                 // Use the Android GLUtils to specify a two-dimensional texture image
                 // from our bitmap
                 GLUtils.texImage2D(GL11.GL_TEXTURE_2D, 0, _algorithm, 0);
-                err = gl.glGetError();
                 gl.glFlush();
-                err = gl.glGetError();
 
                 _algorithm.recycle();
                 _isTexInit = true;
             }
             // clear Screen and Depth Buffer
             gl.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-            err = gl.glGetError();
 
             // Reset the Modelview Matrix
             gl.glLoadIdentity();
-            err = gl.glGetError();
             // Drawing
             //gl.glTranslatef(0.0f, 0.0f, -5.0f);     // move 5 units INTO the screen
             // is the same as moving the camera 5 units away
@@ -232,7 +218,6 @@ public class GlScene  {
 
             //}
             GLU.gluLookAt(gl, 0f, 0f, 0f, center[0], center[1], center[2], up[0], up[1], up[2]);
-            err = gl.glGetError();
 
 
 
@@ -243,27 +228,21 @@ public class GlScene  {
 
                 // Counter-clockwise winding.
                 gl.glFrontFace(GL11.GL_CCW);
-                err = gl.glGetError();
                 gl.glEnable(GL11.GL_CULL_FACE);
-                err = gl.glGetError();
                 gl.glCullFace(GL11.GL_BACK);
-                err = gl.glGetError();
                 gl.glEnable(GL11.GL_TEXTURE_2D);
-                err = gl.glGetError();
 
                 // Tell OpenGL to enable the use of UV coordinates.
                 gl.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-                err = gl.glGetError();
                 gl.glVertexPointer(3, GL11.GL_FLOAT, 0, vertexBuffer); //Important
-                err = gl.glGetError();
                 gl.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-                err = gl.glGetError();
                 gl.glTexCoordPointer(2, GL11.GL_FLOAT, 0, texBuffer); //Important
-                err = gl.glGetError();
 
 
                 gl.glBindTexture(GL11.GL_TEXTURE_2D, mTextureId);
-                gl.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+                gl.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+
+                gl.glColor4f(1f, 1f, 1f, 1f);
 
                 gl.glDrawElements(GL11.GL_TRIANGLES, totalPoints,
                         GL11.GL_UNSIGNED_SHORT, indexBuffer);
