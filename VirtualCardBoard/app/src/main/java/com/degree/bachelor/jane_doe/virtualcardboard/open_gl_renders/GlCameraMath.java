@@ -4,6 +4,7 @@ package com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders;
  * Created by Jane-Doe on 5/28/2016.
  */
 public class GlCameraMath {
+    private final float angle = 0.0872664625997166f;
     private float a, x0, y0, z0;
     public void SetUpCenter(float[] q0)
     {
@@ -44,12 +45,45 @@ public class GlCameraMath {
         y = jc*a + kc*x0 + pc*y0 - ic*z0;
         z = kc*a - jc*x0 + ic*y0 + pc*z0;
 
-        outCenter[0] = 2.0f * (x*z + y*w);
-        outCenter[1] = 2.0f * (y*z - x*w);
-        outCenter[2] = z*z + w*w - x*x - y*y;
+        float v1, v2, v3, r, p, _1p, obm, bm;
+        v1 = (2.0f * (x*z + y*w));
+        v2 = (2.0f * (y*z - x*w));
+        v3 = (z*z + w*w - x*x - y*y);
+        r = (outCenter[2] - v3)*(outCenter[2] - v3) + (outCenter[1] - v2)*(outCenter[1] - v2) + (outCenter[0] - v1)*(outCenter[0] - v1);
+        if (r > 0.00761f) {
+            obm = (float)(0.5f * (Math.PI - Math.acos(1 - 0.5*r)));
+            bm = (float)(Math.sin(angle)/Math.sin(angle + obm));
+            p = (float)(bm/Math.sqrt(r));
+            _1p = 1f-p;
+            v1 = v1 * _1p + p * outCenter[0];
+            v2 = v2 * _1p + p * outCenter[1];
+            v3 = v3 * _1p + p * outCenter[2];
+            r = (float)(Math.sqrt(v1*v1 + v2*v2 + v3*v3));
 
-        outUp[0] = w*w + x*x - y*y - z*z;
-        outUp[1] = 2f*x*y + 2f*w*z;
-        outUp[2] = -2f*w*y + 2f*x*z;
+            outCenter[0] = v1/r;
+            outCenter[1] = v2/r;
+            outCenter[2] = v3/r;
+        }
+
+        v1 = (w*w + x*x - y*y - z*z);
+        v2 = (2f*x*y + 2f*w*z);
+        v3 = (-2f*w*y + 2f*x*z);
+
+        r = (outUp[2] - v3)*(outUp[2] - v3) + (outUp[1] - v2)*(outUp[1] - v2) + (outUp[0] - v1)*(outUp[0] - v1);
+        if (r > 0.00761f) {
+            obm = (float)(0.5f * (Math.PI - Math.acos(1 - 0.5*r)));
+            bm = (float)(Math.sin(angle)/Math.sin(angle + obm));
+            p = (float)(bm/Math.sqrt(r));
+            _1p = 1f-p;
+            v1 = v1 * _1p + p * outUp[0];
+            v2 = v2 * _1p + p * outUp[1];
+            v3 = v3 * _1p + p * outUp[2];
+
+            r = (float)(Math.sqrt(v1*v1 + v2*v2 + v3*v3));
+
+            outUp[0] = v1/r;
+            outUp[1] = v2/r;
+            outUp[2] = v3/r;
+        }
     }
 }

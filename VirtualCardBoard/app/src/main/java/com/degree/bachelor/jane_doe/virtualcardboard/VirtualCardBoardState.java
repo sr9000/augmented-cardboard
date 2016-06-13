@@ -17,7 +17,8 @@ import com.degree.bachelor.jane_doe.virtualcardboard.open_gl_renders.GlSurfaceHo
  * Created by Jane-Doe on 5/25/2016.
  */
 public class VirtualCardBoardState {
-    private final float proportionFocusDistance = 2.0f/3.0f, proportionVerticalCoordinate = 0.5f;
+    private final float proportionFocusDistance = 2.0f/3.0f;
+    private final float proportionVerticalCoordinate = 0.5f;
 
     private View _view;
     private Context _context;
@@ -77,9 +78,12 @@ public class VirtualCardBoardState {
 
     private void _EnableCamera() {
         BinocularView.BinocularInfo info = _binocularView.GetBinocularInfo();
-        _cameraDemo.StartPreview(info.simpleViewWidth, info.simpleViewHeight);
-        _scene.StartPreview(_cameraDemo.GetWidth(), _cameraDemo.GetHeight(), _cameraDemo.GetVerticalAngle());
-        _binocularView.CalcAdaptedViews(_cameraDemo.GetWidth(), _cameraDemo.GetHeight());
+        //_cameraDemo.StartPreview(info.simpleViewWidth, info.simpleViewHeight);
+        //_scene.StartPreview(_cameraDemo.GetWidth(), _cameraDemo.GetHeight(), _cameraDemo.GetVerticalAngle());
+        //_binocularView.CalcAdaptedViews(_cameraDemo.GetWidth(), _cameraDemo.GetHeight());
+
+        _scene.StartPreview(info.simpleViewWidth, info.simpleViewHeight, 90f);
+        _binocularView.CalcAdaptedViews(info.simpleViewWidth, info.simpleViewHeight);
         _binocularInfo = _binocularView.GetBinocularInfo();
     }
 
@@ -105,7 +109,7 @@ public class VirtualCardBoardState {
         int verticalCoordinate = ((int) (height * proportionVerticalCoordinate));
 
         _binocularView.SetDisplaySizes(width, height);
-        _binocularView.SetCustomBinocularParams(focusDistance, verticalCoordinate, width, height);
+        //_binocularView.SetCustomBinocularParams(focusDistance, verticalCoordinate, width, height);
         _binocularInfo = _binocularView.GetBinocularInfo();
 
         synchronized (_syncMode) {

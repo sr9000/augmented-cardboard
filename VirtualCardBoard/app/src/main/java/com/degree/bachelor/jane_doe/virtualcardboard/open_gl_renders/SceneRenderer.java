@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import java.nio.Buffer;
@@ -12,6 +13,7 @@ import java.nio.ByteOrder;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.opengles.GL11;
 
 /**
  * Created by Jane-Doe on 5/28/2016.
@@ -85,7 +87,11 @@ public class SceneRenderer implements GLSurfaceView.Renderer, ISceneRendererMana
     }
 
     @Override
-    public void onDrawFrame(GL10 gl) {
+    public void onDrawFrame(GL10 _gl) {
+        GL11 gl = _gl instanceof GL11 ? ((GL11) _gl) : null;
+        if (gl == null) {
+            return;
+        }
         if (_isNeedSetupGl) {
             if (_glSetupRunnable != null) {
                 _glSetupRunnable.run(gl, _width, _height);
@@ -98,6 +104,7 @@ public class SceneRenderer implements GLSurfaceView.Renderer, ISceneRendererMana
         if (_isDrawing && _glOnDrawRunnable != null) {
             _glOnDrawRunnable.run(gl);
 
+            _buffer.position(0);
             gl.glReadPixels(0, 0, _width, _height , GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, _buffer);
             _bitmap.copyPixelsFromBuffer(_buffer);
         }

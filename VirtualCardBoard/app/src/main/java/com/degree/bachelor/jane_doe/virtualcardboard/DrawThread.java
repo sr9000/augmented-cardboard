@@ -113,39 +113,41 @@ public class DrawThread extends PausableThread {
                         break;
                     }
                     case Pic: {
-                        if (!cameraDemo.IsStarted()) break;
                         GlScene scene = _virtualCardBoardState.GetGlScene();
-                        if (!scene.IsStarted()) break;
 
                         canvas = _surfaceHolder.lockCanvas();
                         if (canvas == null) break;
                         canvas.drawColor(Color.BLACK);
 
                         Bitmap captured = null;
-                        captured = cameraDemo.GetCapturedBitmap();
-                        if (captured == null) break;
 
-                        canvas.drawBitmap(captured
-                                , binocularInfo.adaptedLeftViewFrom
-                                , binocularInfo.adaptedLeftViewWhere
-                                , null);
-                        canvas.drawBitmap(captured
-                                , binocularInfo.adaptedRightViewFrom
-                                , binocularInfo.adaptedRightViewWhere
-                                , null);
+                        if (cameraDemo.IsStarted()) {
+                            captured = cameraDemo.GetCapturedBitmap();
+                            if (captured != null) {
+                                canvas.drawBitmap(captured
+                                        , binocularInfo.adaptedLeftViewFrom
+                                        , binocularInfo.adaptedLeftViewWhere
+                                        , null);
+                                canvas.drawBitmap(captured
+                                        , binocularInfo.adaptedRightViewFrom
+                                        , binocularInfo.adaptedRightViewWhere
+                                        , null);
+                            }
+                        }
 
-                        captured = scene.GetRenderedBitmap();
-                        if (captured == null) break;
-
-                        canvas.drawBitmap(captured
-                                , binocularInfo.adaptedLeftViewFrom
-                                , binocularInfo.adaptedLeftViewWhere
-                                , _blend);
-                        canvas.drawBitmap(captured
-                                , binocularInfo.adaptedRightViewFrom
-                                , binocularInfo.adaptedRightViewWhere
-                                , _blend);
-
+                        if (scene.IsStarted()) {
+                            captured = scene.GetRenderedBitmap();
+                            if (captured != null) {
+                                canvas.drawBitmap(captured
+                                        , binocularInfo.adaptedLeftViewFrom
+                                        , binocularInfo.adaptedLeftViewWhere
+                                        , _blend);
+                                canvas.drawBitmap(captured
+                                        , binocularInfo.adaptedRightViewFrom
+                                        , binocularInfo.adaptedRightViewWhere
+                                        , _blend);
+                            }
+                        }
                         break;
                     }
                 }
